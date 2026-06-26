@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Databricks DE Associate — Intern Study Hub</title>
+<style>
+  :root{
+    --bg:#f4f6fa;--card:#fff;--ink:#1c2230;--muted:#5f6b7c;--line:#e6e9f0;
+    --brand:#ff5f3a;--brand2:#e8442a;--navy:#1b2540;--accent:#2f56d6;
+    --ok:#13864f;--okbg:#e8f8ef;--amber:#9a6b00;--amberbg:#fff4df;--red:#c0392b;--redbg:#fdecea;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,sans-serif;font-size:14.5px;line-height:1.55;}
+  .app{display:flex;min-height:100vh;}
+  /* sidebar */
+  .side{width:250px;flex:none;background:var(--navy);color:#cdd5e6;position:sticky;top:0;height:100vh;overflow:auto;padding-bottom:24px;}
+  .side .top{padding:20px 20px 14px;}
+  .side .badge{display:inline-flex;align-items:center;gap:8px;font-weight:800;color:#fff;font-size:15px;letter-spacing:.3px;}
+  .dot{width:22px;height:22px;border-radius:6px;background:linear-gradient(135deg,var(--brand),var(--brand2));flex:none;}
+  .side .tagline{font-size:12px;color:#8b97b5;margin-top:6px;}
+  .nav{margin-top:8px;}
+  .nav a{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:11px 20px;color:#cdd5e6;text-decoration:none;font-size:13.7px;font-weight:600;cursor:pointer;border-left:3px solid transparent;}
+  .nav a:hover{background:rgba(255,255,255,.05);color:#fff;}
+  .nav a.on{background:rgba(255,95,58,.14);border-left-color:var(--brand);color:#fff;}
+  .nav a .pct{font-size:11px;color:#8b97b5;font-weight:700;}
+  .nav a.on .pct{color:#ffb9a6;}
+  .nav .grouplbl{font-size:10.5px;font-weight:800;letter-spacing:1.3px;color:#6b779b;padding:16px 20px 5px;}
+  /* main */
+  .main{flex:1;min-width:0;}
+  .wrap{max-width:880px;margin:0 auto;padding:34px 36px 90px;}
+  h1{font-size:27px;margin:0 0 4px;}
+  h2{font-size:20px;margin:30px 0 6px;}
+  h3{font-size:15.5px;margin:20px 0 6px;}
+  p{margin:9px 0;}
+  .lead{color:var(--muted);font-size:15px;}
+  .facts{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0 6px;}
+  .fact{background:#fff;border:1px solid var(--line);border-radius:11px;padding:10px 14px;font-size:13px;}
+  .fact b{display:block;font-size:17px;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 22px;margin:16px 0;}
+  .kicker{color:var(--brand2);font-size:12px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;}
+  .obj{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--line);cursor:pointer;}
+  .obj:first-child{border-top:none;}
+  .obj input{margin-top:3px;width:16px;height:16px;flex:none;accent-color:var(--ok);}
+  .obj label{cursor:pointer;font-size:13.8px;}
+  .obj.done label{color:var(--muted);text-decoration:line-through;}
+  .notes p{font-size:14px;}
+  .notes ul{margin:6px 0 10px 18px;} .notes li{margin:5px 0;font-size:14px;}
+  code{background:#eef1f6;border-radius:5px;padding:1px 6px;font-size:12.7px;font-family:"SFMono-Regular",Menlo,Consolas,monospace;}
+  pre{background:#141a2b;color:#d7deee;border-radius:10px;padding:12px 14px;font-size:12.7px;overflow:auto;font-family:"SFMono-Regular",Menlo,Consolas,monospace;line-height:1.5;}
+  .vids{display:flex;flex-direction:column;gap:8px;}
+  .vid{display:flex;align-items:center;gap:11px;border:1px solid var(--line);border-radius:10px;padding:10px 13px;text-decoration:none;color:var(--ink);background:#fff;}
+  .vid:hover{border-color:var(--brand);background:#fff7f5;}
+  .play{width:30px;height:30px;border-radius:8px;background:#fff0ec;color:var(--brand2);display:flex;align-items:center;justify-content:center;flex:none;font-size:13px;}
+  .vid .t{font-weight:600;font-size:13.7px;} .vid .s{font-size:11.5px;color:var(--muted);}
+  /* quiz */
+  .q{border:1px solid var(--line);border-radius:12px;padding:15px 17px;margin:13px 0;background:#fff;}
+  .q .qn{font-weight:700;font-size:14.3px;margin-bottom:4px;}
+  .q .obj-tag{font-size:11px;color:var(--muted);margin-bottom:9px;}
+  .opt{display:block;border:1px solid var(--line);border-radius:9px;padding:9px 12px;margin:7px 0;font-size:13.7px;cursor:pointer;transition:.12s;}
+  .opt:hover{border-color:#c5cfe6;background:#f7f9ff;}
+  .opt.correct{border-color:#9fdcbb;background:var(--okbg);}
+  .opt.wrong{border-color:#f2b9b1;background:var(--redbg);}
+  .opt.dim{opacity:.6;}
+  .expl{margin-top:9px;font-size:13px;background:#f6f8fc;border-left:3px solid var(--accent);border-radius:6px;padding:9px 12px;display:none;}
+  .expl.show{display:block;}
+  .askt{display:inline-block;margin-top:8px;font-size:12px;color:var(--accent);cursor:pointer;font-weight:700;text-decoration:none;}
+  .askt:hover{text-decoration:underline;}
+  .scorebar{display:flex;align-items:center;gap:12px;margin:6px 0 14px;flex-wrap:wrap;}
+  .btn{border:none;border-radius:9px;padding:9px 16px;font-size:13.5px;font-weight:700;cursor:pointer;}
+  .btn.brand{background:var(--brand);color:#fff;} .btn.brand:hover{background:var(--brand2);}
+  .btn.ghost{background:#fff;border:1px solid var(--line);color:var(--ink);}
+  .btn:disabled{opacity:.5;cursor:not-allowed;}
+  .pillbig{font-size:13px;font-weight:800;background:var(--okbg);color:var(--ok);padding:5px 12px;border-radius:999px;}
+  .res a{display:block;padding:9px 0;border-top:1px solid var(--line);text-decoration:none;color:var(--accent);font-weight:600;font-size:14px;}
+  .res a:first-child{border-top:none;}
+  .res a span{color:var(--muted);font-weight:400;font-size:12.5px;display:block;}
+  .ring{--p:0;width:46px;height:46px;border-radius:50%;background:conic-gradient(var(--ok) calc(var(--p)*1%),#e6e9f0 0);display:flex;align-items:center;justify-content:center;flex:none;}
+  .ring i{width:36px;height:36px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;font-style:normal;color:var(--ink);}
+  .note{background:var(--amberbg);border:1px solid #f0dcab;color:var(--amber);border-radius:11px;padding:11px 15px;font-size:13.3px;margin:14px 0;}
+  .reset{font-size:12px;color:var(--muted);cursor:pointer;text-decoration:underline;}
+
+  /* ===== Feed-the-Duck XP widget (fixed, on every screen) ===== */
+  .duck{position:fixed;top:14px;right:16px;z-index:60;background:#fff;border:1px solid var(--line);border-radius:14px;
+        box-shadow:0 6px 22px rgba(20,30,60,.13);padding:10px 13px;display:flex;align-items:center;gap:11px;min-width:212px;}
+  .duck .face{font-size:30px;line-height:1;filter:drop-shadow(0 2px 2px rgba(0,0,0,.12));transition:transform .18s;}
+  .duck.eat .face{animation:nom .5s ease;}
+  @keyframes nom{0%{transform:scale(1)}30%{transform:scale(1.28) rotate(-8deg)}60%{transform:scale(.92)}100%{transform:scale(1)}}
+  .duck .lv{font-size:11px;font-weight:800;color:var(--navy);}
+  .duck .xpbar{height:7px;background:#eef1f6;border-radius:99px;overflow:hidden;margin:4px 0 3px;}
+  .duck .xpfill{height:100%;width:0;background:linear-gradient(90deg,var(--brand),var(--brand2));transition:width .4s;}
+  .duck .sub{font-size:10.5px;color:var(--muted);}
+  .duck .flame{font-size:11px;font-weight:800;color:var(--brand2);}
+  .crumb{position:fixed;z-index:61;font-size:15px;pointer-events:none;animation:fall .6s ease forwards;}
+  @keyframes fall{0%{opacity:1;transform:translateY(-6px) scale(1)}100%{opacity:0;transform:translateY(26px) scale(.6)}}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:600;z-index:80;box-shadow:0 8px 24px rgba(0,0,0,.25);opacity:0;transition:opacity .25s,transform .25s;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(-4px);}
+
+  /* ===== Flashcards ===== */
+  .flash{perspective:1200px;margin:14px 0;}
+  .fcard{position:relative;height:230px;cursor:pointer;}
+  .fc-inner{position:absolute;inset:0;transition:transform .5s;transform-style:preserve-3d;}
+  .fcard.flip .fc-inner{transform:rotateY(180deg);}
+  .fc-face{position:absolute;inset:0;backface-visibility:hidden;border:1px solid var(--line);border-radius:16px;background:#fff;
+           display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:26px;box-shadow:0 3px 12px rgba(20,30,60,.06);}
+  .fc-back{transform:rotateY(180deg);background:#fbfcff;}
+  .fc-face .lbl{position:absolute;top:12px;left:16px;font-size:10.5px;letter-spacing:1.2px;font-weight:800;color:var(--muted);text-transform:uppercase;}
+  .fc-face .term{font-size:22px;font-weight:800;color:var(--navy);}
+  .fc-face .def{font-size:15px;color:var(--ink);line-height:1.5;}
+  .fc-face .hintflip{position:absolute;bottom:12px;font-size:11.5px;color:var(--muted);}
+  .srs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px;}
+  .srs button{border-radius:10px;padding:11px 6px;font-weight:800;font-size:13px;border:1px solid var(--line);cursor:pointer;color:#fff;}
+  .srs .again{background:#c0392b;} .srs .hard{background:#d98a00;} .srs .good{background:#2f56d6;} .srs .easy{background:#13864f;}
+  .srs small{display:block;font-weight:600;font-size:10px;opacity:.9;}
+
+  /* ===== Jeopardy ===== */
+  .jboard{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:14px 0;}
+  .jcat{background:var(--navy);color:#fff;border-radius:9px;padding:10px 8px;font-size:11.5px;font-weight:800;text-align:center;min-height:54px;display:flex;align-items:center;justify-content:center;line-height:1.25;}
+  .jtile{background:linear-gradient(135deg,#2f56d6,#1e3aa8);color:#ffd56b;border:none;border-radius:9px;padding:16px 4px;font-size:18px;font-weight:900;cursor:pointer;transition:.12s;}
+  .jtile:hover{filter:brightness(1.12);transform:translateY(-1px);}
+  .jtile.solved{background:#e6e9f0;color:#aab2c4;cursor:default;transform:none;filter:none;}
+  .modal{position:fixed;inset:0;background:rgba(15,20,38,.55);display:flex;align-items:center;justify-content:center;z-index:70;padding:18px;}
+  .modal .box{background:#fff;border-radius:16px;max-width:560px;width:100%;padding:22px 24px;box-shadow:0 18px 50px rgba(0,0,0,.3);}
+
+  /* ===== Fill in the blank ===== */
+  .fb-prompt{font-size:16px;background:#141a2b;color:#d7deee;border-radius:12px;padding:16px 18px;font-family:"SFMono-Regular",Menlo,Consolas,monospace;line-height:1.7;}
+  .fb-prompt.concept{background:#fff;color:var(--ink);border:1px solid var(--line);font-family:inherit;font-size:16px;}
+  .fb-input{width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:10px;font-size:15px;margin:12px 0;}
+  .fb-input:focus{outline:none;border-color:var(--accent);}
+  .fb-fb{border-radius:10px;padding:11px 14px;font-size:13.5px;margin-top:6px;display:none;}
+  .fb-fb.show{display:block;}
+  .fb-fb.ok{background:var(--okbg);color:var(--ok);border:1px solid #9fdcbb;}
+  .fb-fb.no{background:var(--redbg);color:var(--red);border:1px solid #f2b9b1;}
+
+  /* ===== AI tutor chip + panel ===== */
+  .aichip{position:fixed;bottom:18px;right:18px;z-index:62;background:var(--navy);color:#fff;border:none;border-radius:999px;
+          padding:11px 17px;font-size:13.5px;font-weight:800;cursor:pointer;box-shadow:0 8px 22px rgba(20,30,60,.28);display:flex;align-items:center;gap:8px;}
+  .aichip:hover{background:#26314f;}
+  .aipanel{position:fixed;bottom:70px;right:18px;width:330px;max-width:calc(100vw - 36px);z-index:62;background:#fff;border:1px solid var(--line);
+           border-radius:16px;box-shadow:0 18px 50px rgba(0,0,0,.22);padding:16px 18px;display:none;}
+  .aipanel.show{display:block;}
+  .aipanel h4{margin:0 0 6px;font-size:15px;}
+  .aipanel p{font-size:13px;color:var(--muted);margin:7px 0;}
+  .aipanel .close{position:absolute;top:10px;right:14px;cursor:pointer;color:var(--muted);font-weight:800;}
+
+  @media(max-width:760px){.side{display:none;} .duck{top:8px;right:8px;min-width:0;padding:7px 9px;} .jboard{font-size:9px;}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="top">
+      <div class="badge"><span class="dot"></span> Study Hub</div>
+      <div class="tagline">Databricks Certified<br>Data Engineer — Associate</div>
+    </div>
+    <nav class="nav" id="nav">
+      <a data-v="overview" class="on">Overview <span class="pct"></span></a>
+      <div class="grouplbl">EXAM SECTIONS</div>
+      <!-- section links injected -->
+      <div class="grouplbl">PRACTICE</div>
+      <a data-v="mock">Mock exam <span class="pct"></span></a>
+      <a data-v="flash">Flashcards <span class="pct" id="pct-flash"></span></a>
+      <div class="grouplbl">PLAY</div>
+      <a data-v="jeopardy">🎯 Jeopardy</a>
+      <a data-v="fillblank">⌨️ Fill the blank</a>
+      <div class="grouplbl">MORE</div>
+      <a data-v="resources">Resources</a>
+    </nav>
+  </aside>
+
+  <div class="main"><div class="wrap" id="view"></div></div>
+</div>
+
+<!-- Feed-the-Duck XP widget -->
+<div class="duck" id="duck" title="Feed your duck by answering correctly!">
+  <div class="face" id="duckFace">🐣</div>
+  <div style="flex:1">
+    <div class="lv"><span id="duckLv">Hatchling</span> · <span id="duckXp">0</span> XP</div>
+    <div class="xpbar"><div class="xpfill" id="duckFill"></div></div>
+    <div class="sub"><span id="duckNext"></span> &nbsp;·&nbsp; <span class="flame" id="duckStreak">🔥 0</span></div>
+  </div>
+</div>
+
+<!-- AI tutor chip + info panel -->
+<button class="aichip" id="aichip">🤖 AI Tutor</button>
+<div class="aipanel" id="aipanel">
+  <span class="close" id="aiclose">✕</span>
+  <h4>🤖 AI Study Tutor</h4>
+  <div id="aibody"></div>
+</div>
+
+<script>
+/* =========================================================================
+   CONTENT  (single source of truth = content.json, mirrors the official
+   Databricks exam guide, July 25 2025 version). Quiz questions are ORIGINAL,
+   written to match the stated objectives. Flashcards & fill-in-the-blank
+   answers are derived directly from these section notes — no invented facts.
+   ========================================================================= */
+var CONTENT = __CONTENT_JSON__;
+var EXAM = CONTENT;
+
+/* ============================ STATE =================================== */
+var LS="dbx-de-study-v2";
+function load(){ try{return JSON.parse(localStorage.getItem(LS)||"{}");}catch(e){return {};} }
+function save(s){ try{localStorage.setItem(LS,JSON.stringify(s));}catch(e){} }
+var state=load();
+state.objDone=state.objDone||{};
+state.quiz=state.quiz||{};            // quiz[secId]={best,total}
+state.xp=state.xp||0;
+state.maxStreak=state.maxStreak||0;
+state.srs=state.srs||{};              // srs[cardKey]={box,due,reps}
+state.games=state.games||{};
+state.games.jeopardy=state.games.jeopardy||{solved:{}};
+state.games.fillblank=state.games.fillblank||{best:0};
+state.name=state.name||"";
+function esc(s){return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function ytLink(q){return "https://www.youtube.com/results?search_query="+encodeURIComponent(q);}
+function toast(msg){var t=document.createElement("div");t.className="toast";t.textContent=msg;document.body.appendChild(t);
+  requestAnimationFrame(function(){t.classList.add("show");});setTimeout(function(){t.classList.remove("show");setTimeout(function(){t.remove();},300);},1900);}
+
+/* ============================ FEED THE DUCK =========================== */
+var LEVELS=[
+  {min:0,name:"Duckling",emoji:"🥚"},
+  {min:60,name:"Hatchling",emoji:"🐣"},
+  {min:160,name:"Fuzzy Chick",emoji:"🐤"},
+  {min:320,name:"Junior Duck",emoji:"🐥"},
+  {min:560,name:"Lake Duck",emoji:"🦆"},
+  {min:900,name:"Pro Mallard",emoji:"🦆"},
+  {min:1400,name:"Data Duck 👑",emoji:"🦆"}
+];
+var streak=0;
+function levelFor(xp){var L=LEVELS[0];for(var i=0;i<LEVELS.length;i++){if(xp>=LEVELS[i].min)L=LEVELS[i];}return L;}
+function nextLevel(xp){for(var i=0;i<LEVELS.length;i++){if(LEVELS[i].min>xp)return LEVELS[i];}return null;}
+var Duck={
+  render:function(){
+    var xp=state.xp, L=levelFor(xp), N=nextLevel(xp);
+    document.getElementById("duckFace").textContent=L.emoji;
+    document.getElementById("duckLv").textContent=L.name;
+    document.getElementById("duckXp").textContent=xp;
+    var fill, sub;
+    if(N){var span=N.min-L.min, into=xp-L.min; fill=Math.round(into/span*100); sub=(N.min-xp)+" XP → "+N.name;}
+    else{fill=100; sub="Max level!";}
+    document.getElementById("duckFill").style.width=fill+"%";
+    document.getElementById("duckNext").textContent=sub;
+    document.getElementById("duckStreak").textContent="🔥 "+streak;
+  },
+  feed:function(xp,correct){
+    if(correct){
+      streak++; if(streak>state.maxStreak)state.maxStreak=streak;
+      if(streak%5===0){xp+=25; toast("🔥 "+streak+" streak! +25 bonus XP");}
+    } else { streak=0; }
+    if(xp>0){
+      var before=levelFor(state.xp).name;
+      state.xp+=xp; save(state);
+      var d=document.getElementById("duck"); d.classList.remove("eat"); void d.offsetWidth; d.classList.add("eat");
+      crumbs();
+      var after=levelFor(state.xp).name;
+      if(after!==before) toast("⬆️ Level up! Your duck is now a "+after);
+    } else { save(state); }
+    Duck.render();
+  }
+};
+function crumbs(){
+  var d=document.getElementById("duck").getBoundingClientRect();
+  for(var i=0;i<4;i++){(function(i){setTimeout(function(){
+    var c=document.createElement("div");c.className="crumb";c.textContent=["🌾","🍞","✨","🌾"][i%4];
+    c.style.left=(d.left+18+Math.random()*30)+"px";c.style.top=(d.top+30)+"px";
+    document.body.appendChild(c);setTimeout(function(){c.remove();},650);
+  },i*70);})(i);}
+}
+
+/* ============================ NAV / ROUTER ============================ */
+(function(){
+  var nav=document.getElementById("nav");
+  var anchor=nav.querySelectorAll(".grouplbl")[0];
+  EXAM.sections.forEach(function(s){
+    var a=document.createElement("a"); a.dataset.v=s.id;
+    a.innerHTML='<span>'+s.title+'</span><span class="pct" id="pct-'+s.id+'"></span>';
+    anchor.after(a); anchor=a;
+  });
+  nav.addEventListener("click",function(e){var a=e.target.closest("a");if(!a)return;go(a.dataset.v);});
+})();
+
+function secObjPct(sec){
+  var done=sec.objectives.filter(function(_,i){return state.objDone[sec.id+":"+i];}).length;
+  return Math.round(done/sec.objectives.length*100);
+}
+function overallPct(){
+  var tot=0,done=0;
+  EXAM.sections.forEach(function(s){tot+=s.objectives.length;done+=s.objectives.filter(function(_,i){return state.objDone[s.id+":"+i];}).length;});
+  return tot?Math.round(done/tot*100):0;
+}
+function allCards(){var a=[];EXAM.sections.forEach(function(s){(s.flashcards||[]).forEach(function(c,i){a.push({key:s.id+":"+i,sec:s,card:c});});});return a;}
+function cardsLearned(){return allCards().filter(function(x){var r=state.srs[x.key];return r&&r.box>=4;}).length;}
+function flashPct(){var t=allCards().length;return t?Math.round(cardsLearned()/t*100):0;}
+
+function setNav(v){document.querySelectorAll("#nav a").forEach(function(a){a.classList.toggle("on",a.dataset.v===v);});}
+function refreshPcts(){
+  EXAM.sections.forEach(function(s){var el=document.getElementById("pct-"+s.id);if(el)el.textContent=secObjPct(s)+"%";});
+  var ov=document.querySelector('#nav a[data-v="overview"] .pct'); if(ov)ov.textContent=overallPct()+"%";
+  var fp=document.getElementById("pct-flash"); if(fp)fp.textContent=flashPct()+"%";
+}
+
+function go(v){
+  setNav(v);
+  state.view=v; save(state);
+  var V=document.getElementById("view");
+  if(v==="overview")V.innerHTML=overviewHTML();
+  else if(v==="resources")V.innerHTML=resourcesHTML();
+  else if(v==="mock")V.innerHTML=mockHTML();
+  else if(v==="flash"){renderFlash();return;}
+  else if(v==="jeopardy"){renderJeopardy();return;}
+  else if(v==="fillblank"){renderFillblank();return;}
+  else { var sec=EXAM.sections.find(function(s){return s.id===v;}); if(!sec){go("overview");return;} V.innerHTML=sectionHTML(sec); wireSection(sec); }
+  wireQuizzes();
+  refreshPcts();
+  window.scrollTo(0,0);
+}
+
+/* ============================ OVERVIEW =============================== */
+function overviewHTML(){
+  var facts=EXAM.facts.map(function(f){return '<div class="fact"><b>'+f[0]+'</b>'+f[1]+'</div>';}).join("");
+  var cards=EXAM.sections.map(function(s){
+    return '<div class="obj" style="cursor:default;border-color:transparent">'+
+      '<div class="ring" style="--p:'+secObjPct(s)+'"><i>'+secObjPct(s)+'</i></div>'+
+      '<div style="flex:1"><div style="font-weight:700;cursor:pointer;color:#2f56d6" onclick="go(\''+s.id+'\')">'+s.title+'</div>'+
+      '<div style="font-size:12.5px;color:#5f6b7c">'+s.weightHint+'</div></div></div>';
+  }).join("");
+  var L=levelFor(state.xp);
+  return '<h1>Databricks Data Engineer — Associate</h1>'+
+    '<p class="lead">A shared study hub for the interns. Work section by section: read the notes, watch a video, take the quiz, drill flashcards, and play a game. Answer correctly to feed your duck 🦆. Your progress saves in this browser.</p>'+
+    '<div class="facts">'+facts+'</div>'+
+    '<div class="note">*The pass mark isn\'t officially published; ~70% is a safe target. The exam is 45 scored multiple-choice questions in 90 minutes ('+esc(EXAM.meta.outlineVersion)+' version).</div>'+
+    '<div class="card"><div class="kicker">Your duck &amp; progress</div>'+
+      '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin:10px 0 4px">'+
+      '<div style="font-size:42px">'+L.emoji+'</div>'+
+      '<div><b>'+esc(L.name)+'</b> · '+state.xp+' XP · best streak 🔥 '+state.maxStreak+'<br>'+
+      '<span style="color:#5f6b7c;font-size:13px">'+overallPct()+'% objectives learned · '+flashPct()+'% flashcards mastered</span><br>'+
+      '<span class="reset" onclick="resetAll()">reset all progress</span></div></div></div>'+
+    '<div class="card"><div class="kicker">The 5 exam sections</div>'+cards+'</div>'+
+    '<div class="card"><div class="kicker">Display name (for the leaderboard, later)</div>'+
+      '<p class="lead" style="margin:8px 0">Each intern\'s progress is saved on their own machine for now. A shared leaderboard can be switched on later (see the README).</p>'+
+      '<input class="fb-input" id="nameIn" placeholder="e.g. Devika" value="'+esc(state.name)+'" style="max-width:280px" oninput="state.name=this.value;save(state);"></div>'+
+    '<p style="font-size:12.5px;color:#5f6b7c">Quizzes here are <b>original</b> practice written to match the official objectives — for more, the team also uses <a href="https://www.certsafari.com/databricks/data-engineer-associate" target="_blank">CertSafari</a>. Always confirm topics against the <a href="'+EXAM.meta.officialGuide+'" target="_blank">official exam guide</a>.</p>';
+}
+
+/* ============================ SECTION =============================== */
+function sectionHTML(sec){
+  var objs=sec.objectives.map(function(o,i){
+    var on=!!state.objDone[sec.id+":"+i];
+    return '<div class="obj '+(on?'done':'')+'" data-oi="'+i+'"><input type="checkbox" '+(on?'checked':'')+'><label>'+esc(o)+'</label></div>';
+  }).join("");
+  var vids=sec.videos.map(function(v){
+    return '<a class="vid" href="'+ytLink(v[2])+'" target="_blank"><span class="play">▶</span><span><span class="t">'+esc(v[0])+'</span><span class="s">'+esc(v[1])+' · opens a YouTube search</span></span></a>';
+  }).join("");
+  return '<h1>'+esc(sec.title)+'</h1><p class="lead">'+esc(sec.weightHint)+'</p>'+
+    '<div class="card"><div class="kicker">Objectives — tick when confident</div>'+objs+'</div>'+
+    '<div class="card notes"><div class="kicker">Study notes</div>'+sec.notes+'</div>'+
+    '<div class="card"><div class="kicker">Watch</div><div class="vids">'+vids+'</div><p style="font-size:12px;color:#5f6b7c;margin:10px 0 0">Links open a YouTube search so they stay current — pick a recent, highly-viewed result.</p></div>'+
+    '<div class="card"><div class="kicker">Quiz</div>'+quizHTML(sec.id,sec.quiz)+'</div>';
+}
+
+function quizHTML(secId,qs){
+  var saved=state.quiz[secId];
+  var head='<div class="scorebar"><span id="sc-'+secId+'" class="pillbig">'+(saved?('Best: '+saved.best+'/'+saved.total):'Not attempted')+'</span><button class="btn ghost" onclick="resetQuiz(\''+secId+'\')">Reset quiz</button></div>';
+  var body=qs.map(function(q,qi){
+    var opts=q.opts.map(function(o,oi){return '<div class="opt" data-q="'+qi+'" data-o="'+oi+'">'+String.fromCharCode(65+oi)+'. '+esc(o)+'</div>';}).join("");
+    return '<div class="q" data-secid="'+secId+'" data-ans="'+q.a+'" data-qi="'+qi+'"><div class="qn">'+(qi+1)+'. '+esc(q.q)+'</div><div class="obj-tag">Objective: '+esc(q.obj)+'</div>'+opts+
+      '<div class="expl" id="ex-'+secId+'-'+qi+'"><b>Answer: '+String.fromCharCode(65+q.a)+'.</b> '+esc(q.e)+
+      '<br><a class="askt" onclick="askTutorAbout('+JSON.stringify(secId)+','+qi+')">🤖 Explain this with the AI Tutor</a></div></div>';
+  }).join("");
+  return head+body;
+}
+
+function wireSection(sec){
+  document.querySelectorAll(".obj[data-oi]").forEach(function(row){
+    row.addEventListener("click",function(e){
+      var i=row.dataset.oi, key=sec.id+":"+i;
+      var box=row.querySelector("input");
+      if(e.target!==box) box.checked=!box.checked;
+      state.objDone[key]=box.checked; row.classList.toggle("done",box.checked);
+      save(state); refreshPcts();
+    });
+  });
+}
+
+function wireQuizzes(){
+  document.querySelectorAll(".q").forEach(function(qel){
+    qel.querySelectorAll(".opt").forEach(function(opt){
+      opt.addEventListener("click",function(){
+        if(qel.dataset.answered)return;
+        qel.dataset.answered="1";
+        var ans=parseInt(qel.dataset.ans,10), pick=parseInt(opt.dataset.o,10);
+        qel.querySelectorAll(".opt").forEach(function(o){
+          var oi=parseInt(o.dataset.o,10);
+          if(oi===ans)o.classList.add("correct");
+          else if(oi===pick)o.classList.add("wrong");
+          else o.classList.add("dim");
+        });
+        document.getElementById("ex-"+qel.dataset.secid+"-"+qel.dataset.qi).classList.add("show");
+        Duck.feed(pick===ans?10:0, pick===ans);
+        tallyQuiz(qel.dataset.secid);
+      });
+    });
+  });
+}
+
+function tallyQuiz(secId){
+  var qs=document.querySelectorAll('.q[data-secid="'+secId+'"]');
+  var answered=0,correct=0;
+  qs.forEach(function(q){
+    if(!q.dataset.answered)return;
+    answered++;
+    if(!q.querySelector(".opt.wrong"))correct++;
+  });
+  var sc=document.getElementById("sc-"+secId);
+  if(answered<qs.length){ if(sc)sc.textContent=answered+" / "+qs.length+" answered"; return; }
+  if(secId==="mock"){ if(sc)sc.textContent="Score: "+correct+"/"+qs.length; return; }
+  state.quiz[secId]={best:Math.max(correct,(state.quiz[secId]||{}).best||0),total:qs.length,last:correct};
+  save(state);
+  if(sc)sc.textContent="Score: "+correct+"/"+qs.length+(state.quiz[secId].best>correct?" (best "+state.quiz[secId].best+")":"");
+}
+
+function resetQuiz(secId){ delete state.quiz[secId]; save(state); var sec=EXAM.sections.find(function(s){return s.id===secId;}); if(sec){go(secId);} }
+function resetAll(){ if(confirm("Reset ALL progress, XP, streak, flashcards and game scores?")){
+  state={objDone:{},quiz:{},xp:0,maxStreak:0,srs:{},games:{jeopardy:{solved:{}},fillblank:{best:0}},name:state.name};
+  streak=0; save(state); Duck.render(); go("overview"); } }
+
+/* ============================ MOCK EXAM ============================= */
+function mockHTML(){
+  var pool=[]; EXAM.sections.forEach(function(s){s.quiz.forEach(function(q){pool.push({s:s.id,q:q});});});
+  for(var i=pool.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=pool[i];pool[i]=pool[j];pool[j]=t;}
+  var pick=pool.slice(0,10);
+  var body=pick.map(function(p,qi){
+    var q=p.q;
+    var opts=q.opts.map(function(o,oi){return '<div class="opt" data-o="'+oi+'">'+String.fromCharCode(65+oi)+'. '+esc(o)+'</div>';}).join("");
+    return '<div class="q" data-secid="mock" data-ans="'+q.a+'" data-qi="'+qi+'"><div class="qn">'+(qi+1)+'. '+esc(q.q)+'</div><div class="obj-tag">'+esc(q.obj)+'</div>'+opts+'<div class="expl" id="ex-mock-'+qi+'"><b>Answer: '+String.fromCharCode(65+q.a)+'.</b> '+esc(q.e)+'</div></div>';
+  }).join("");
+  return '<h1>Mock exam</h1><p class="lead">10 mixed questions drawn at random from every section. Each correct answer feeds your duck.</p>'+
+    '<div class="scorebar"><span id="sc-mock" class="pillbig">0 answered</span><button class="btn brand" onclick="go(\'mock\')">New set</button></div>'+body;
+}
+
+/* ============================ FLASHCARDS ============================ */
+var flashQueue=[], flashPos=0;
+function buildQueue(){
+  var now=Date.now(), due=[], fresh=[];
+  allCards().forEach(function(x){var r=state.srs[x.key];
+    if(!r)fresh.push(x); else if((r.due||0)<=now)due.push(x);});
+  // due first, then new cards
+  flashQueue=due.concat(fresh); flashPos=0;
+}
+function renderFlash(){
+  setNav("flash");
+  if(!flashQueue.length||flashPos>=flashQueue.length)buildQueue();
+  var V=document.getElementById("view");
+  var total=allCards().length, learned=cardsLearned();
+  if(!flashQueue.length){
+    V.innerHTML='<h1>Flashcards</h1><div class="card"><p>🎉 Nothing due right now — every card is scheduled for later. Come back, or '+
+      '<span class="reset" onclick="resetSRS()">reset flashcard scheduling</span> to drill them all again.</p></div>';
+    refreshPcts();return;
+  }
+  var x=flashQueue[flashPos], r=state.srs[x.key]||{box:0};
+  V.innerHTML='<h1>Flashcards</h1>'+
+    '<p class="lead">'+esc(x.sec.title)+' · card '+(flashPos+1)+' of '+flashQueue.length+' due · '+learned+'/'+total+' mastered</p>'+
+    '<div class="scorebar"><span class="pillbig">Box '+(r.box||0)+'/5</span><button class="btn ghost" onclick="renderFlash()">Skip</button></div>'+
+    '<div class="flash"><div class="fcard" id="fcard" onclick="this.classList.toggle(\'flip\')">'+
+      '<div class="fc-inner">'+
+        '<div class="fc-face"><span class="lbl">Term</span><div class="term">'+esc(x.card.front)+'</div><div class="hintflip">click to flip</div></div>'+
+        '<div class="fc-face fc-back"><span class="lbl">Definition</span><div class="def">'+esc(x.card.back)+'</div><div class="hintflip">how well did you know it?</div></div>'+
+      '</div></div></div>'+
+    '<div class="srs">'+
+      '<button class="again" onclick="rateCard(\'again\')">Again<small>see soon</small></button>'+
+      '<button class="hard" onclick="rateCard(\'hard\')">Hard<small>+6 XP</small></button>'+
+      '<button class="good" onclick="rateCard(\'good\')">Good<small>+10 XP</small></button>'+
+      '<button class="easy" onclick="rateCard(\'easy\')">Easy<small>+12 XP</small></button>'+
+    '</div>'+
+    '<div class="note">Spaced repetition: <b>Again</b> shows it again this session, <b>Good/Easy</b> push it further out. A card is "mastered" once it reaches box 4.</div>';
+  refreshPcts();
+}
+var DAY=86400000;
+function rateCard(rating){
+  var x=flashQueue[flashPos]; if(!x)return;
+  var r=state.srs[x.key]||{box:0,reps:0}; r.reps=(r.reps||0)+1;
+  var now=Date.now();
+  if(rating==="again"){ r.box=1; r.due=now; Duck.feed(2,false); }
+  else if(rating==="hard"){ r.box=Math.max(1,r.box); r.due=now+1*DAY; Duck.feed(6,true); }
+  else if(rating==="good"){ r.box=Math.min(5,(r.box||0)+1); r.due=now+[0,1,3,7,16,16][r.box]*DAY; Duck.feed(10,true); }
+  else if(rating==="easy"){ r.box=Math.min(5,(r.box||0)+2); r.due=now+[0,2,5,12,30,30][r.box]*DAY; Duck.feed(12,true); }
+  state.srs[x.key]=r; save(state);
+  if(rating==="again"){ flashQueue.push(x); }   // re-show later this session
+  flashPos++;
+  renderFlash();
+}
+function resetSRS(){ if(confirm("Reset flashcard scheduling (keeps XP)?")){state.srs={};save(state);buildQueue();renderFlash();} }
+
+/* ============================ JEOPARDY ============================== */
+var jVALUES=[100,200,300,400,500];
+var jMap=null; // jMap[secId] = array of question indices in value order
+function buildJMap(){
+  jMap={};
+  EXAM.sections.forEach(function(s){
+    var idx=s.quiz.map(function(_,i){return i;});
+    for(var i=idx.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=idx[i];idx[i]=idx[j];idx[j]=t;}
+    jMap[s.id]=idx.slice(0,5);
+  });
+}
+function jScore(){var t=0;Object.keys(state.games.jeopardy.solved).forEach(function(k){if(state.games.jeopardy.solved[k]==="ok")t+=parseInt(k.split("@")[1],10);});return t;}
+function renderJeopardy(){
+  setNav("jeopardy");
+  if(!jMap)buildJMap();
+  var V=document.getElementById("view");
+  var cats=EXAM.sections.map(function(s){return '<div class="jcat">'+esc(s.title)+'</div>';}).join("");
+  var rows="";
+  jVALUES.forEach(function(val,vi){
+    EXAM.sections.forEach(function(s){
+      var key=s.id+"@"+val;
+      var solved=state.games.jeopardy.solved[key];
+      rows+= solved
+        ? '<button class="jtile solved">'+(solved==="ok"?"✓":"✗")+'</button>'
+        : '<button class="jtile" onclick="openTile(\''+s.id+'\','+vi+','+val+')">$'+val+'</button>';
+    });
+  });
+  V.innerHTML='<h1>🎯 Jeopardy</h1><p class="lead">Pick a section &amp; point value. Answer right to bank the points and feed your duck. ✓ solved · ✗ missed.</p>'+
+    '<div class="scorebar"><span class="pillbig">Board score: $'+jScore()+'</span><button class="btn ghost" onclick="newJeopardy()">New board</button></div>'+
+    '<div class="jboard">'+cats+rows+'</div>';
+}
+function newJeopardy(){ state.games.jeopardy.solved={}; save(state); buildJMap(); renderJeopardy(); }
+function openTile(secId,vi,val){
+  var sec=EXAM.sections.find(function(s){return s.id===secId;});
+  var q=sec.quiz[jMap[secId][vi]];
+  var key=secId+"@"+val;
+  var opts=q.opts.map(function(o,oi){return '<div class="opt" data-o="'+oi+'">'+String.fromCharCode(65+oi)+'. '+esc(o)+'</div>';}).join("");
+  var m=document.createElement("div"); m.className="modal"; m.id="jmodal";
+  m.innerHTML='<div class="box"><div class="kicker">'+esc(sec.title)+' · $'+val+'</div>'+
+    '<div class="qn" style="font-weight:700;margin:8px 0 10px">'+esc(q.q)+'</div>'+opts+
+    '<div class="expl" id="jx"></div></div>';
+  document.body.appendChild(m);
+  m.querySelectorAll(".opt").forEach(function(opt){
+    opt.addEventListener("click",function(){
+      if(m.dataset.done)return; m.dataset.done="1";
+      var pick=parseInt(opt.dataset.o,10), ans=q.a, ok=pick===ans;
+      m.querySelectorAll(".opt").forEach(function(o){var oi=parseInt(o.dataset.o,10);
+        if(oi===ans)o.classList.add("correct"); else if(oi===pick)o.classList.add("wrong"); else o.classList.add("dim");});
+      var x=document.getElementById("jx"); x.classList.add("show");
+      x.innerHTML='<b>'+(ok?'Correct! +$'+val:'Not quite.')+'</b> '+esc(q.e);
+      state.games.jeopardy.solved[key]=ok?"ok":"no"; save(state);
+      Duck.feed(ok?Math.round(val/10):0, ok);
+      setTimeout(function(){m.remove();renderJeopardy();}, 1700);
+    });
+  });
+  m.addEventListener("click",function(e){if(e.target===m && !m.dataset.done)m.remove();});
+}
+
+/* ============================ FILL THE BLANK ======================== */
+var fbQueue=[], fbPos=0, fbCorrect=0;
+function startFB(){
+  fbQueue=EXAM.fillblank.slice();
+  for(var i=fbQueue.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=fbQueue[i];fbQueue[i]=fbQueue[j];fbQueue[j]=t;}
+  fbPos=0; fbCorrect=0;
+}
+function renderFillblank(){
+  setNav("fillblank");
+  if(!fbQueue.length)startFB();
+  var V=document.getElementById("view");
+  if(fbPos>=fbQueue.length){
+    if(fbCorrect>state.games.fillblank.best){state.games.fillblank.best=fbCorrect;save(state);}
+    V.innerHTML='<h1>⌨️ Fill the blank</h1><div class="card"><h3>Round complete!</h3>'+
+      '<p>You got <b>'+fbCorrect+' / '+fbQueue.length+'</b> right. Best: '+state.games.fillblank.best+'.</p>'+
+      '<button class="btn brand" onclick="startFB();renderFillblank();">Play again</button></div>';
+    return;
+  }
+  var item=fbQueue[fbPos];
+  var secTitle=(EXAM.sections.find(function(s){return s.id===item.sec;})||{}).title||"";
+  V.innerHTML='<h1>⌨️ Fill the blank</h1><p class="lead">Type the missing term or keyword. '+(item.type==="code"?"Complete the code.":"Concept.")+'</p>'+
+    '<div class="scorebar"><span class="pillbig">'+(fbPos+1)+' / '+fbQueue.length+' · ✓ '+fbCorrect+'</span><span style="font-size:12px;color:#5f6b7c">'+esc(secTitle)+'</span></div>'+
+    '<div class="card"><div class="fb-prompt '+(item.type==="concept"?"concept":"")+'">'+esc(item.prompt).replace(/____/g,'<b style="color:var(--brand2)">____</b>')+'</div>'+
+      '<input class="fb-input" id="fbIn" placeholder="your answer" autocomplete="off" autofocus>'+
+      '<div style="font-size:12px;color:#5f6b7c">Hint: '+esc(item.hint)+'</div>'+
+      '<div class="fb-fb" id="fbFb"></div>'+
+      '<div style="margin-top:12px"><button class="btn brand" id="fbCheck">Check</button> <button class="btn ghost" id="fbNext" style="display:none">Next →</button></div>'+
+    '</div>';
+  var inp=document.getElementById("fbIn");
+  function check(){
+    if(document.getElementById("fbNext").style.display!=="none")return;
+    var val=(inp.value||"").trim().toLowerCase();
+    var accepts=[item.answer].concat(item.accept||[]).map(function(a){return (a||"").toLowerCase();});
+    var ok=accepts.indexOf(val)>=0 && val!=="";
+    var fb=document.getElementById("fbFb"); fb.classList.add("show");
+    fb.classList.add(ok?"ok":"no");
+    fb.innerHTML=ok?('✓ Correct — <b>'+esc(item.answer)+'</b>'):('✗ Answer: <b>'+esc(item.answer)+'</b>');
+    if(ok)fbCorrect++;
+    Duck.feed(ok?12:0, ok);
+    inp.disabled=true;
+    document.getElementById("fbCheck").style.display="none";
+    document.getElementById("fbNext").style.display="inline-block";
+  }
+  document.getElementById("fbCheck").onclick=check;
+  document.getElementById("fbNext").onclick=function(){fbPos++;renderFillblank();};
+  inp.addEventListener("keydown",function(e){if(e.key==="Enter"){if(document.getElementById("fbNext").style.display==="none")check();else{fbPos++;renderFillblank();}}});
+  inp.focus();
+}
+
+/* ============================ RESOURCES ============================= */
+function resourcesHTML(){
+  return '<h1>Resources</h1><p class="lead">Verified starting points. Always cross-check topics with the official exam guide.</p>'+
+   '<div class="card res">'+
+   '<a href="https://www.databricks.com/learn/certification/data-engineer-associate" target="_blank">Official certification page<span>Overview, register, "getting ready" links — databricks.com</span></a>'+
+   '<a href="https://www.databricks.com/sites/default/files/2025-11/databricks-certified-data-engineer-associate-exam-guide-july-25-2025-04.pdf" target="_blank">Official exam guide PDF (July 25, 2025)<span>The authoritative outline + retired sample questions</span></a>'+
+   '<a href="https://www.certsafari.com/databricks/data-engineer-associate" target="_blank">CertSafari practice questions<span>The set the team is using</span></a>'+
+   '<a href="https://github.com/derar-alhussein/Databricks-Certified-Data-Engineer-Associate" target="_blank">Derar Alhussein — course resources (GitHub)<span>Notebooks & materials from a well-known prep course</span></a>'+
+   '<a href="https://www.youtube.com/@Databricks" target="_blank">Databricks official YouTube<span>Product deep-dives and tutorials</span></a>'+
+   '<a href="https://www.databricks.com/learn/training/home" target="_blank">Databricks Academy (self-paced)<span>The recommended courses: Lakeflow Connect, Lakeflow Jobs, Declarative Pipelines, UC Governance</span></a>'+
+   '</div>'+
+   '<div class="note">Tip: the official guide says course attendance + ~6 months hands-on is recommended. The fastest gains are doing the Databricks Academy labs and re-taking these quizzes until every objective is ticked green.</div>';
+}
+
+/* ============================ AI TUTOR (bridge) ===================== */
+/* The full conversational AI tutor lives in the hosted (Streamlit) sidebar,
+   where the GitHub Models token is kept server-side (never exposed to the
+   browser, no CORS issues). These helpers wire the in-page entry points to it
+   and degrade gracefully when running the file standalone. */
+var AI = window.STUDYHUB_AI || {mode:"standalone"};   // Streamlit sets this to {mode:"hosted"}
+function aiBodyHTML(){
+  if(AI.mode==="hosted"){
+    return '<p>Open the <b>AI Tutor panel in the left sidebar</b> to ask anything — "explain liquid clustering", "why is this answer C?".</p>'+
+      '<p>To explain a quiz question you missed, either click <b>🤖 Explain this</b> under the answer (it copies the question for you), or pick it from the <b>Explain a question</b> dropdown in the sidebar.</p>'+
+      '<p style="color:#5f6b7c">The tutor is grounded in these section notes and is told to say when it is unsure rather than guess.</p>';
+  }
+  return '<p>You\'re running the study hub as a standalone file, so the live AI tutor isn\'t connected here.</p>'+
+    '<p>The conversational tutor runs in the <b>hosted (Streamlit) version</b> — see the README to deploy it free and add your GitHub Models token. Everything else in this app works offline.</p>'+
+    '<p style="color:#5f6b7c">Clicking "🤖 Explain this" under any answer copies the full question to your clipboard so you can paste it into the hosted tutor.</p>';
+}
+function askTutorAbout(secId,qi){
+  var sec=EXAM.sections.find(function(s){return s.id===secId;});
+  var q=(sec?sec.quiz[qi]:null) || (secId==="mock"?null:null);
+  var text;
+  if(q){
+    text="Explain this Databricks DE Associate question and why the answer is correct:\n\n"+q.q+"\n"+
+      q.opts.map(function(o,i){return String.fromCharCode(65+i)+". "+o;}).join("\n")+
+      "\nCorrect answer: "+String.fromCharCode(65+q.a)+". Topic: "+q.obj;
+  } else { text="Explain this Databricks Data Engineer Associate topic."; }
+  if(AI.mode==="hosted" && AI.ask){ AI.ask(text); }
+  else {
+    try{ navigator.clipboard.writeText(text).then(function(){toast("Question copied — paste it into the AI Tutor");}); }
+    catch(e){ toast("Open the AI Tutor to ask about this"); }
+    openAI();
+  }
+}
+function openAI(){document.getElementById("aibody").innerHTML=aiBodyHTML();document.getElementById("aipanel").classList.add("show");}
+document.getElementById("aichip").onclick=function(){var p=document.getElementById("aipanel");p.classList.toggle("show");if(p.classList.contains("show"))document.getElementById("aibody").innerHTML=aiBodyHTML();};
+document.getElementById("aiclose").onclick=function(){document.getElementById("aipanel").classList.remove("show");};
+
+/* ============================ LEADERBOARD (pluggable stub) ========== */
+/* Local-only for now: each intern's XP lives in their own browser.
+   To switch on a shared leaderboard later, implement submit()/fetch()
+   against a free backend (e.g. Supabase). See README "Leaderboard". */
+var Leaderboard={
+  provider:"local",
+  submit:function(name,xp){ /* TODO: POST to Supabase table `scores` */ },
+  fetch:function(cb){ cb([{name:state.name||"You",xp:state.xp,me:true}]); }
+};
+
+/* ============================ BOOT ================================== */
+Duck.render();
+go(state.view && document.querySelector('#nav a[data-v="'+state.view+'"]') ? state.view : "overview");
+</script>
+</body>
+</html>
