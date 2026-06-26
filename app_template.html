@@ -80,19 +80,42 @@
   .note{background:var(--amberbg);border:1px solid #f0dcab;color:var(--amber);border-radius:11px;padding:11px 15px;font-size:13.3px;margin:14px 0;}
   .reset{font-size:12px;color:var(--muted);cursor:pointer;text-decoration:underline;}
 
-  /* ===== Feed-the-Duck XP widget (fixed, on every screen) ===== */
-  .duck{position:fixed;top:14px;right:16px;z-index:60;background:#fff;border:1px solid var(--line);border-radius:14px;
-        box-shadow:0 6px 22px rgba(20,30,60,.13);padding:10px 13px;display:flex;align-items:center;gap:11px;min-width:212px;}
-  .duck .face{font-size:30px;line-height:1;filter:drop-shadow(0 2px 2px rgba(0,0,0,.12));transition:transform .18s;}
-  .duck.eat .face{animation:nom .5s ease;}
-  @keyframes nom{0%{transform:scale(1)}30%{transform:scale(1.28) rotate(-8deg)}60%{transform:scale(.92)}100%{transform:scale(1)}}
-  .duck .lv{font-size:11px;font-weight:800;color:var(--navy);}
-  .duck .xpbar{height:7px;background:#eef1f6;border-radius:99px;overflow:hidden;margin:4px 0 3px;}
-  .duck .xpfill{height:100%;width:0;background:linear-gradient(90deg,var(--brand),var(--brand2));transition:width .4s;}
-  .duck .sub{font-size:10.5px;color:var(--muted);}
-  .duck .flame{font-size:11px;font-weight:800;color:var(--brand2);}
-  .crumb{position:fixed;z-index:61;font-size:15px;pointer-events:none;animation:fall .6s ease forwards;}
-  @keyframes fall{0%{opacity:1;transform:translateY(-6px) scale(1)}100%{opacity:0;transform:translateY(26px) scale(.6)}}
+  /* ===== Feed-the-Duck: stats HUD + roaming corn-fed duck ===== */
+  .duckhud{position:fixed;top:14px;right:16px;z-index:60;background:#fff;border:1px solid var(--line);border-radius:14px;
+        box-shadow:0 6px 22px rgba(20,30,60,.13);padding:9px 13px;min-width:210px;}
+  .duckhud .lv{font-size:11px;font-weight:800;color:var(--navy);}
+  .duckhud .xpbar{height:7px;background:#eef1f6;border-radius:99px;overflow:hidden;margin:4px 0 3px;}
+  .duckhud .xpfill{height:100%;width:0;background:linear-gradient(90deg,var(--brand),var(--brand2));transition:width .4s;}
+  .duckhud .sub{font-size:10.5px;color:var(--muted);}
+  .duckhud .flame{font-size:11px;font-weight:800;color:var(--brand2);}
+
+  /* roaming duck — waddles around the whole screen, never blocks clicks */
+  .duck{position:fixed;left:40px;top:60vh;z-index:55;pointer-events:none;width:78px;height:96px;
+        transition:left 2.6s linear, top 2.6s linear;will-change:left,top;filter:drop-shadow(0 4px 4px rgba(0,0,0,.18));}
+  .duck .duck-flip{width:100%;height:100%;transition:transform .25s;}
+  .duck .duck-bob{width:100%;height:100%;animation:waddle .52s ease-in-out infinite;transform-origin:50% 90%;}
+  .duck .duck-fat{width:100%;height:100%;transition:transform .5s cubic-bezier(.34,1.56,.64,1);transform-origin:50% 82%;}
+  .duck svg{width:100%;height:100%;display:block;overflow:visible;}
+  @keyframes waddle{0%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-4px) rotate(3deg)}100%{transform:translateY(0) rotate(-3deg)}}
+  /* walk cycle: legs alternate, wing swings, tuft bobs */
+  .duck .d-legF{transform-box:fill-box;transform-origin:50% 6%;animation:stepF .52s ease-in-out infinite;}
+  .duck .d-legB{transform-box:fill-box;transform-origin:50% 6%;animation:stepB .52s ease-in-out infinite;}
+  .duck .d-wing{transform-box:fill-box;transform-origin:88% 14%;animation:wingsw .52s ease-in-out infinite;}
+  .duck .d-tuft{transform-box:fill-box;transform-origin:50% 100%;animation:tuftw .52s ease-in-out infinite;}
+  @keyframes stepF{0%,100%{transform:rotate(14deg)}50%{transform:rotate(-12deg)}}
+  @keyframes stepB{0%,100%{transform:rotate(-14deg)}50%{transform:rotate(12deg)}}
+  @keyframes wingsw{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(9deg)}}
+  @keyframes tuftw{0%,100%{transform:rotate(-9deg)}50%{transform:rotate(9deg)}}
+  .duck.eat .duck-fat{animation:nom .45s ease;}
+  @keyframes nom{0%{transform:none}40%{transform:scale(1.14,.88)}70%{transform:scale(.95,1.06)}100%{transform:none}}
+  .duck.dance .duck-bob{animation:dance .7s ease;}
+  @keyframes dance{0%{transform:rotate(0)}25%{transform:rotate(-18deg) translateY(-9px)}50%{transform:rotate(0)}75%{transform:rotate(18deg) translateY(-9px)}100%{transform:rotate(0)}}
+  .duck.sad .duck-bob{animation:shake .5s ease;}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px) rotate(-6deg)}40%{transform:translateX(6px) rotate(6deg)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+  .kernel{position:fixed;z-index:56;pointer-events:none;width:9px;height:12px;
+          border-radius:50% 50% 50% 50% / 62% 62% 38% 38%;
+          background:radial-gradient(circle at 50% 32%,#ffe79a,#f3ad12);box-shadow:0 1px 2px rgba(0,0,0,.22);
+          transition:left .55s ease-in, top .55s ease-in, transform .55s, opacity .55s;}
   .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:600;z-index:80;box-shadow:0 8px 24px rgba(0,0,0,.25);opacity:0;transition:opacity .25s,transform .25s;}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(-4px);}
 
@@ -143,7 +166,7 @@
   .aipanel p{font-size:13px;color:var(--muted);margin:7px 0;}
   .aipanel .close{position:absolute;top:10px;right:14px;cursor:pointer;color:var(--muted);font-weight:800;}
 
-  @media(max-width:760px){.side{display:none;} .duck{top:8px;right:8px;min-width:0;padding:7px 9px;} .jboard{font-size:9px;}}
+  @media(max-width:760px){.side{display:none;} .duckhud{top:8px;right:8px;min-width:0;padding:6px 9px;} .duck{width:62px;height:76px;} .jboard{font-size:9px;}}
 </style>
 </head>
 <body>
@@ -171,14 +194,49 @@
   <div class="main"><div class="wrap" id="view"></div></div>
 </div>
 
-<!-- Feed-the-Duck XP widget -->
-<div class="duck" id="duck" title="Feed your duck by answering correctly!">
-  <div class="face" id="duckFace">🐣</div>
-  <div style="flex:1">
-    <div class="lv"><span id="duckLv">Hatchling</span> · <span id="duckXp">0</span> XP</div>
-    <div class="xpbar"><div class="xpfill" id="duckFill"></div></div>
-    <div class="sub"><span id="duckNext"></span> &nbsp;·&nbsp; <span class="flame" id="duckStreak">🔥 0</span></div>
-  </div>
+<!-- Feed-the-Duck: stats HUD -->
+<div class="duckhud" id="duckhud" title="Answer correctly to feed your duck!">
+  <div class="lv">🌽 <span id="duckLv">Hatchling</span> · <span id="duckXp">0</span> XP</div>
+  <div class="xpbar"><div class="xpfill" id="duckFill"></div></div>
+  <div class="sub"><span id="duckNext"></span> &nbsp;·&nbsp; <span class="flame" id="duckStreak">🔥 0</span></div>
+</div>
+
+<!-- the roaming corn-fed duck (waddles around the screen) -->
+<div class="duck" id="duck">
+  <div class="duck-flip" id="duckFlip"><div class="duck-bob"><div class="duck-fat" id="duckFat">
+    <svg viewBox="0 0 130 160" xmlns="http://www.w3.org/2000/svg">
+      <g stroke="#1c150f" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round">
+        <!-- back leg (planted) -->
+        <g class="d-legB">
+          <path d="M58 116 L47 143" fill="none" stroke="#bf6a34" stroke-width="8"/>
+          <path d="M38 145 q9 -7 18 -2 q-2 8 -10 9 q-9 0 -8 -7 Z" fill="#bf6a34"/>
+        </g>
+        <!-- front leg (stepping) -->
+        <g class="d-legF">
+          <path d="M72 116 L90 134" fill="none" stroke="#bf6a34" stroke-width="8"/>
+          <path d="M86 132 q10 -3 17 4 q-3 7 -11 6 q-9 -2 -6 -10 Z" fill="#bf6a34"/>
+        </g>
+        <!-- body + neck + head -->
+        <path d="M82 26 C93 26 101 33 100 45 C100 53 97 57 95 61 C92 81 90 99 86 117
+                 C83 129 72 135 60 134 C49 133 44 124 43 108 C42 92 45 73 52 57
+                 C56 45 62 37 68 31 C72 27 77 26 82 26 Z" fill="#eef4f7"/>
+        <!-- belly shading -->
+        <path d="M50 112 C56 126 78 126 84 112 C80 124 56 126 50 112 Z" fill="#d6e4ef" stroke="none"/>
+        <!-- wing (raised, swings) -->
+        <path class="d-wing" d="M58 70 C44 65 27 69 17 82 C24 83 30 83 34 85 C29 87 35 89 39 90
+                 C34 92 41 94 45 94 C55 91 61 81 58 70 Z" fill="#e7eef3"/>
+        <!-- beak (brown) — corn target -->
+        <path d="M92 43 C105 39 117 44 117 50 C117 57 104 59 94 55 C90 53 89 46 92 43 Z" fill="#bf6a34"/>
+        <!-- hair tuft -->
+        <g class="d-tuft">
+          <path d="M73 24 C69 15 70 9 73 5 C76 11 76 18 78 24 Z" fill="#eef4f7"/>
+          <path d="M78 23 C78 15 81 11 85 8 C83 15 82 19 81 24 Z" fill="#eef4f7"/>
+        </g>
+      </g>
+      <!-- eye -->
+      <ellipse cx="85" cy="42" rx="2.7" ry="3.5" fill="#1c150f"/>
+    </svg>
+  </div></div></div>
 </div>
 
 <!-- AI tutor chip + info panel -->
@@ -208,6 +266,7 @@ state.objDone=state.objDone||{};
 state.quiz=state.quiz||{};            // quiz[secId]={best,total}
 state.xp=state.xp||0;
 state.maxStreak=state.maxStreak||0;
+state.fullness=(typeof state.fullness==="number")?state.fullness:1;  // duck body size
 state.srs=state.srs||{};              // srs[cardKey]={box,due,reps}
 state.games=state.games||{};
 state.games.jeopardy=state.games.jeopardy||{solved:{}};
@@ -231,10 +290,39 @@ var LEVELS=[
 var streak=0;
 function levelFor(xp){var L=LEVELS[0];for(var i=0;i<LEVELS.length;i++){if(xp>=LEVELS[i].min)L=LEVELS[i];}return L;}
 function nextLevel(xp){for(var i=0;i<LEVELS.length;i++){if(LEVELS[i].min>xp)return LEVELS[i];}return null;}
+
+/* roaming duck refs + helpers */
+var duckEl, flipEl, fatEl, duckDir=1, roamTimer=null;
+var FAT_MIN=0.74, FAT_MAX=1.6;
+function applyFat(){ if(!fatEl)return; var f=state.fullness||1; var fy=1+(f-1)*0.45; fatEl.style.transform="scale("+f.toFixed(3)+","+fy.toFixed(3)+")"; }
+function pulse(cls){ if(!duckEl)return; duckEl.classList.remove(cls); void duckEl.offsetWidth; duckEl.classList.add(cls);
+  setTimeout(function(){duckEl.classList.remove(cls);}, 800); }
+function moveDuck(){
+  if(!duckEl)return;
+  var W=window.innerWidth, H=window.innerHeight, dw=duckEl.offsetWidth||74, dh=duckEl.offsetHeight||86;
+  var tx=Math.max(6, Math.random()*(W-dw-6));
+  var ty=Math.max(58, Math.random()*(H-dh-46));
+  var cur=parseFloat(duckEl.style.left)||40;
+  duckDir=(tx<cur)?-1:1;
+  flipEl.style.transform="scaleX("+duckDir+")";
+  duckEl.style.left=tx+"px"; duckEl.style.top=ty+"px";
+}
+function feedCorn(){
+  if(!duckEl)return;
+  var r=duckEl.getBoundingClientRect(), faceRight=duckDir>=0;
+  var mx=r.left+(faceRight?r.width*0.86:r.width*0.14), my=r.top+r.height*0.31;
+  for(var i=0;i<6;i++){(function(){ setTimeout(function(){
+    var k=document.createElement("div"); k.className="kernel";
+    var sx=mx+(faceRight?70:-70)+(Math.random()*50-25), sy=my-40+Math.random()*80;
+    k.style.left=sx+"px"; k.style.top=sy+"px"; k.style.opacity="1";
+    document.body.appendChild(k);
+    requestAnimationFrame(function(){ k.style.left=mx+"px"; k.style.top=my+"px"; k.style.transform="scale(.4)"; k.style.opacity="0.15"; });
+    setTimeout(function(){k.remove();},600);
+  }, i*70); })();}
+}
 var Duck={
   render:function(){
     var xp=state.xp, L=levelFor(xp), N=nextLevel(xp);
-    document.getElementById("duckFace").textContent=L.emoji;
     document.getElementById("duckLv").textContent=L.name;
     document.getElementById("duckXp").textContent=xp;
     var fill, sub;
@@ -249,25 +337,30 @@ var Duck={
       streak++; if(streak>state.maxStreak)state.maxStreak=streak;
       if(streak%5===0){xp+=25; toast("🔥 "+streak+" streak! +25 bonus XP");}
     } else { streak=0; }
-    if(xp>0){
-      var before=levelFor(state.xp).name;
-      state.xp+=xp; save(state);
-      var d=document.getElementById("duck"); d.classList.remove("eat"); void d.offsetWidth; d.classList.add("eat");
-      crumbs();
-      var after=levelFor(state.xp).name;
-      if(after!==before) toast("⬆️ Level up! Your duck is now a "+after);
-    } else { save(state); }
+    var before=levelFor(state.xp).name;
+    if(xp>0) state.xp+=xp;
+    // duck body responds: corn fattens it, a miss slims it
+    state.fullness=Math.min(FAT_MAX,Math.max(FAT_MIN,(state.fullness||1)+(correct?0.08:-0.10)));
+    save(state);
+    if(correct){
+      feedCorn();
+      setTimeout(function(){ pulse("eat"); applyFat(); }, 380);
+      if(streak>0 && streak%5===0) pulse("dance");
+    } else { pulse("sad"); applyFat(); }
+    var after=levelFor(state.xp).name;
+    if(after!==before) toast("⬆️ Level up! Your duck is now a "+after);
     Duck.render();
+  },
+  startRoaming:function(){
+    duckEl=document.getElementById("duck"); flipEl=document.getElementById("duckFlip"); fatEl=document.getElementById("duckFat");
+    applyFat();
+    duckEl.style.left="40px"; duckEl.style.top=Math.round(window.innerHeight*0.58)+"px";
+    if(roamTimer)clearInterval(roamTimer);
+    setTimeout(moveDuck,500);
+    roamTimer=setInterval(moveDuck,2800);
+    window.addEventListener("resize",function(){ if(parseFloat(duckEl.style.left)>window.innerWidth-40)duckEl.style.left=(window.innerWidth-80)+"px"; });
   }
 };
-function crumbs(){
-  var d=document.getElementById("duck").getBoundingClientRect();
-  for(var i=0;i<4;i++){(function(i){setTimeout(function(){
-    var c=document.createElement("div");c.className="crumb";c.textContent=["🌾","🍞","✨","🌾"][i%4];
-    c.style.left=(d.left+18+Math.random()*30)+"px";c.style.top=(d.top+30)+"px";
-    document.body.appendChild(c);setTimeout(function(){c.remove();},650);
-  },i*70);})(i);}
-}
 
 /* ============================ NAV / ROUTER ============================ */
 (function(){
@@ -423,8 +516,8 @@ function tallyQuiz(secId){
 
 function resetQuiz(secId){ delete state.quiz[secId]; save(state); var sec=EXAM.sections.find(function(s){return s.id===secId;}); if(sec){go(secId);} }
 function resetAll(){ if(confirm("Reset ALL progress, XP, streak, flashcards and game scores?")){
-  state={objDone:{},quiz:{},xp:0,maxStreak:0,srs:{},games:{jeopardy:{solved:{}},fillblank:{best:0}},name:state.name};
-  streak=0; save(state); Duck.render(); go("overview"); } }
+  state={objDone:{},quiz:{},xp:0,maxStreak:0,fullness:1,srs:{},games:{jeopardy:{solved:{}},fillblank:{best:0}},name:state.name};
+  streak=0; save(state); applyFat(); Duck.render(); go("overview"); } }
 
 /* ============================ MOCK EXAM ============================= */
 function mockHTML(){
@@ -662,6 +755,7 @@ var Leaderboard={
 
 /* ============================ BOOT ================================== */
 Duck.render();
+Duck.startRoaming();
 go(state.view && document.querySelector('#nav a[data-v="'+state.view+'"]') ? state.view : "overview");
 </script>
 </body>
