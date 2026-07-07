@@ -101,6 +101,13 @@
   .hatchling{position:fixed;z-index:58;pointer-events:none;font-size:30px;animation:hatchpop .9s ease forwards;}
   @keyframes hatchpop{0%{transform:scale(.2) translateY(6px);opacity:0}35%{transform:scale(1.3) translateY(-10px);opacity:1}70%{transform:scale(1) translateY(-14px)}100%{transform:scale(1) translateY(-34px);opacity:0}}
   .spark{position:fixed;z-index:58;pointer-events:none;font-size:15px;animation:sparkle .8s ease forwards;}
+  .hatchcel{position:fixed;inset:0;z-index:90;display:flex;align-items:center;justify-content:center;pointer-events:none;overflow:hidden;}
+  .hatchcel-in{background:#fff;border:3px solid var(--brand);border-radius:20px;padding:22px 34px;text-align:center;box-shadow:0 18px 60px rgba(0,0,0,.32);animation:celpop .5s cubic-bezier(.34,1.56,.64,1);}
+  .hatchcel-t{font-size:24px;font-weight:900;color:var(--brand2);margin-top:4px;}
+  .hatchcel-s{font-size:14px;color:var(--muted);}
+  @keyframes celpop{0%{transform:scale(.3) rotate(-6deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
+  .confp{position:absolute;top:-14px;width:9px;height:14px;border-radius:2px;animation:conf 1.9s ease-in forwards;}
+  @keyframes conf{0%{transform:translateY(-10px) rotate(0);opacity:1}100%{transform:translateY(106vh) rotate(560deg);opacity:.9}}
   @keyframes sparkle{0%{transform:scale(.4);opacity:1}100%{transform:scale(1.1) translateY(-20px);opacity:0}}
 
   /* roaming duck — waddles around the whole screen, never blocks clicks */
@@ -294,6 +301,9 @@ state.duckRoam=(typeof state.duckRoam==="boolean")?state.duckRoam:true;  // wadd
 state.perf=state.perf||{};            // perf[domainId]={c,t} correct/attempts
 state.missed=state.missed||{};        // missed["d3#2"]=true  (for weak-spot review)
 state.shop=state.shop||{owned:{},color:"#eef4f7",hat:"none",face:"none"};  // duck cosmetics
+if(!state.shop.faces){ state.shop.faces={}; if(state.shop.face&&state.shop.face!=="none")state.shop.faces[state.shop.face]=true; }
+state.solved=state.solved||{};        // question keys already answered correctly (anti-farming)
+function firstSolve(key){ if(!key)return true; if(state.solved[key])return false; state.solved[key]=true; save(state); return true; }
 state.badges=state.badges||{};        // earned badge ids -> timestamp
 state.xpEarned=state.xpEarned||0;     // lifetime XP earned (for badges; shop spending doesn't reduce it)
 state.bestExamPct=state.bestExamPct||0;
@@ -396,6 +406,14 @@ function feedCorn(){
     setTimeout(function(){k.remove();},600);
   }, i*70); })();}
 }
+function hatchCelebrate(nn){
+  var cel=document.createElement("div"); cel.className="hatchcel";
+  var conf=""; var cols=["#ff5f3a","#f2c400","#2f56d6","#13864f","#ff6f61"];
+  for(var i=0;i<16;i++){ conf+='<span class="confp" style="left:'+(Math.random()*100)+'%;background:'+cols[i%5]+';animation-delay:'+(Math.random()*0.35).toFixed(2)+'s"></span>'; }
+  cel.innerHTML='<div class="hatchcel-in"><div style="font-size:60px;line-height:1">🐣</div><div class="hatchcel-t">Egg hatched!</div><div class="hatchcel-s">Duckling #'+nn+' joined your flock 🎉</div></div>'+conf;
+  document.body.appendChild(cel); toast("🥚➜🐣 Your duck laid an egg!");
+  setTimeout(function(){cel.remove();}, 2300);
+}
 function hatchEgg(){
   if(!duckEl){ state.fullness=FAT_BASE; state.ducksHatched++; save(state); Duck.render(); return; }
   var r=duckEl.getBoundingClientRect();
@@ -413,7 +431,7 @@ function hatchEgg(){
     baby.style.left=ex+"px"; baby.style.top=ey+"px"; document.body.appendChild(baby);
     setTimeout(function(){baby.remove();},950);
     state.ducksHatched++; save(state);
-    toast("🥚➜🐣 Belly full! Your duck laid an egg — duckling #"+state.ducksHatched+" hatched!");
+    hatchCelebrate(state.ducksHatched);
     Duck.render(); checkBadges();
   }, 1180);
 }
@@ -530,6 +548,12 @@ function overviewHTML(){
   var L=levelFor(state.xp);
   return '<h1>Databricks Data Engineer — Associate</h1>'+
     '<p class="lead">A shared study hub for the interns. Work section by section: read the notes, watch a video, take the quiz, drill flashcards, and play a game. Answer correctly to feed your duck 🦆. Your progress saves in this browser.</p>'+
+    '<div class="card" style="border:2px solid var(--brand);background:#fff7f5"><div class="kicker">👋 Your name</div>'+
+      '<p class="lead" style="margin:6px 0 8px">Shows on the shared 🏆 leaderboard \u2014 pick a unique one.</p>'+
+      '<input class="fb-input" id="nameIn" placeholder="Type your name\u2026" value="'+esc(state.name)+'" style="max-width:340px;font-size:16px" oninput="state.name=this.value;save(state);Duck.render();">'+
+      '<label style="display:flex;align-items:center;gap:9px;margin-top:12px;cursor:pointer;font-size:13.8px">'+
+        '<input type="checkbox" id="roamChk" '+(state.duckRoam?'checked':'')+' style="width:16px;height:16px;accent-color:var(--brand)" onchange="setDuckRoam(this.checked)">'+
+        'Let the duck waddle around the screen <span style="color:#5f6b7c">(uncheck to park it)</span></label></div>'+
     '<div class="facts">'+facts+'</div>'+
     '<div class="note">*The pass mark isn\'t officially published; ~70% is a safe target. The exam is 45 scored multiple-choice questions in 90 minutes ('+esc(EXAM.meta.outlineVersion)+' version).</div>'+
     '<div class="card"><div class="kicker">Your duck &amp; progress</div>'+
@@ -539,12 +563,6 @@ function overviewHTML(){
       '<span style="color:#5f6b7c;font-size:13px">'+overallPct()+'% objectives learned · '+flashPct()+'% flashcards mastered</span><br>'+
       '<span class="reset" onclick="resetAll()">reset all progress</span></div></div></div>'+
     '<div class="card"><div class="kicker">The 5 exam sections</div>'+cards+'</div>'+
-    '<div class="card"><div class="kicker">Display name (for the leaderboard, later)</div>'+
-      '<p class="lead" style="margin:8px 0">Each intern\'s progress is saved on their own machine for now. A shared leaderboard can be switched on later (see the README).</p>'+
-      '<input class="fb-input" id="nameIn" placeholder="e.g. Devika" value="'+esc(state.name)+'" style="max-width:280px" oninput="state.name=this.value;save(state);Duck.render();">'+
-      '<label style="display:flex;align-items:center;gap:9px;margin-top:12px;cursor:pointer;font-size:13.8px">'+
-        '<input type="checkbox" id="roamChk" '+(state.duckRoam?'checked':'')+' style="width:16px;height:16px;accent-color:var(--brand)" onchange="setDuckRoam(this.checked)">'+
-        'Let the duck waddle around the screen <span style="color:#5f6b7c">(uncheck to park it in the corner)</span></label></div>'+
     '<p style="font-size:12.5px;color:#5f6b7c">Quizzes here are <b>original</b> practice written to match the official objectives — for more, the team also uses <a href="https://www.certsafari.com/databricks/data-engineer-associate" target="_blank">CertSafari</a>. Always confirm topics against the <a href="'+EXAM.meta.officialGuide+'" target="_blank">official exam guide</a>.</p>';
 }
 
@@ -573,7 +591,7 @@ function quizHTML(secId,qs){
       '<div class="expl" id="ex-'+secId+'-'+qi+'"><b>Answer: '+String.fromCharCode(65+q.a)+'.</b> '+esc(q.e)+docLink(q)+
       '<br><a class="askt" onclick="askTutorAbout('+JSON.stringify(secId)+','+qi+')">🤖 Explain this with the AI Tutor</a></div></div>';
   }).join("");
-  return head+body;
+  return head+body+'<div style="text-align:center;margin-top:18px"><button class="btn ghost" onclick="resetQuiz(\''+secId+'\')">\ud83d\udd04 Reset quiz</button></div>';
 }
 
 function wireSection(sec){
@@ -602,8 +620,9 @@ function wireQuizzes(){
           else o.classList.add("dim");
         });
         document.getElementById("ex-"+qel.dataset.secid+"-"+qel.dataset.qi).classList.add("show");
-        Duck.feed(pick===ans?10:0, pick===ans);
-        if(qel.dataset.osec) recordAnswer(qel.dataset.osec, qel.dataset.oqi, pick===ans);
+        var _ok=pick===ans, _key=qel.dataset.osec?qel.dataset.osec+"#"+qel.dataset.oqi:null;
+        if(_ok){ if(firstSolve(_key)) Duck.feed(10,true); else toast("Reviewed \u2014 no XP (already earned)"); } else Duck.feed(0,false);
+        if(qel.dataset.osec) recordAnswer(qel.dataset.osec, qel.dataset.oqi, _ok);
         tallyQuiz(qel.dataset.secid);
       });
     });
@@ -636,9 +655,12 @@ function tallyQuiz(secId){
   if(sc)sc.textContent="Score: "+correct+"/"+qs.length+(state.quiz[secId].best>correct?" (best "+state.quiz[secId].best+")":"");
 }
 
-function resetQuiz(secId){ delete state.quiz[secId]; save(state); var sec=EXAM.sections.find(function(s){return s.id===secId;}); if(sec){go(secId);} }
+function clearSectionSolved(id){ Object.keys(state.solved).forEach(function(k){ if(k.indexOf(id+"#")===0) delete state.solved[k]; }); }
+function clearFbSolved(){ Object.keys(state.solved).forEach(function(k){ if(k.indexOf("fb#")===0) delete state.solved[k]; }); }
+function clearAllSolved(){ state.solved={}; }
+function resetQuiz(secId){ delete state.quiz[secId]; clearSectionSolved(secId); save(state); toast("Quiz reset \u2014 you can earn XP on it again"); var sec=EXAM.sections.find(function(s){return s.id===secId;}); if(sec){go(secId);} }
 function resetAll(){ if(confirm("Reset ALL progress, XP, streak, flashcards and game scores?")){
-  state={objDone:{},quiz:{},xp:0,maxStreak:0,fullness:1,correct:0,ducksHatched:0,duckRoam:state.duckRoam,perf:{},missed:{},shop:state.shop,badges:{},xpEarned:0,bestExamPct:0,srs:{},games:{jeopardy:{solved:{}},fillblank:{best:0}},name:state.name};
+  state={objDone:{},quiz:{},xp:0,maxStreak:0,fullness:1,correct:0,ducksHatched:0,duckRoam:state.duckRoam,perf:{},missed:{},shop:state.shop,badges:{},xpEarned:0,bestExamPct:0,solved:{},srs:{},games:{jeopardy:{solved:{}},fillblank:{best:0}},name:state.name};
   streak=0; gShown=1; save(state); applyFat(); applyCosmetics(); Duck.render(); go("overview"); } }
 
 /* ============================ MOCK EXAM ============================= */
@@ -652,7 +674,7 @@ function mockHTML(){
     return '<div class="q" data-secid="mock" data-osec="'+p.s+'" data-oqi="'+p.qi+'" data-ans="'+q.a+'" data-qi="'+qi+'"><div class="qn">'+(qi+1)+'. '+esc(q.q)+'</div><div class="obj-tag">'+esc(q.obj)+'</div>'+opts+'<div class="expl" id="ex-mock-'+qi+'"><b>Answer: '+String.fromCharCode(65+q.a)+'.</b> '+esc(q.e)+docLink(q)+'</div></div>';
   }).join("");
   return '<h1>Mock exam</h1><p class="lead">20 mixed questions drawn at random from every domain. Each correct answer feeds your duck.</p>'+
-    '<div class="scorebar"><span id="sc-mock" class="pillbig">0 answered</span><button class="btn brand" onclick="go(\'mock\')">New set</button></div>'+body;
+    '<div class="scorebar"><span id="sc-mock" class="pillbig">0 answered</span><button class="btn brand" onclick="go(\'mock\')">New set</button></div>'+body+'<div style="text-align:center;margin-top:18px"><button class="btn ghost" onclick="clearAllSolved();save(state);toast(\'Quiz XP reset\');go(\'mock\')">\ud83d\udd04 Reset quiz (re-earn XP)</button></div>';
 }
 
 /* ===================== WEAK-SPOT REVIEW ===================== */
@@ -723,10 +745,10 @@ function rateCard(rating){
   var x=flashQueue[flashPos]; if(!x)return;
   var r=state.srs[x.key]||{box:0,reps:0}; r.reps=(r.reps||0)+1;
   var now=Date.now();
-  if(rating==="again"){ r.box=1; r.due=now; Duck.feed(2,false); }
-  else if(rating==="hard"){ r.box=Math.max(1,r.box); r.due=now+1*DAY; Duck.feed(6,true); }
-  else if(rating==="good"){ r.box=Math.min(5,(r.box||0)+1); r.due=now+[0,1,3,7,16,16][r.box]*DAY; Duck.feed(10,true); }
-  else if(rating==="easy"){ r.box=Math.min(5,(r.box||0)+2); r.due=now+[0,2,5,12,30,30][r.box]*DAY; Duck.feed(12,true); }
+  if(rating==="again"){ r.box=1; r.due=now; }
+  else if(rating==="hard"){ r.box=Math.max(1,r.box); r.due=now+1*DAY; }
+  else if(rating==="good"){ r.box=Math.min(5,(r.box||0)+1); r.due=now+[0,1,3,7,16,16][r.box]*DAY; if(firstSolve("card#"+x.key))Duck.feed(10,true); }
+  else if(rating==="easy"){ r.box=Math.min(5,(r.box||0)+2); r.due=now+[0,2,5,12,30,30][r.box]*DAY; if(firstSolve("card#"+x.key))Duck.feed(12,true); }
   state.srs[x.key]=r; save(state); checkBadges();
   if(rating==="again"){ flashQueue.push(x); }   // re-show later this session
   flashPos++;
@@ -763,7 +785,7 @@ function renderJeopardy(){
   });
   V.innerHTML='<h1>🎯 Jeopardy</h1><p class="lead">Pick a domain &amp; point value. Answer right to bank the points and feed your duck. ✓ solved · ✗ missed.</p>'+
     '<div class="scorebar"><span class="pillbig">Board score: $'+jScore()+'</span><button class="btn ghost" onclick="newJeopardy()">New board</button></div>'+
-    '<div class="jboard" style="grid-template-columns:repeat('+EXAM.sections.length+',1fr)">'+cats+rows+'</div>';
+    '<div class="jboard" style="grid-template-columns:repeat('+EXAM.sections.length+',1fr)">'+cats+rows+'</div>'+'<div style="text-align:center;margin-top:18px"><button class="btn ghost" onclick="clearAllSolved();newJeopardy()">\ud83d\udd04 Reset quiz (re-earn XP)</button></div>';
 }
 function newJeopardy(){ state.games.jeopardy.solved={}; save(state); buildJMap(); renderJeopardy(); }
 function openTile(secId,vi,val){
@@ -786,7 +808,7 @@ function openTile(secId,vi,val){
       x.innerHTML='<b>'+(ok?'Correct! +$'+val:'Not quite.')+'</b> '+esc(q.e)+docLink(q);
       state.games.jeopardy.solved[key]=ok?"ok":"no"; save(state);
       recordAnswer(secId, jMap[secId][vi], ok);
-      Duck.feed(ok?Math.round(val/10):0, ok);
+      if(ok){ if(firstSolve(secId+"#"+jMap[secId][vi])) Duck.feed(Math.round(val/10),true); } else Duck.feed(0,false);
       setTimeout(function(){m.remove();renderJeopardy();}, 1700);
     });
   });
@@ -812,15 +834,16 @@ function pickExam(i,oi){ if(examDone)return; examSel[i]=oi;
 }
 function submitExam(){
   if(examDone||!examQ)return; examDone=true; if(examTimer)clearInterval(examTimer);
-  var correct=0, by={};
+  var correct=0, by={}, newXP=0;
   examQ.forEach(function(p,i){ var ok=examSel[i]===p.q.a; if(ok)correct++;
     by[p.s]=by[p.s]||{c:0,t:0}; by[p.s].t++; if(ok)by[p.s].c++;
+    if(ok && firstSolve(p.s+"#"+p.qi)) newXP+=8;
     recordAnswer(p.s, p.qi, ok); });
   var pct=Math.round(correct/examQ.length*100);
   examScore={correct:correct,total:examQ.length,pct:pct,pass:pct>=70,by:by};
-  state.xp+=correct*8; state.xpEarned+=correct*8; if(pct>state.bestExamPct)state.bestExamPct=pct;
+  state.xp+=newXP; state.xpEarned+=newXP; if(pct>state.bestExamPct)state.bestExamPct=pct;
   save(state); Duck.render(); checkBadges();
-  toast((examScore.pass?"✅ Passed":"❌ Keep going")+" — "+pct+"%  (+"+(correct*8)+" XP)");
+  toast((examScore.pass?"✅ Passed":"❌ Keep going")+" — "+pct+"%  (+"+newXP+" XP)");
   renderExam(); window.scrollTo(0,0);
 }
 function examResultCard(){
@@ -832,7 +855,7 @@ function examResultCard(){
     '<div style="font-size:22px;font-weight:900;color:'+(s.pass?'var(--ok)':'var(--red)')+'">'+(s.pass?'✅ Pass':'❌ Not yet')+' — '+s.pct+'%</div>'+
     '<div style="font-size:13px;color:var(--ink)">'+s.correct+' / '+s.total+' correct · pass mark ~70% · missed ones are now in <b>Review mistakes</b></div>'+
     '<div style="margin-top:8px">'+rows+'</div>'+
-    '<button class="btn brand" style="margin-top:12px" onclick="startExam()">New exam</button> <button class="btn ghost" onclick="go(\'review\')">Review mistakes</button></div>';
+    '<button class="btn brand" style="margin-top:12px" onclick="startExam()">New exam</button> <button class="btn ghost" onclick="go(\'review\')">Review mistakes</button> <button class="btn ghost" onclick="clearAllSolved();save(state);toast(\'Quiz XP reset\');startExam()">\ud83d\udd04 Reset quiz</button></div>';
 }
 function renderExam(){
   setNav("exam");
@@ -871,10 +894,12 @@ var ACCS={
   shades:'<g stroke="#1c150f" stroke-width="1.5"><path d="M75 38 q9 -2 16 1 q0 9 -8 8 q-9 -1 -8 -9 Z" fill="#1b1b1b"/><path d="M93 41 q9 -1 15 2 q-1 8 -8 7 q-8 -1 -7 -9 Z" fill="#1b1b1b"/><path d="M90 41 l3 1" stroke-width="2.4"/></g>',
   stache:'<path d="M83 57 q6 -6 12 -1 q6 -5 12 1 q-5 7 -12 2.5 q-6 4.5 -12 -2.5 Z" fill="#3a2a1a" stroke="#1c150f" stroke-width="1.2"/>'
 };
+function equippedFaces(){ var o=state.shop.faces||{}; return Object.keys(o).filter(function(k){return o[k];}); }
 function applyCosmetics(){
   if(bodyEl) bodyEl.style.fill=state.shop.color||"#eef4f7";
   var h=document.getElementById("duckHat"), a=document.getElementById("duckAcc");
-  if(h) h.innerHTML=HATS[state.shop.hat]||""; if(a) a.innerHTML=ACCS[state.shop.face]||"";
+  if(h) h.innerHTML=HATS[state.shop.hat]||"";
+  if(a){ var str=""; equippedFaces().forEach(function(k){ if(ACCS[k]) str+=ACCS[k]; }); a.innerHTML=str; }
 }
 function owns(type,id,cost){ return cost===0 || state.shop.owned[type+":"+id]; }
 function buyEquip(type,id,cost){
@@ -882,19 +907,29 @@ function buyEquip(type,id,cost){
     if(state.xp<cost){ toast("Need "+(cost-state.xp)+" more XP for that"); return; }
     state.xp-=cost; state.shop.owned[type+":"+id]=true; toast("Unlocked! (-"+cost+" XP)");
   }
-  if(type==="color") state.shop.color=id; else if(type==="hat") state.shop.hat=id; else state.shop.face=id;
+  if(type==="color") state.shop.color=id;
+  else if(type==="hat") state.shop.hat=id;
+  else { state.shop.faces=state.shop.faces||{}; if(id==="none"){ state.shop.faces={}; } else { state.shop.faces[id]=!state.shop.faces[id]; } }
   save(state); applyCosmetics(); Duck.render(); checkBadges(); renderShop();
 }
 function shopRow(type,label){
   var items=SHOP[type].map(function(it){
     var name=it[0], id=it[1], cost=it[2];
-    var equipped=(type==="color"?state.shop.color===id:(type==="hat"?state.shop.hat===id:state.shop.face===id));
+    var multi=(type==="face"); var equipped; if(type==="color") equipped=state.shop.color===id; else if(type==="hat") equipped=state.shop.hat===id; else equipped=(id==="none")?(equippedFaces().length===0):((state.shop.faces||{})[id]===true);
     var owned=owns(type,id,cost);
     var swatch=type==="color"?'<span style="display:inline-block;width:16px;height:16px;border-radius:4px;border:1px solid var(--line);background:'+id+';vertical-align:-3px;margin-right:6px"></span>':'';
-    var status=equipped?'<span class="pillbig">Equipped</span>':(owned?'<button class="btn ghost" onclick="buyEquip(\''+type+'\',\''+id+'\','+cost+')">Equip</button>':'<button class="btn brand" onclick="buyEquip(\''+type+'\',\''+id+'\','+cost+')">'+cost+' XP</button>');
-    return '<div class="obj" style="cursor:default;justify-content:space-between"><div>'+swatch+esc(name)+'</div>'+status+'</div>';
+    var status; if(!owned){ status='<button class="btn brand" onclick="buyEquip(\''+type+'\',\''+id+'\','+cost+')">'+cost+' XP</button>'; } else if(multi && id!=="none"){ status=(equipped?'<button class="btn ghost" onclick="buyEquip(\''+type+'\',\''+id+'\',0)">Remove</button>':'<button class="btn ghost" onclick="buyEquip(\''+type+'\',\''+id+'\',0)">Equip</button>'); } else { status=(equipped?'<span class="pillbig">Equipped</span>':'<button class="btn ghost" onclick="buyEquip(\''+type+'\',\''+id+'\',0)">Equip</button>'); }
+    return '<div class="obj" style="cursor:default;justify-content:space-between"><div>'+swatch+esc(name)+((multi&&id!=="none"&&equipped)?' <span style="color:var(--ok);font-size:11px">\u2713 on</span>':"")+'</div>'+status+'</div>';
   }).join("");
-  return '<div class="card"><div class="kicker">'+label+'</div>'+items+'</div>';
+  return '<div class="card"><div class="kicker">'+label+(type==="face"?' <span style="font-weight:400;color:#5f6b7c;font-size:11px">(mix &amp; match)</span>':"")+'</div>'+items+'</div>';
+}
+function miniDuck(color,hat,faces){
+  var acc=""; (faces||"").split(",").forEach(function(k){k=(k||"").trim(); if(k&&ACCS[k])acc+=ACCS[k];});
+  return '<svg viewBox="0 0 150 175" width="30" height="35" style="vertical-align:middle;flex:none;overflow:visible">'+
+    '<g stroke="#1c150f" stroke-width="4.5" stroke-linejoin="round">'+
+    '<path d="'+bodyPath(1)+'" fill="'+(color||"#eef4f7")+'"/>'+
+    '<path d="M92 43 C105 39 117 44 117 50 C117 57 104 59 94 55 C90 53 89 46 92 43 Z" fill="#bf6a34"/></g>'+
+    '<ellipse cx="85" cy="42" rx="2.7" ry="3.5" fill="#1c150f"/>'+acc+(HATS[hat]||"")+'</svg>';
 }
 function renderShop(){
   setNav("shop");
@@ -956,7 +991,7 @@ var Leaderboard={
     try{
       var h=lbHeaders(c); h["Content-Type"]="application/json"; h["Prefer"]="resolution=merge-duplicates,return=minimal";
       fetch(lbBase()+"/rest/v1/scores?on_conflict=name",{method:"POST",headers:h,cache:"no-store",
-        body:JSON.stringify([{name:name,xp:state.xp,eggs:state.ducksHatched,correct:state.correct,updated_at:new Date().toISOString()}])
+        body:JSON.stringify([{name:name,xp:state.xp,eggs:state.ducksHatched,correct:state.correct,color:state.shop.color,hat:state.shop.hat,faces:equippedFaces().join(","),updated_at:new Date().toISOString()}])
       }).then(function(r){ if(r.ok){cb&&cb(true);return;} r.text().then(function(t){cb&&cb(false,"HTTP "+r.status+" — "+((t||"").slice(0,180)));}); })
         .catch(function(e){cb&&cb(false,"Network/CORS: "+((e&&e.message)||e));});
     }catch(e){ cb&&cb(false,"Request failed: "+((e&&e.message)||e)); }
@@ -966,7 +1001,7 @@ var Leaderboard={
     var base=lbBase();
     if(!/^https:\/\/.+\..+/.test(base)){ cb(null,"The Project URL looks wrong: \""+base+"\". It should be like https://xxxx.supabase.co (no spaces/newlines)."); return; }
     try{
-      fetch(base+"/rest/v1/scores?select=name,xp,eggs,correct&order=xp.desc&limit=50",{
+      fetch(base+"/rest/v1/scores?select=*&order=xp.desc&limit=50",{
         headers:lbHeaders(c), cache:"no-store"
       }).then(function(r){ return r.text().then(function(t){
         if(!r.ok){ cb(null,"HTTP "+r.status+" — "+(t||"").slice(0,180)); return; }
@@ -1007,8 +1042,9 @@ function renderLeaderboard(){
       return;
     }
     var body=rows.map(function(r,i){var mine=r.name===me;
-      return '<div class="obj" style="cursor:default;'+(mine?'background:var(--okbg);border-radius:8px':'')+'">'+
-        '<div style="width:30px;font-weight:800;color:#5f6b7c">'+(i+1)+'</div>'+
+      return '<div class="obj" style="cursor:default;align-items:center;'+(mine?'background:var(--okbg);border-radius:8px':'')+'">'+
+        '<div style="width:26px;font-weight:800;color:#5f6b7c">'+(i+1)+'</div>'+
+        '<div style="flex:none;margin-right:8px">'+miniDuck(r.color,r.hat,r.faces)+'</div>'+
         '<div style="flex:1;font-weight:'+(mine?800:600)+'">'+esc(r.name||"—")+(mine?' (you)':'')+'</div>'+
         '<div style="font-weight:800">'+(r.xp||0)+' XP</div>'+
         '<div style="width:64px;text-align:right;color:#5f6b7c;font-size:12px">🥚 '+(r.eggs||0)+'</div></div>';
@@ -1040,7 +1076,7 @@ function renderFillblank(){
     if(fbCorrect>state.games.fillblank.best){state.games.fillblank.best=fbCorrect;save(state);}
     V.innerHTML='<h1>⌨️ Fill the blank</h1><div class="card"><h3>Round complete!</h3>'+
       '<p>You got <b>'+fbCorrect+' / '+fbQueue.length+'</b> right. Best: '+state.games.fillblank.best+'.</p>'+
-      '<button class="btn brand" onclick="startFB();renderFillblank();">Play again</button></div>';
+      '<button class="btn brand" onclick="startFB();renderFillblank();">Play again</button> <button class="btn ghost" onclick="clearFbSolved();save(state);toast(\'Reset \u2014 re-earn XP\');startFB();renderFillblank();">\ud83d\udd04 Reset quiz</button></div>';
     return;
   }
   var item=fbQueue[fbPos];
@@ -1052,7 +1088,8 @@ function renderFillblank(){
       '<div style="font-size:12px;color:#5f6b7c">Hint: '+esc(item.hint)+'</div>'+
       '<div class="fb-fb" id="fbFb"></div>'+
       '<div style="margin-top:12px"><button class="btn brand" id="fbCheck">Check</button> <button class="btn ghost" id="fbNext" style="display:none">Next →</button></div>'+
-    '</div>';
+    '</div>'+
+    '<div style="text-align:center;margin-top:16px"><button class="btn ghost" onclick="clearFbSolved();save(state);toast(\'Reset \u2014 re-earn XP\');startFB();renderFillblank();">\ud83d\udd04 Reset quiz</button></div>';
   var inp=document.getElementById("fbIn");
   function check(){
     if(document.getElementById("fbNext").style.display!=="none")return;
@@ -1063,7 +1100,7 @@ function renderFillblank(){
     fb.classList.add(ok?"ok":"no");
     fb.innerHTML=ok?('✓ Correct — <b>'+esc(item.answer)+'</b>'):('✗ Answer: <b>'+esc(item.answer)+'</b>');
     if(ok)fbCorrect++;
-    Duck.feed(ok?12:0, ok);
+    if(ok){ if(firstSolve("fb#"+EXAM.fillblank.indexOf(item))) Duck.feed(12,true); } else Duck.feed(0,false);
     inp.disabled=true;
     document.getElementById("fbCheck").style.display="none";
     document.getElementById("fbNext").style.display="inline-block";
