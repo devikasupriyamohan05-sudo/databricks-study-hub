@@ -62,6 +62,7 @@
   .opt.correct{border-color:#9fdcbb;background:var(--okbg);}
   .opt.wrong{border-color:#f2b9b1;background:var(--redbg);}
   .opt.dim{opacity:.6;}
+  .opt.sel{border-color:var(--accent);background:#eef2ff;font-weight:700;}
   .expl{margin-top:9px;font-size:13px;background:#f6f8fc;border-left:3px solid var(--accent);border-radius:6px;padding:9px 12px;display:none;}
   .expl.show{display:block;}
   .askt{display:inline-block;margin-top:8px;font-size:12px;color:var(--accent);cursor:pointer;font-weight:700;text-decoration:none;}
@@ -195,10 +196,13 @@
       <!-- section links injected -->
       <div class="grouplbl">PRACTICE</div>
       <a data-v="mock">Mock exam <span class="pct"></span></a>
+      <a data-v="exam">📝 Exam simulator</a>
       <a data-v="flash">Flashcards <span class="pct" id="pct-flash"></span></a>
+      <a data-v="review">🔁 Review mistakes</a>
       <div class="grouplbl">PLAY</div>
       <a data-v="jeopardy">🎯 Jeopardy</a>
       <a data-v="fillblank">⌨️ Fill the blank</a>
+      <a data-v="shop">🎩 Duck shop</a>
       <div class="grouplbl">MORE</div>
       <a data-v="resources">Resources</a>
     </nav>
@@ -247,6 +251,9 @@
       </g>
       <!-- eye -->
       <ellipse cx="85" cy="42" rx="2.7" ry="3.5" fill="#1c150f"/>
+      <!-- cosmetics (filled by the duck shop) -->
+      <g id="duckAcc"></g>
+      <g id="duckHat"></g>
     </svg>
   </div></div></div>
 </div>
@@ -281,6 +288,10 @@ state.maxStreak=state.maxStreak||0;
 state.fullness=(typeof state.fullness==="number")?state.fullness:1;  // duck body size
 state.correct=state.correct||0;        // total correct answers
 state.ducksHatched=state.ducksHatched||0;  // eggs laid when belly maxes out
+state.duckRoam=(typeof state.duckRoam==="boolean")?state.duckRoam:true;  // waddle around screen?
+state.perf=state.perf||{};            // perf[domainId]={c,t} correct/attempts
+state.missed=state.missed||{};        // missed["d3#2"]=true  (for weak-spot review)
+state.shop=state.shop||{owned:{},color:"#eef4f7",hat:"none",face:"none"};  // duck cosmetics
 state.srs=state.srs||{};              // srs[cardKey]={box,due,reps}
 state.games=state.games||{};
 state.games.jeopardy=state.games.jeopardy||{solved:{}};
@@ -346,7 +357,7 @@ function tweenBelly(){
 function pulse(cls){ if(!duckEl)return; duckEl.classList.remove(cls); void duckEl.offsetWidth; duckEl.classList.add(cls);
   setTimeout(function(){duckEl.classList.remove(cls);}, 800); }
 function moveDuck(){
-  if(!duckEl)return;
+  if(!duckEl || !state.duckRoam)return;      // stays put when roaming is off
   var W=window.innerWidth, H=window.innerHeight, dw=duckEl.offsetWidth||74, dh=duckEl.offsetHeight||86;
   var tx=Math.max(6, Math.random()*(W-dw-6));
   var ty=Math.max(58, Math.random()*(H-dh-46));
@@ -354,6 +365,17 @@ function moveDuck(){
   duckDir=(tx<cur)?-1:1;
   flipEl.style.transform="scaleX("+duckDir+")";
   duckEl.style.left=tx+"px"; duckEl.style.top=ty+"px";
+}
+function parkDuck(){   // tuck the duck into the bottom-left corner and stop moving
+  if(!duckEl)return;
+  duckDir=1; flipEl.style.transform="scaleX(1)";
+  duckEl.style.left="18px"; duckEl.style.top=(window.innerHeight-Math.max(90,duckEl.offsetHeight)-14)+"px";
+}
+function setDuckRoam(on){
+  state.duckRoam=!!on; save(state);
+  if(roamTimer){clearInterval(roamTimer);roamTimer=null;}
+  if(state.duckRoam){ roamTimer=setInterval(moveDuck,2800); setTimeout(moveDuck,300); }
+  else { parkDuck(); }
 }
 function feedCorn(){
   if(!duckEl)return;
@@ -428,11 +450,11 @@ var Duck={
   startRoaming:function(){
     duckEl=document.getElementById("duck"); flipEl=document.getElementById("duckFlip"); fatEl=document.getElementById("duckFat");
     bodyEl=document.getElementById("duckBody"); shadeEl=document.getElementById("duckShade");
-    gShown=state.fullness||1; applyFat();
+    gShown=state.fullness||1; applyFat(); applyCosmetics();
     duckEl.style.left="40px"; duckEl.style.top=Math.round(window.innerHeight*0.58)+"px";
-    if(roamTimer)clearInterval(roamTimer);
-    setTimeout(moveDuck,500);
-    roamTimer=setInterval(moveDuck,2800);
+    if(roamTimer){clearInterval(roamTimer);roamTimer=null;}
+    if(state.duckRoam){ setTimeout(moveDuck,500); roamTimer=setInterval(moveDuck,2800); }
+    else { parkDuck(); }
     window.addEventListener("resize",function(){ if(parseFloat(duckEl.style.left)>window.innerWidth-40)duckEl.style.left=(window.innerWidth-80)+"px"; });
   }
 };
@@ -476,6 +498,9 @@ function go(v){
   if(v==="overview")V.innerHTML=overviewHTML();
   else if(v==="resources")V.innerHTML=resourcesHTML();
   else if(v==="mock")V.innerHTML=mockHTML();
+  else if(v==="review")V.innerHTML=reviewHTML();
+  else if(v==="exam"){renderExam();return;}
+  else if(v==="shop"){renderShop();return;}
   else if(v==="flash"){renderFlash();return;}
   else if(v==="jeopardy"){renderJeopardy();return;}
   else if(v==="fillblank"){renderFillblank();return;}
@@ -508,7 +533,10 @@ function overviewHTML(){
     '<div class="card"><div class="kicker">The 5 exam sections</div>'+cards+'</div>'+
     '<div class="card"><div class="kicker">Display name (for the leaderboard, later)</div>'+
       '<p class="lead" style="margin:8px 0">Each intern\'s progress is saved on their own machine for now. A shared leaderboard can be switched on later (see the README).</p>'+
-      '<input class="fb-input" id="nameIn" placeholder="e.g. Devika" value="'+esc(state.name)+'" style="max-width:280px" oninput="state.name=this.value;save(state);"></div>'+
+      '<input class="fb-input" id="nameIn" placeholder="e.g. Devika" value="'+esc(state.name)+'" style="max-width:280px" oninput="state.name=this.value;save(state);Duck.render();">'+
+      '<label style="display:flex;align-items:center;gap:9px;margin-top:12px;cursor:pointer;font-size:13.8px">'+
+        '<input type="checkbox" id="roamChk" '+(state.duckRoam?'checked':'')+' style="width:16px;height:16px;accent-color:var(--brand)" onchange="setDuckRoam(this.checked)">'+
+        'Let the duck waddle around the screen <span style="color:#5f6b7c">(uncheck to park it in the corner)</span></label></div>'+
     '<p style="font-size:12.5px;color:#5f6b7c">Quizzes here are <b>original</b> practice written to match the official objectives — for more, the team also uses <a href="https://www.certsafari.com/databricks/data-engineer-associate" target="_blank">CertSafari</a>. Always confirm topics against the <a href="'+EXAM.meta.officialGuide+'" target="_blank">official exam guide</a>.</p>';
 }
 
@@ -533,7 +561,7 @@ function quizHTML(secId,qs){
   var head='<div class="scorebar"><span id="sc-'+secId+'" class="pillbig">'+(saved?('Best: '+saved.best+'/'+saved.total):'Not attempted')+'</span><button class="btn ghost" onclick="resetQuiz(\''+secId+'\')">Reset quiz</button></div>';
   var body=qs.map(function(q,qi){
     var opts=q.opts.map(function(o,oi){return '<div class="opt" data-q="'+qi+'" data-o="'+oi+'">'+String.fromCharCode(65+oi)+'. '+esc(o)+'</div>';}).join("");
-    return '<div class="q" data-secid="'+secId+'" data-ans="'+q.a+'" data-qi="'+qi+'"><div class="qn">'+(qi+1)+'. '+esc(q.q)+'</div><div class="obj-tag">Objective: '+esc(q.obj)+'</div>'+opts+
+    return '<div class="q" data-secid="'+secId+'" data-osec="'+secId+'" data-oqi="'+qi+'" data-ans="'+q.a+'" data-qi="'+qi+'"><div class="qn">'+(qi+1)+'. '+esc(q.q)+'</div><div class="obj-tag">Objective: '+esc(q.obj)+'</div>'+opts+
       '<div class="expl" id="ex-'+secId+'-'+qi+'"><b>Answer: '+String.fromCharCode(65+q.a)+'.</b> '+esc(q.e)+
       '<br><a class="askt" onclick="askTutorAbout('+JSON.stringify(secId)+','+qi+')">🤖 Explain this with the AI Tutor</a></div></div>';
   }).join("");
@@ -567,11 +595,22 @@ function wireQuizzes(){
         });
         document.getElementById("ex-"+qel.dataset.secid+"-"+qel.dataset.qi).classList.add("show");
         Duck.feed(pick===ans?10:0, pick===ans);
+        if(qel.dataset.osec) recordAnswer(qel.dataset.osec, qel.dataset.oqi, pick===ans);
         tallyQuiz(qel.dataset.secid);
       });
     });
   });
 }
+/* per-domain performance + missed-question tracking (for weak-spot review) */
+function recordAnswer(osec, oqi, correct){
+  var p=state.perf[osec]||{c:0,t:0}; p.t++; if(correct)p.c++; state.perf[osec]=p;
+  var key=osec+"#"+oqi;
+  if(correct) delete state.missed[key]; else state.missed[key]=true;
+  save(state);
+}
+function domainPct(id){var p=state.perf[id]; return p&&p.t?Math.round(p.c/p.t*100):null;}
+function questionByKey(key){var a=key.split("#"),sec=EXAM.sections.find(function(s){return s.id===a[0];});
+  return sec?{sec:sec, qi:+a[1], q:sec.quiz[+a[1]]}:null;}
 
 function tallyQuiz(secId){
   var qs=document.querySelectorAll('.q[data-secid="'+secId+'"]');
@@ -591,21 +630,47 @@ function tallyQuiz(secId){
 
 function resetQuiz(secId){ delete state.quiz[secId]; save(state); var sec=EXAM.sections.find(function(s){return s.id===secId;}); if(sec){go(secId);} }
 function resetAll(){ if(confirm("Reset ALL progress, XP, streak, flashcards and game scores?")){
-  state={objDone:{},quiz:{},xp:0,maxStreak:0,fullness:1,correct:0,ducksHatched:0,srs:{},games:{jeopardy:{solved:{}},fillblank:{best:0}},name:state.name};
-  streak=0; gShown=1; save(state); applyFat(); Duck.render(); go("overview"); } }
+  state={objDone:{},quiz:{},xp:0,maxStreak:0,fullness:1,correct:0,ducksHatched:0,duckRoam:state.duckRoam,perf:{},missed:{},shop:state.shop,srs:{},games:{jeopardy:{solved:{}},fillblank:{best:0}},name:state.name};
+  streak=0; gShown=1; save(state); applyFat(); applyCosmetics(); Duck.render(); go("overview"); } }
 
 /* ============================ MOCK EXAM ============================= */
+function quizPool(){var pool=[]; EXAM.sections.forEach(function(s){s.quiz.forEach(function(q,qi){pool.push({s:s.id,qi:qi,q:q});});}); return pool;}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
 function mockHTML(){
-  var pool=[]; EXAM.sections.forEach(function(s){s.quiz.forEach(function(q){pool.push({s:s.id,q:q});});});
-  for(var i=pool.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=pool[i];pool[i]=pool[j];pool[j]=t;}
-  var pick=pool.slice(0,20);
+  var pick=shuffle(quizPool()).slice(0,20);
   var body=pick.map(function(p,qi){
     var q=p.q;
     var opts=q.opts.map(function(o,oi){return '<div class="opt" data-o="'+oi+'">'+String.fromCharCode(65+oi)+'. '+esc(o)+'</div>';}).join("");
-    return '<div class="q" data-secid="mock" data-ans="'+q.a+'" data-qi="'+qi+'"><div class="qn">'+(qi+1)+'. '+esc(q.q)+'</div><div class="obj-tag">'+esc(q.obj)+'</div>'+opts+'<div class="expl" id="ex-mock-'+qi+'"><b>Answer: '+String.fromCharCode(65+q.a)+'.</b> '+esc(q.e)+'</div></div>';
+    return '<div class="q" data-secid="mock" data-osec="'+p.s+'" data-oqi="'+p.qi+'" data-ans="'+q.a+'" data-qi="'+qi+'"><div class="qn">'+(qi+1)+'. '+esc(q.q)+'</div><div class="obj-tag">'+esc(q.obj)+'</div>'+opts+'<div class="expl" id="ex-mock-'+qi+'"><b>Answer: '+String.fromCharCode(65+q.a)+'.</b> '+esc(q.e)+'</div></div>';
   }).join("");
-  return '<h1>Mock exam</h1><p class="lead">20 mixed questions drawn at random from every section. Each correct answer feeds your duck.</p>'+
+  return '<h1>Mock exam</h1><p class="lead">20 mixed questions drawn at random from every domain. Each correct answer feeds your duck.</p>'+
     '<div class="scorebar"><span id="sc-mock" class="pillbig">0 answered</span><button class="btn brand" onclick="go(\'mock\')">New set</button></div>'+body;
+}
+
+/* ===================== WEAK-SPOT REVIEW ===================== */
+function reviewHTML(){
+  var keys=Object.keys(state.missed);
+  if(!keys.length){
+    return '<h1>🔁 Review mistakes</h1><div class="card"><p>🎉 No missed questions right now! Answer some quizzes or the exam simulator — anything you get wrong shows up here so you can drill it until it sticks.</p></div>'+domainPerfCard();
+  }
+  var items=keys.map(questionByKey).filter(Boolean);
+  var body=items.map(function(it,qi){
+    var q=it.q, secId=it.sec.id;
+    var opts=q.opts.map(function(o,oi){return '<div class="opt" data-o="'+oi+'">'+String.fromCharCode(65+oi)+'. '+esc(o)+'</div>';}).join("");
+    return '<div class="q" data-secid="review" data-osec="'+secId+'" data-oqi="'+it.qi+'" data-ans="'+q.a+'" data-qi="'+qi+'"><div class="qn">'+(qi+1)+'. '+esc(q.q)+'</div><div class="obj-tag">'+esc(it.sec.title)+' · '+esc(q.obj)+'</div>'+opts+
+      '<div class="expl" id="ex-review-'+qi+'"><b>Answer: '+String.fromCharCode(65+q.a)+'.</b> '+esc(q.e)+'</div></div>';
+  }).join("");
+  return '<h1>🔁 Review mistakes</h1><p class="lead">The '+items.length+' question(s) you\'ve missed. Get one right and it leaves this list.</p>'+
+    '<div class="scorebar"><span class="pillbig">'+items.length+' to review</span></div>'+body;
+}
+function domainPerfCard(){
+  var rows=EXAM.sections.map(function(s){var p=domainPct(s.id);
+    return '<div class="obj" style="cursor:default">'+
+      '<div class="ring" style="--p:'+(p||0)+'"><i>'+(p===null?'—':p)+'</i></div>'+
+      '<div style="flex:1"><div style="font-weight:700;cursor:pointer;color:#2f56d6" onclick="go(\''+s.id+'\')">'+esc(s.title)+'</div>'+
+      '<div style="font-size:12px;color:#5f6b7c">'+(state.perf[s.id]?(state.perf[s.id].c+'/'+state.perf[s.id].t+' correct'):'not attempted')+'</div></div></div>';
+  }).join("");
+  return '<div class="card"><div class="kicker">Performance by domain</div>'+rows+'</div>';
 }
 
 /* ============================ FLASHCARDS ============================ */
@@ -688,9 +753,9 @@ function renderJeopardy(){
         : '<button class="jtile" onclick="openTile(\''+s.id+'\','+vi+','+val+')">$'+val+'</button>';
     });
   });
-  V.innerHTML='<h1>🎯 Jeopardy</h1><p class="lead">Pick a section &amp; point value. Answer right to bank the points and feed your duck. ✓ solved · ✗ missed.</p>'+
+  V.innerHTML='<h1>🎯 Jeopardy</h1><p class="lead">Pick a domain &amp; point value. Answer right to bank the points and feed your duck. ✓ solved · ✗ missed.</p>'+
     '<div class="scorebar"><span class="pillbig">Board score: $'+jScore()+'</span><button class="btn ghost" onclick="newJeopardy()">New board</button></div>'+
-    '<div class="jboard">'+cats+rows+'</div>';
+    '<div class="jboard" style="grid-template-columns:repeat('+EXAM.sections.length+',1fr)">'+cats+rows+'</div>';
 }
 function newJeopardy(){ state.games.jeopardy.solved={}; save(state); buildJMap(); renderJeopardy(); }
 function openTile(secId,vi,val){
@@ -712,11 +777,121 @@ function openTile(secId,vi,val){
       var x=document.getElementById("jx"); x.classList.add("show");
       x.innerHTML='<b>'+(ok?'Correct! +$'+val:'Not quite.')+'</b> '+esc(q.e);
       state.games.jeopardy.solved[key]=ok?"ok":"no"; save(state);
+      recordAnswer(secId, jMap[secId][vi], ok);
       Duck.feed(ok?Math.round(val/10):0, ok);
       setTimeout(function(){m.remove();renderJeopardy();}, 1700);
     });
   });
   m.addEventListener("click",function(e){if(e.target===m && !m.dataset.done)m.remove();});
+}
+
+/* ===================== EXAM SIMULATOR ===================== */
+var examQ=null, examSel={}, examTimer=null, examEnd=0, examDone=false, examScore=null;
+function fmtTime(ms){var s=Math.max(0,Math.round(ms/1000));return Math.floor(s/60)+":"+("0"+(s%60)).slice(-2);}
+function examSize(){return Math.min(45, quizPool().length);}
+function startExam(){
+  examQ=shuffle(quizPool()).slice(0, examSize()); examSel={}; examDone=false; examScore=null;
+  examEnd=Date.now()+90*60*1000;
+  renderExam();
+  if(examTimer)clearInterval(examTimer);
+  examTimer=setInterval(function(){var el=document.getElementById("examTimer");if(!el||examDone){clearInterval(examTimer);return;}
+    var left=examEnd-Date.now(); el.textContent="⏱ "+fmtTime(left); if(left<=0){clearInterval(examTimer);submitExam();}},1000);
+}
+function pickExam(i,oi){ if(examDone)return; examSel[i]=oi;
+  var qel=document.querySelector('.exq[data-i="'+i+'"]'); if(!qel)return;
+  qel.querySelectorAll(".opt").forEach(function(o){o.classList.toggle("sel", +o.dataset.o===oi);});
+  var el=document.getElementById("examProg"); if(el)el.textContent=Object.keys(examSel).length+" / "+examQ.length+" answered";
+}
+function submitExam(){
+  if(examDone||!examQ)return; examDone=true; if(examTimer)clearInterval(examTimer);
+  var correct=0, by={};
+  examQ.forEach(function(p,i){ var ok=examSel[i]===p.q.a; if(ok)correct++;
+    by[p.s]=by[p.s]||{c:0,t:0}; by[p.s].t++; if(ok)by[p.s].c++;
+    recordAnswer(p.s, p.qi, ok); });
+  var pct=Math.round(correct/examQ.length*100);
+  examScore={correct:correct,total:examQ.length,pct:pct,pass:pct>=70,by:by};
+  state.xp+=correct*8; save(state); Duck.render();
+  toast((examScore.pass?"✅ Passed":"❌ Keep going")+" — "+pct+"%  (+"+(correct*8)+" XP)");
+  renderExam(); window.scrollTo(0,0);
+}
+function examResultCard(){
+  var s=examScore, rows=EXAM.sections.map(function(sec){var b=s.by[sec.id]; if(!b)return "";
+    var p=Math.round(b.c/b.t*100);
+    return '<div style="display:flex;justify-content:space-between;padding:5px 0;border-top:1px solid var(--line);font-size:13px"><span>'+esc(sec.title)+'</span><b style="color:'+(p>=70?'var(--ok)':'var(--red)')+'">'+b.c+'/'+b.t+' ('+p+'%)</b></div>';
+  }).join("");
+  return '<div class="card" style="border-color:'+(s.pass?'#9fdcbb':'#f2b9b1')+';background:'+(s.pass?'var(--okbg)':'var(--redbg)')+'">'+
+    '<div style="font-size:22px;font-weight:900;color:'+(s.pass?'var(--ok)':'var(--red)')+'">'+(s.pass?'✅ Pass':'❌ Not yet')+' — '+s.pct+'%</div>'+
+    '<div style="font-size:13px;color:var(--ink)">'+s.correct+' / '+s.total+' correct · pass mark ~70% · missed ones are now in <b>Review mistakes</b></div>'+
+    '<div style="margin-top:8px">'+rows+'</div>'+
+    '<button class="btn brand" style="margin-top:12px" onclick="startExam()">New exam</button> <button class="btn ghost" onclick="go(\'review\')">Review mistakes</button></div>';
+}
+function renderExam(){
+  setNav("exam");
+  var V=document.getElementById("view");
+  if(!examQ){ V.innerHTML='<h1>📝 Exam simulator</h1><p class="lead">A timed practice exam: '+examSize()+' questions, 90 minutes, pass mark ~70%. Answers are hidden until you submit, then you get a score and a per-domain breakdown. Missed questions go to Review mistakes.</p>'+
+    '<div class="card"><p>The real exam is 45 scored multiple-choice questions in 90 minutes.</p><button class="btn brand" onclick="startExam()">Start exam</button></div>'+domainPerfCard(); return; }
+  var body=examQ.map(function(p,i){
+    var q=p.q;
+    var opts=q.opts.map(function(o,oi){var cls="opt"; if(!examDone&&examSel[i]===oi)cls+=" sel";
+      if(examDone){ if(oi===q.a)cls+=" correct"; else if(examSel[i]===oi)cls+=" wrong"; else cls+=" dim"; }
+      return '<div class="'+cls+'" data-o="'+oi+'" onclick="pickExam('+i+','+oi+')">'+String.fromCharCode(65+oi)+'. '+esc(o)+'</div>';}).join("");
+    var expl=examDone?'<div class="expl show"><b>Answer: '+String.fromCharCode(65+q.a)+'.</b> '+esc(q.e)+'</div>':'';
+    return '<div class="q exq" data-i="'+i+'"><div class="qn">'+(i+1)+'. '+esc(q.q)+'</div>'+opts+expl+'</div>';
+  }).join("");
+  var header = examDone ? examResultCard() :
+    '<div class="scorebar" style="position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:5"><span class="pillbig" id="examTimer">⏱ 90:00</span><span id="examProg" style="font-size:12px;color:#5f6b7c">0 / '+examQ.length+' answered</span><button class="btn brand" onclick="submitExam()">Submit</button></div>';
+  V.innerHTML='<h1>📝 Exam simulator</h1>'+header+body+(examDone?'':'<div style="margin-top:14px"><button class="btn brand" onclick="submitExam()">Submit exam</button></div>');
+}
+
+/* ===================== DUCK SHOP (spend XP) ===================== */
+var SHOP={
+  color:[["Classic","#eef4f7",0],["Sunny","#ffe79a",60],["Mint","#cde9d6",60],["Sky","#cfe3ff",60],["Bubblegum","#ffd6e7",90],["Charcoal","#c2cad6",90]],
+  hat:[["None","none",0],["Party","party",80],["Grad cap","grad",120],["Top hat","top",180],["Crown","crown",320]],
+  face:[["None","none",0],["Glasses","glasses",70],["Sunglasses","shades",120],["Moustache","stache",150]]
+};
+var HATS={
+  none:"",
+  party:'<path d="M84 0 L72 22 L96 22 Z" fill="#ff6f61" stroke="#1c150f" stroke-width="2" stroke-linejoin="round"/><path d="M84 2 L80 22 M84 2 L89 22" stroke="#ffd56b" stroke-width="2"/><circle cx="84" cy="1" r="3.4" fill="#ffd56b" stroke="#1c150f" stroke-width="1.5"/>',
+  grad:'<path d="M64 16 L84 8 L104 16 L84 24 Z" fill="#22262e" stroke="#1c150f" stroke-width="2" stroke-linejoin="round"/><path d="M77 20 l0 6 q7 4 14 0 l0 -6" fill="#22262e" stroke="#1c150f" stroke-width="2" stroke-linejoin="round"/><path d="M84 16 L100 17 L100 27" fill="none" stroke="#e8b100" stroke-width="1.8"/><circle cx="100" cy="28" r="2.6" fill="#e8b100"/>',
+  top:'<ellipse cx="84" cy="23" rx="18" ry="4.6" fill="#1b1b1b"/><rect x="73" y="1" width="22" height="21" rx="2" fill="#1b1b1b"/><rect x="73" y="14" width="22" height="4.5" fill="#c0303a"/>',
+  crown:'<path d="M69 23 L69 9 L78 16 L84 5 L90 16 L99 9 L99 23 Z" fill="#f2c400" stroke="#1c150f" stroke-width="2" stroke-linejoin="round"/><circle cx="84" cy="9" r="1.9" fill="#e0392b"/><circle cx="72" cy="12" r="1.5" fill="#e0392b"/><circle cx="96" cy="12" r="1.5" fill="#e0392b"/>'
+};
+var ACCS={
+  none:"",
+  glasses:'<g fill="none" stroke="#1c150f" stroke-width="2.4"><circle cx="83" cy="42" r="7"/><circle cx="99" cy="45" r="7"/><path d="M90 43 l2 1.5"/></g>',
+  shades:'<g stroke="#1c150f" stroke-width="1.5"><path d="M75 38 q9 -2 16 1 q0 9 -8 8 q-9 -1 -8 -9 Z" fill="#1b1b1b"/><path d="M93 41 q9 -1 15 2 q-1 8 -8 7 q-8 -1 -7 -9 Z" fill="#1b1b1b"/><path d="M90 41 l3 1" stroke-width="2.4"/></g>',
+  stache:'<path d="M83 57 q6 -6 12 -1 q6 -5 12 1 q-5 7 -12 2.5 q-6 4.5 -12 -2.5 Z" fill="#3a2a1a" stroke="#1c150f" stroke-width="1.2"/>'
+};
+function applyCosmetics(){
+  if(bodyEl) bodyEl.style.fill=state.shop.color||"#eef4f7";
+  var h=document.getElementById("duckHat"), a=document.getElementById("duckAcc");
+  if(h) h.innerHTML=HATS[state.shop.hat]||""; if(a) a.innerHTML=ACCS[state.shop.face]||"";
+}
+function owns(type,id,cost){ return cost===0 || state.shop.owned[type+":"+id]; }
+function buyEquip(type,id,cost){
+  if(!owns(type,id,cost)){
+    if(state.xp<cost){ toast("Need "+(cost-state.xp)+" more XP for that"); return; }
+    state.xp-=cost; state.shop.owned[type+":"+id]=true; toast("Unlocked! (-"+cost+" XP)");
+  }
+  if(type==="color") state.shop.color=id; else if(type==="hat") state.shop.hat=id; else state.shop.face=id;
+  save(state); applyCosmetics(); Duck.render(); renderShop();
+}
+function shopRow(type,label){
+  var items=SHOP[type].map(function(it){
+    var name=it[0], id=it[1], cost=it[2];
+    var equipped=(type==="color"?state.shop.color===id:(type==="hat"?state.shop.hat===id:state.shop.face===id));
+    var owned=owns(type,id,cost);
+    var swatch=type==="color"?'<span style="display:inline-block;width:16px;height:16px;border-radius:4px;border:1px solid var(--line);background:'+id+';vertical-align:-3px;margin-right:6px"></span>':'';
+    var status=equipped?'<span class="pillbig">Equipped</span>':(owned?'<button class="btn ghost" onclick="buyEquip(\''+type+'\',\''+id+'\','+cost+')">Equip</button>':'<button class="btn brand" onclick="buyEquip(\''+type+'\',\''+id+'\','+cost+')">'+cost+' XP</button>');
+    return '<div class="obj" style="cursor:default;justify-content:space-between"><div>'+swatch+esc(name)+'</div>'+status+'</div>';
+  }).join("");
+  return '<div class="card"><div class="kicker">'+label+'</div>'+items+'</div>';
+}
+function renderShop(){
+  setNav("shop");
+  document.getElementById("view").innerHTML=
+    '<h1>🎩 Duck shop</h1><p class="lead">Spend the XP you earn to dress up your duck. You have <b>'+state.xp+' XP</b>. Cosmetics show on the duck as it waddles.</p>'+
+    shopRow("color","Body colour")+shopRow("hat","Hats")+shopRow("face","Accessories");
 }
 
 /* ============================ FILL THE BLANK ======================== */

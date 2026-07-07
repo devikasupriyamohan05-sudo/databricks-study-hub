@@ -13,89 +13,92 @@
       "aim to pass*"
     ],
     [
+      "7",
+      "domains"
+    ],
+    [
       "2 yrs",
       "validity"
     ]
   ],
   "sections": [
     {
-      "id": "s1",
+      "id": "d1",
       "title": "Databricks Intelligence Platform",
-      "weightHint": "Platform value, compute, data layout",
+      "weightHint": "Architecture, Delta Lake, Unity Catalog, compute & cost",
       "objectives": [
-        "Enable features that simplify data layout decisions and optimize query performance",
-        "Explain the value of the Data Intelligence Platform",
-        "Identify the applicable compute to use for a specific use case"
+        "Understand the core components of the Data Intelligence Platform (architecture, Delta Lake, Unity Catalog)",
+        "Understand the compute services, their characteristics, limits and cost models, and pick the right one per workload"
       ],
-      "notes": "\n        <h3>The value of the Data Intelligence Platform</h3>\n        <p>One platform over a single <b>lakehouse</b> (open Delta/Parquet in cloud storage) that unifies engineering, analytics, ML and AI, governed end-to-end by <b>Unity Catalog</b>. \"Intelligence\" = AI woven in (assistant, natural-language search, predictive optimization). Key wins: open formats (no lock-in), one governance layer, collaboration, ACID via Delta Lake.</p>\n        <h3>Optimizing data layout & query performance</h3>\n        <ul>\n          <li><b>Delta Lake</b> gives ACID transactions, time travel, schema enforcement.</li>\n          <li><b>Liquid Clustering</b> — modern replacement for partitioning + ZORDER; cluster a table on chosen keys, Databricks manages layout as data grows.</li>\n          <li><b>Predictive Optimization</b> — Databricks auto-runs <code>OPTIMIZE</code> (compaction) and <code>VACUUM</code> for you.</li>\n          <li>Legacy levers you should still recognize: <code>OPTIMIZE</code> (compact small files), <code>ZORDER BY</code> (co-locate by column), partitioning, auto compaction.</li>\n        </ul>\n        <h3>Pick the right compute</h3>\n        <ul>\n          <li><b>All-purpose compute</b> — interactive notebook/dev work; can be shared; stays up.</li>\n          <li><b>Job compute</b> — spun up for an automated job and torn down after; cheaper for scheduled work.</li>\n          <li><b>SQL warehouse</b> — for SQL/BI queries and dashboards.</li>\n          <li><b>Serverless</b> vs <b>classic</b> — serverless starts fast and is managed/auto-optimized by Databricks; classic runs in your cloud account.</li>\n        </ul>\n        <p class=\"lead\">Rule of thumb: scheduled pipeline → job compute (or serverless); a person exploring in a notebook → all-purpose; BI/SQL dashboard → SQL warehouse.</p>",
+      "notes": "\n    <h3>Core components</h3>\n    <ul>\n      <li><b>Lakehouse architecture</b> — open Delta/Parquet data in cloud storage, unifying engineering, analytics, ML and AI under one governance layer.</li>\n      <li><b>Delta Lake</b> — the table format: ACID transactions, <b>time travel</b> (query past versions), schema enforcement, and the transaction log.</li>\n      <li><b>Unity Catalog (UC)</b> — the governance layer: a three-level namespace <code>catalog.schema.table</code>, permissions, automatic lineage, and audit.</li>\n    </ul>\n    <h3>Compute services &amp; cost</h3>\n    <ul>\n      <li><b>All-purpose compute</b> — interactive dev in notebooks; stays up; most expensive if left idle.</li>\n      <li><b>Job compute</b> — created for an automated job and torn down after; cheaper for scheduled work.</li>\n      <li><b>SQL warehouse</b> — for SQL/BI queries and dashboards.</li>\n      <li><b>Serverless vs classic</b> — serverless is managed & auto-optimized by Databricks with fast startup; classic runs in your cloud account.</li>\n      <li>Billing is measured in <b>DBUs</b> (per-second). Rule of thumb: scheduled pipeline → job/serverless; interactive exploration → all-purpose; BI dashboard → SQL warehouse.</li>\n    </ul>",
       "videos": [
         [
-          "What is the Databricks Lakehouse / DI Platform",
-          "concept overview",
-          "Databricks Data Intelligence Platform overview"
+          "Data Intelligence Platform overview",
+          "architecture",
+          "Databricks Data Intelligence Platform architecture overview"
         ],
         [
-          "Compute types: all-purpose vs jobs vs SQL warehouse",
-          "when to use each",
-          "Databricks cluster types all purpose vs job compute"
+          "Delta Lake + Unity Catalog basics",
+          "components",
+          "Databricks Delta Lake Unity Catalog explained"
         ],
         [
-          "Liquid Clustering & OPTIMIZE / ZORDER",
-          "data layout",
-          "Databricks liquid clustering OPTIMIZE ZORDER tutorial"
+          "Compute types & when to use them",
+          "compute & cost",
+          "Databricks compute all purpose vs job vs SQL warehouse serverless"
         ]
       ],
       "quiz": [
         {
-          "q": "A scheduled nightly ETL job currently runs on an always-on all-purpose cluster. The team wants to cut cost without changing the logic. What's the best change?",
+          "q": "A Unity Catalog object is addressed with how many namespace levels?",
           "opts": [
-            "Switch the job to a SQL warehouse",
-            "Run it on job compute that starts and terminates with the run",
-            "Increase the all-purpose cluster size",
-            "Move the job to a personal cluster"
+            "One: table",
+            "Two: schema.table",
+            "Three: catalog.schema.table",
+            "Four: metastore.catalog.schema.table"
           ],
-          "a": 1,
-          "obj": "Identify the applicable compute",
-          "e": "Job compute is provisioned for the run and torn down after, so you don't pay for idle time. SQL warehouses are for SQL/BI, not arbitrary ETL logic."
+          "a": 2,
+          "obj": "Core components / Unity Catalog",
+          "e": "UC uses catalog.schema.table.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/",
+            "l": "Unity Catalog"
+          }
         },
         {
-          "q": "Which feature lets Databricks automatically run OPTIMIZE and VACUUM on a table so engineers don't have to schedule them?",
+          "q": "Which Delta Lake capability lets you query a table at an earlier version or timestamp?",
           "opts": [
             "Liquid Clustering",
-            "Predictive Optimization",
-            "Auto Loader",
+            "Time travel",
+            "Predictive optimization",
             "Delta Sharing"
           ],
           "a": 1,
-          "obj": "Simplify data layout decisions",
-          "e": "Predictive Optimization automates maintenance like compaction (OPTIMIZE) and cleanup (VACUUM)."
+          "obj": "Delta Lake",
+          "e": "Delta's transaction log enables time travel to prior versions.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/delta/history",
+            "l": "Delta time travel & history"
+          }
         },
         {
-          "q": "A team wants to cluster a large Delta table on frequently filtered columns and have Databricks manage the layout as it grows, instead of choosing partitions and ZORDER manually. What should they use?",
+          "q": "A nightly scheduled ETL job runs on an always-on all-purpose cluster. Cheapest fix, same logic?",
           "opts": [
-            "Static partitioning by date",
-            "Liquid Clustering",
-            "A SQL warehouse",
-            "Bucketing"
+            "Enlarge the cluster",
+            "Run on job compute that starts and stops with the run",
+            "Move it to a SQL warehouse",
+            "Use a personal cluster"
           ],
           "a": 1,
-          "obj": "Optimize query performance",
-          "e": "Liquid Clustering replaces the old partition + ZORDER approach and adapts the layout automatically."
+          "obj": "Compute & cost",
+          "e": "Job compute is provisioned per run and torn down after — no idle cost.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/compute/choose-compute",
+            "l": "Choosing compute"
+          }
         },
         {
-          "q": "Which is a core value of the Data Intelligence Platform / lakehouse architecture?",
-          "opts": [
-            "It stores data in a proprietary closed format for speed",
-            "It unifies engineering, BI and AI on open formats with one governance layer",
-            "It requires a separate data warehouse and data lake",
-            "It removes the need for any compute"
-          ],
-          "a": 1,
-          "obj": "Explain the value of the platform",
-          "e": "The lakehouse unifies workloads on open formats (Delta/Parquet) governed by Unity Catalog — no separate warehouse + lake silos."
-        },
-        {
-          "q": "Which compute is the right default for a BI dashboard issuing SQL queries?",
+          "q": "Which compute is purpose-built for BI dashboards issuing SQL?",
           "opts": [
             "All-purpose compute",
             "Job compute",
@@ -103,558 +106,965 @@
             "Single-node cluster"
           ],
           "a": 2,
-          "obj": "Identify the applicable compute",
-          "e": "SQL warehouses are purpose-built for SQL and BI tools."
+          "obj": "Compute & cost",
+          "e": "SQL warehouses serve SQL/BI workloads.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/compute/choose-compute",
+            "l": "Choosing compute"
+          }
         },
         {
-          "q": "Which Delta Lake capability lets you query a previous version of a table (e.g. as of a past timestamp)?",
+          "q": "Compared with classic compute, serverless compute is:",
           "opts": [
-            "Liquid Clustering",
+            "Run in your cloud account, manually tuned",
+            "Databricks-managed, auto-optimized, fast startup",
+            "Only for streaming",
+            "A storage format"
+          ],
+          "a": 1,
+          "obj": "Compute & cost",
+          "e": "Serverless is managed and auto-optimized with fast startup; classic runs in your account.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/compute/choose-compute",
+            "l": "Choosing compute"
+          }
+        },
+        {
+          "q": "Databricks measures compute consumption in which unit?",
+          "opts": [
+            "vCPU-hours",
+            "DBUs (per second)",
+            "Rows scanned",
+            "GB stored"
+          ],
+          "a": 1,
+          "obj": "Compute & cost",
+          "e": "Usage is billed in DBUs on a per-second basis.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/compute/choose-compute",
+            "l": "Choosing compute"
+          }
+        },
+        {
+          "q": "Which set of guarantees does Delta Lake add on top of Parquet?",
+          "opts": [
+            "ACID transactions",
+            "Automatic dashboards",
+            "Free compute",
+            "Network encryption only"
+          ],
+          "a": 0,
+          "obj": "Delta Lake",
+          "e": "Delta Lake brings ACID transactions, plus time travel and schema enforcement.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/delta/",
+            "l": "What is Delta Lake"
+          }
+        },
+        {
+          "q": "Which Delta feature rejects a write whose columns don't match the table's schema?",
+          "opts": [
+            "Schema evolution",
+            "Schema enforcement",
             "Time travel",
-            "Delta Sharing",
+            "Z-ordering"
+          ],
+          "a": 1,
+          "obj": "Delta Lake",
+          "e": "Schema enforcement blocks mismatched writes; evolution instead adapts the schema.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/delta/",
+            "l": "What is Delta Lake"
+          }
+        },
+        {
+          "q": "Best compute for a person interactively developing in a shared notebook?",
+          "opts": [
+            "All-purpose compute",
+            "Job compute",
+            "SQL warehouse",
+            "A file notification queue"
+          ],
+          "a": 0,
+          "obj": "Compute & cost",
+          "e": "All-purpose compute is for interactive, shareable notebook work.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/compute/choose-compute",
+            "l": "Choosing compute"
+          }
+        },
+        {
+          "q": "Which component provides governance, permissions and automatic lineage across the platform?",
+          "opts": [
+            "Delta Lake",
+            "Unity Catalog",
+            "Auto Loader",
             "Photon"
           ],
           "a": 1,
-          "obj": "Optimize query performance / Delta Lake",
-          "e": "Delta Lake keeps a transaction log, enabling time travel to earlier versions of a table.",
-          "_added": true
+          "obj": "Core components",
+          "e": "Unity Catalog is the governance layer (permissions, lineage, audit).",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/",
+            "l": "Unity Catalog"
+          }
         },
         {
           "q": "The lakehouse stores data in which open formats?",
           "opts": [
-            "A proprietary Databricks-only format",
+            "A proprietary closed format",
             "Delta/Parquet in cloud object storage",
-            "CSV files only",
-            "An in-memory format that isn't persisted"
+            "CSV only",
+            "An in-memory-only format"
           ],
           "a": 1,
-          "obj": "Explain the value of the platform",
-          "e": "The lakehouse uses open Delta/Parquet files in cloud storage — no proprietary lock-in.",
-          "_added": true
+          "obj": "Architecture",
+          "e": "The lakehouse uses open Delta/Parquet files in cloud storage.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/compute/choose-compute",
+            "l": "Choosing compute"
+          }
         },
         {
-          "q": "What does the OPTIMIZE command do to a Delta table?",
+          "q": "Which is TRUE about serverless vs job compute for a simple scheduled pipeline?",
           "opts": [
-            "Deletes old files with VACUUM",
-            "Compacts many small files into fewer larger ones",
-            "Grants permissions",
-            "Creates a materialized view"
+            "Both are reasonable; serverless removes cluster sizing/management",
+            "Only all-purpose can run schedules",
+            "SQL warehouses are required",
+            "Serverless cannot run jobs"
           ],
-          "a": 1,
-          "obj": "Simplify data layout decisions",
-          "e": "OPTIMIZE compacts small files to improve read performance; VACUUM is the separate cleanup command.",
-          "_added": true
-        },
-        {
-          "q": "Compared to classic compute, serverless compute is best described as:",
-          "opts": [
-            "Running in your own cloud account and manually tuned",
-            "Managed and auto-optimized by Databricks with fast startup",
-            "Only usable for BI dashboards",
-            "A storage format"
-          ],
-          "a": 1,
-          "obj": "Identify the applicable compute",
-          "e": "Serverless is managed and auto-optimized by Databricks and starts quickly; classic runs in your cloud account.",
-          "_added": true
+          "a": 0,
+          "obj": "Compute & cost",
+          "e": "Scheduled pipelines commonly use job or serverless compute; serverless removes sizing/management overhead.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/compute/choose-compute",
+            "l": "Choosing compute"
+          }
         }
       ],
       "flashcards": [
-        {
-          "front": "Lakehouse",
-          "back": "One platform over open Delta/Parquet files in cloud storage that unifies engineering, analytics, ML and AI — no separate warehouse + lake silos."
-        },
-        {
-          "front": "Unity Catalog",
-          "back": "The single governance layer that governs the platform end-to-end (data, AI assets, permissions, lineage)."
-        },
-        {
-          "front": "Delta Lake",
-          "back": "Storage layer giving ACID transactions, time travel, and schema enforcement on top of Parquet."
-        },
-        {
-          "front": "Liquid Clustering",
-          "back": "Modern replacement for partitioning + ZORDER: you pick cluster keys and Databricks manages the data layout automatically as the table grows."
-        },
-        {
-          "front": "Predictive Optimization",
-          "back": "Databricks automatically runs maintenance like OPTIMIZE (compaction) and VACUUM (cleanup) so engineers don't have to schedule them."
-        },
-        {
-          "front": "OPTIMIZE / ZORDER",
-          "back": "Legacy layout levers: OPTIMIZE compacts small files; ZORDER BY co-locates data by column. Liquid Clustering now supersedes this combo."
-        },
-        {
-          "front": "All-purpose compute",
-          "back": "Interactive notebook/dev work; can be shared and stays up. Best for a person exploring."
-        },
-        {
-          "front": "Job compute",
-          "back": "Spun up for an automated job and torn down after it finishes — cheaper for scheduled work (no idle cost)."
-        },
-        {
-          "front": "SQL warehouse",
-          "back": "Compute purpose-built for SQL/BI queries and dashboards."
-        },
-        {
-          "front": "Serverless vs classic",
-          "back": "Serverless starts fast and is managed/auto-optimized by Databricks; classic runs in your own cloud account."
-        }
+        [
+          "Lakehouse",
+          "Open Delta/Parquet data in cloud storage unifying engineering, analytics, ML and AI under one governance layer."
+        ],
+        [
+          "Delta Lake",
+          "Table format giving ACID transactions, time travel, and schema enforcement via a transaction log."
+        ],
+        [
+          "Unity Catalog",
+          "Governance layer with a 3-level namespace (catalog.schema.table), permissions, lineage and audit."
+        ],
+        [
+          "All-purpose vs job compute",
+          "All-purpose = interactive, stays up; job = spun up per run and torn down (cheaper for schedules)."
+        ],
+        [
+          "SQL warehouse",
+          "Compute purpose-built for SQL and BI dashboards."
+        ],
+        [
+          "Serverless vs classic",
+          "Serverless is Databricks-managed and auto-optimized with fast startup; classic runs in your cloud account."
+        ],
+        [
+          "DBU",
+          "Databricks Unit — the per-second measure of compute consumption used for billing."
+        ]
       ]
     },
     {
-      "id": "s2",
-      "title": "Development & Ingestion",
-      "weightHint": "Notebooks, Auto Loader, Databricks Connect, debugging",
+      "id": "d2",
+      "title": "Data Ingestion & Loading",
+      "weightHint": "COPY INTO, Auto Loader, Lakeflow Connect, JDBC/REST, JSON",
       "objectives": [
-        "Use Databricks Connect in a data engineering workflow",
-        "Determine the capabilities of Notebooks functionality",
-        "Classify valid Auto Loader sources and use cases",
-        "Demonstrate knowledge of Auto Loader syntax",
-        "Use Databricks' built-in debugging tools to troubleshoot a given issue"
+        "Enable batch, streaming and incremental ingestion from sources like local files and Lakeflow Connect connectors",
+        "Use COPY INTO to incrementally load files from cloud storage into UC tables",
+        "Use Auto Loader with schema enforcement and evolution (directory listing / file notification)",
+        "Configure Lakeflow Connect to ingest from enterprise sources into UC tables",
+        "Use JDBC/ODBC or REST clients in notebooks to land data, orchestrated by Lakeflow Jobs",
+        "Prioritize between Auto Loader, Lakeflow Connect and other methods by volume, frequency, types and governance",
+        "Ingest semi-structured/unstructured data (e.g. nested JSON) into UC-governed Delta tables"
       ],
-      "notes": "\n        <h3>Databricks Connect</h3>\n        <p>Run code from your <b>local IDE</b> (VS Code, PyCharm) or app against <b>remote Databricks compute</b>. You develop locally with full PySpark/Spark Connect but execution happens on the cluster — handy for testing and apps without working only in the web notebook.</p>\n        <h3>Notebooks</h3>\n        <ul>\n          <li>Multi-language cells via magics: <code>%python</code>, <code>%sql</code>, <code>%scala</code>, <code>%r</code>, <code>%md</code>, <code>%sh</code>.</li>\n          <li><code>%run ./other_notebook</code> imports another notebook; <code>dbutils</code> for files, secrets, widgets; <code>dbutils.widgets</code> for parameters.</li>\n          <li>Collaborative editing, version history, results, and visualizations inline.</li>\n        </ul>\n        <h3>Auto Loader (incremental file ingestion)</h3>\n        <ul>\n          <li>Incrementally and efficiently loads <b>new files</b> as they land in <b>cloud object storage</b> (S3, ADLS, GCS).</li>\n          <li>Uses the <code>cloudFiles</code> source, tracks what's processed via a <b>checkpoint</b>, and supports <b>schema inference & evolution</b>.</li>\n          <li>Best for: continuously / unpredictably arriving files; far better than re-listing a whole directory each run.</li>\n        </ul>\n        <pre>spark.readStream\n  .format(\"cloudFiles\")\n  .option(\"cloudFiles.format\", \"json\")\n  .option(\"cloudFiles.schemaLocation\", \"/chk/schema\")\n  .load(\"/landing/events\")\n.writeStream\n  .option(\"checkpointLocation\", \"/chk/events\")\n  .table(\"bronze_events\")</pre>\n        <h3>Debugging tools</h3>\n        <ul>\n          <li><b>Spark UI</b> — see stages/tasks, find skew, shuffle, and spills.</li>\n          <li>Notebook error tracebacks; <code>df.explain()</code> for the query plan; cluster <b>event logs</b> and driver/executor logs.</li>\n        </ul>",
+      "notes": "\n    <h3>COPY INTO</h3>\n    <p>SQL command that <b>incrementally</b> loads files from cloud object storage (S3/ADLS/GCS) into a UC table. It is <b>idempotent</b> — re-running skips files already loaded, so it's safe to retry.</p>\n    <pre>COPY INTO my_catalog.sales.bronze\nFROM 's3://bucket/landing/'\nFILEFORMAT = JSON;</pre>\n    <h3>Auto Loader</h3>\n    <ul>\n      <li>Uses the <code>cloudFiles</code> source to incrementally pick up <b>new files</b> as they arrive.</li>\n      <li>Two file-detection modes: <b>directory listing</b> and <b>file notification</b> (event-based, better at scale).</li>\n      <li>Supports <b>schema inference, enforcement and evolution</b> via a schema location; tracks progress with a checkpoint.</li>\n    </ul>\n    <h3>Lakeflow Connect</h3>\n    <p><b>Managed connectors</b> that reliably ingest from enterprise sources (SaaS apps, databases) into UC tables with little code; <b>standard</b> connectors cover common formats/sources.</p>\n    <h3>Choosing a method &amp; other clients</h3>\n    <ul>\n      <li>Auto Loader → continuous files landing in cloud storage. Lakeflow Connect → managed pulls from enterprise systems. COPY INTO → simple incremental SQL loads.</li>\n      <li><b>JDBC/ODBC or REST</b> clients in notebooks can land data too, usually scheduled with <b>Lakeflow Jobs</b>.</li>\n      <li>Semi-structured <b>JSON / nested</b> data is ingested into Delta and flattened with functions like <code>from_json</code> and <code>explode</code>.</li>\n    </ul>",
       "videos": [
         [
-          "Auto Loader explained + syntax",
-          "cloudFiles, schema evolution",
-          "Databricks Auto Loader cloudFiles tutorial"
+          "COPY INTO for incremental loads",
+          "COPY INTO",
+          "Databricks COPY INTO tutorial incremental load"
         ],
         [
-          "Databricks notebooks: magics, %run, dbutils, widgets",
-          "notebook basics",
-          "Databricks notebook magic commands dbutils widgets tutorial"
+          "Auto Loader: schema evolution & modes",
+          "Auto Loader",
+          "Databricks Auto Loader cloudFiles schema evolution file notification"
         ],
         [
-          "Databricks Connect from VS Code",
-          "local dev",
-          "Databricks Connect VS Code tutorial"
+          "Lakeflow Connect ingestion",
+          "Lakeflow Connect",
+          "Databricks Lakeflow Connect managed connectors ingestion"
         ]
       ],
       "quiz": [
         {
-          "q": "Which source format string does Auto Loader use in spark.readStream.format(...) ?",
+          "q": "Which SQL command incrementally and idempotently loads files from cloud storage into a UC table?",
           "opts": [
-            "\"autoloader\"",
-            "\"cloudFiles\"",
+            "MERGE INTO",
+            "COPY INTO",
+            "INSERT OVERWRITE",
+            "CREATE STREAM"
+          ],
+          "a": 1,
+          "obj": "Use COPY INTO",
+          "e": "COPY INTO loads incrementally and skips files already loaded (idempotent).",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/copy-into/",
+            "l": "COPY INTO"
+          }
+        },
+        {
+          "q": "Why is COPY INTO safe to schedule repeatedly?",
+          "opts": [
+            "It truncates first",
+            "It is idempotent and skips already-loaded files",
+            "It disables schema checks",
+            "It only runs once"
+          ],
+          "a": 1,
+          "obj": "Use COPY INTO",
+          "e": "COPY INTO logs ingested files and skips them on re-run.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/copy-into/",
+            "l": "COPY INTO"
+          }
+        },
+        {
+          "q": "How do you make COPY INTO reload files it has already loaded?",
+          "opts": [
+            "Set force = true",
+            "Delete the checkpoint",
+            "Use MERGE",
+            "It cannot reload"
+          ],
+          "a": 0,
+          "obj": "Use COPY INTO",
+          "e": "The force option (default false) disables idempotency so files reload.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/copy-into/",
+            "l": "COPY INTO"
+          }
+        },
+        {
+          "q": "Auto Loader is invoked with which read format?",
+          "opts": [
             "\"delta\"",
-            "\"kafka\""
+            "\"cloudFiles\"",
+            "\"kafka\"",
+            "\"autoloader\""
           ],
           "a": 1,
           "obj": "Auto Loader syntax",
-          "e": "Auto Loader is invoked with format(\"cloudFiles\") and the underlying file type set via the cloudFiles.format option."
+          "e": "format(\"cloudFiles\"); the file type goes in cloudFiles.format.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/",
+            "l": "Auto Loader"
+          }
         },
         {
-          "q": "Which scenario is the best fit for Auto Loader?",
+          "q": "What are Auto Loader's two file-detection modes?",
           "opts": [
-            "A one-time load of a single static CSV",
-            "Continuously ingesting new JSON files that land in a cloud storage folder",
-            "Querying a Delta table for a dashboard",
-            "Sharing a table with an external partner"
+            "Batch and micro-batch",
+            "Directory listing and file notification",
+            "Push and pull",
+            "Full and delta"
           ],
           "a": 1,
-          "obj": "Auto Loader sources & use cases",
-          "e": "Auto Loader shines for incrementally picking up new files as they arrive in cloud object storage."
+          "obj": "Auto Loader modes",
+          "e": "Directory listing vs (event-based) file notification.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/file-notification-mode",
+            "l": "Auto Loader file modes"
+          }
         },
         {
-          "q": "A data engineer wants to develop and test PySpark code in VS Code but execute it on a Databricks cluster. What should they use?",
+          "q": "Which Auto Loader mode scales best to millions of files per hour and is generally recommended?",
           "opts": [
-            "Databricks Connect",
-            "Delta Sharing",
+            "Directory listing",
+            "File notification",
+            "Manual listing",
+            "Broadcast mode"
+          ],
+          "a": 1,
+          "obj": "Auto Loader modes",
+          "e": "File notification uses cloud events/queues and scales far beyond directory listing.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/file-notification-mode",
+            "l": "Auto Loader file modes"
+          }
+        },
+        {
+          "q": "You need low-code managed ingestion from a SaaS app/database into UC tables. Best fit?",
+          "opts": [
+            "COPY INTO",
+            "Lakeflow Connect",
+            "A broadcast join",
+            "Delta Sharing"
+          ],
+          "a": 1,
+          "obj": "Lakeflow Connect",
+          "e": "Lakeflow Connect provides managed connectors for enterprise sources.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/ingestion/lakeflow-connect/",
+            "l": "Lakeflow Connect"
+          }
+        },
+        {
+          "q": "Which Auto Loader option stores the inferred schema and supports schema evolution?",
+          "opts": [
+            "cloudFiles.format",
+            "cloudFiles.schemaLocation",
+            "checkpointLocation",
+            "maxFilesPerTrigger"
+          ],
+          "a": 1,
+          "obj": "Schema evolution",
+          "e": "cloudFiles.schemaLocation persists the schema and enables evolution.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/",
+            "l": "Auto Loader"
+          }
+        },
+        {
+          "q": "Which function parses a JSON string column into a struct you can query?",
+          "opts": [
+            "explode",
+            "from_json",
+            "to_json",
+            "collect_list"
+          ],
+          "a": 1,
+          "obj": "Ingest semi-structured data",
+          "e": "from_json parses JSON text into a struct; explode expands arrays into rows.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/ingestion/overview",
+            "l": "Ingestion overview"
+          }
+        },
+        {
+          "q": "High-volume files land continuously in S3 and must be ingested incrementally. Best default?",
+          "opts": [
+            "Manual notebook re-reads",
             "Auto Loader",
-            "Unity Catalog"
+            "A REST polling loop",
+            "Delta Sharing"
           ],
-          "a": 0,
-          "obj": "Use Databricks Connect",
-          "e": "Databricks Connect runs locally-authored code against remote Databricks compute."
+          "a": 1,
+          "obj": "Prioritize ingestion methods",
+          "e": "Auto Loader is built for incremental file ingestion at scale.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/ingestion/overview",
+            "l": "Ingestion overview"
+          }
         },
         {
-          "q": "In a Databricks notebook, which command runs another notebook inline so its functions/variables are available?",
+          "q": "What lets an Auto Loader stream resume after a restart without reprocessing files?",
           "opts": [
-            "%sh ./nb",
-            "%md ./nb",
-            "%run ./nb",
-            "import ./nb"
-          ],
-          "a": 2,
-          "obj": "Notebook capabilities",
-          "e": "%run ./notebook executes another notebook in the same context."
-        },
-        {
-          "q": "A streaming Auto Loader job must avoid reprocessing files it already ingested after a restart. What makes this work?",
-          "opts": [
-            "A larger cluster",
+            "A bigger cluster",
             "The checkpoint location",
             "ZORDER",
             "A SQL warehouse"
           ],
           "a": 1,
-          "obj": "Auto Loader syntax / debugging",
-          "e": "The checkpoint tracks processed files and stream progress, so a restart resumes without duplicating work."
-        },
-        {
-          "q": "Which built-in tool best helps diagnose a slow stage caused by data skew?",
-          "opts": [
-            "The Spark UI",
-            "Delta Sharing",
-            "dbutils.widgets",
-            "The Catalog Explorer"
-          ],
-          "a": 0,
-          "obj": "Debugging tools",
-          "e": "The Spark UI exposes stages/tasks, shuffle and skew so you can pinpoint the bottleneck."
-        },
-        {
-          "q": "Which notebook magic command renders a cell as formatted markdown text?",
-          "opts": [
-            "%md",
-            "%sh",
-            "%sql",
-            "%run"
-          ],
-          "a": 0,
-          "obj": "Notebook capabilities",
-          "e": "%md renders markdown; %sh runs shell, %sql runs SQL, %run executes another notebook.",
-          "_added": true
-        },
-        {
-          "q": "Auto Loader needs to infer and track a table's schema over time. Which option points it at the schema store?",
-          "opts": [
-            "cloudFiles.format",
-            "cloudFiles.schemaLocation",
-            "checkpointLocation",
-            "cloudFiles.maxFiles"
-          ],
-          "a": 1,
           "obj": "Auto Loader syntax",
-          "e": "cloudFiles.schemaLocation stores the inferred schema and supports schema evolution.",
-          "_added": true
+          "e": "The checkpoint tracks processed files/progress so restarts don't duplicate work.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/",
+            "l": "Auto Loader"
+          }
         },
         {
-          "q": "Which utility parameterizes a notebook so a job can pass in values?",
+          "q": "JDBC/ODBC or REST clients in notebooks land data and are usually scheduled with:",
           "opts": [
-            "dbutils.widgets",
-            "dbutils.fs",
-            "df.explain()",
-            "%pip"
-          ],
-          "a": 0,
-          "obj": "Notebook capabilities",
-          "e": "dbutils.widgets defines notebook parameters/widgets that can be set at runtime.",
-          "_added": true
-        },
-        {
-          "q": "To inspect how Spark will execute a DataFrame query (its plan), you use:",
-          "opts": [
-            "df.show()",
-            "df.explain()",
-            "df.count()",
-            "df.cache()"
+            "Delta Sharing",
+            "Lakeflow Jobs",
+            "Liquid Clustering",
+            "A materialized view"
           ],
           "a": 1,
-          "obj": "Debugging tools",
-          "e": "df.explain() prints the physical/logical query plan, useful for debugging performance.",
-          "_added": true
+          "obj": "JDBC/ODBC/REST clients",
+          "e": "Such ingestion is typically orchestrated/scheduled by Lakeflow Jobs.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/ingestion/overview",
+            "l": "Ingestion overview"
+          }
         }
       ],
       "flashcards": [
-        {
-          "front": "Databricks Connect",
-          "back": "Run locally-authored code (VS Code, PyCharm) against remote Databricks compute — develop locally, execute on the cluster."
-        },
-        {
-          "front": "Notebook magics",
-          "back": "%python, %sql, %scala, %r, %md, %sh let a single notebook mix languages cell by cell."
-        },
-        {
-          "front": "%run",
-          "back": "%run ./other_notebook executes another notebook inline so its functions/variables are available in the current context."
-        },
-        {
-          "front": "dbutils",
-          "back": "Notebook utilities for files, secrets, and widgets; dbutils.widgets defines parameters."
-        },
-        {
-          "front": "Auto Loader",
-          "back": "Incrementally and efficiently loads only NEW files as they land in cloud object storage (S3, ADLS, GCS)."
-        },
-        {
-          "front": "cloudFiles",
-          "back": "The source format string Auto Loader uses: spark.readStream.format(\"cloudFiles\"), with the file type set via cloudFiles.format."
-        },
-        {
-          "front": "Checkpoint",
-          "back": "Tracks which files/offsets a stream has processed so a restart resumes without reprocessing or duplicating work."
-        },
-        {
-          "front": "Schema evolution",
-          "back": "Auto Loader can infer the schema and adapt as new columns appear, using a schema location."
-        },
-        {
-          "front": "Spark UI",
-          "back": "Built-in tool showing stages/tasks, shuffle, skew and spills — used to find performance bottlenecks."
-        },
-        {
-          "front": "df.explain()",
-          "back": "Prints the query plan to help debug and understand how Spark will execute a DataFrame."
-        }
+        [
+          "COPY INTO",
+          "SQL command that incrementally loads files from cloud storage into a UC table; idempotent (skips already-loaded files)."
+        ],
+        [
+          "Auto Loader",
+          "Incrementally ingests new files via the cloudFiles source, with schema inference/enforcement/evolution."
+        ],
+        [
+          "Auto Loader modes",
+          "Directory listing vs file notification (event-based, better at large scale)."
+        ],
+        [
+          "Lakeflow Connect",
+          "Managed/standard connectors that ingest from enterprise sources (SaaS, DBs) into UC tables with little code."
+        ],
+        [
+          "Schema evolution",
+          "Auto Loader adapts to new columns over time using a schema location."
+        ],
+        [
+          "explode() / from_json()",
+          "from_json parses JSON strings into structs; explode turns array elements into separate rows."
+        ],
+        [
+          "Choosing ingestion",
+          "Auto Loader = files in cloud storage; Lakeflow Connect = enterprise sources; COPY INTO = simple incremental SQL loads."
+        ]
       ]
     },
     {
-      "id": "s3",
-      "title": "Data Processing & Transformations",
-      "weightHint": "Medallion, LDP, DDL/DML, PySpark aggregations",
+      "id": "d3",
+      "title": "Data Transformation & Modeling",
+      "weightHint": "Cleaning, joins, dedup/aggregates, tuning, Gold objects",
       "objectives": [
-        "Describe the three layers of the Medallion Architecture and the purpose of each",
-        "Classify the cluster type/configuration for optimal performance by scenario",
-        "Explain the advantages of LDP (Lakeflow Declarative Pipelines) for ETL",
-        "Implement data pipelines using LDP",
-        "Identify DDL/DML features",
-        "Compute complex aggregations and metrics with PySpark DataFrames"
+        "Clean data: read bronze with PySpark/SQL, handle nulls, standardize types, write silver tables",
+        "Combine DataFrames: inner/left/broadcast/cross joins, multiple keys, union / union all",
+        "Manipulate columns/rows/structures: add, drop, split, rename, filter, explode arrays",
+        "Deduplicate and aggregate: count, approx_count_distinct, mean, summary",
+        "Understand tuning parameters and re-measure performance",
+        "Build Gold objects: materialized views, views, streaming tables and tables for BI",
+        "Apply data quality checks and validation rules for reliable Silver/Gold"
       ],
-      "notes": "\n        <h3>Medallion architecture</h3>\n        <ul>\n          <li><b>Bronze</b> — raw, as-ingested data (append-only landing zone, keeps history/fidelity).</li>\n          <li><b>Silver</b> — cleaned, filtered, conformed, joined; the trustworthy \"enterprise\" view.</li>\n          <li><b>Gold</b> — business-level aggregates/marts ready for BI, ML, reporting.</li>\n        </ul>\n        <h3>Lakeflow Declarative Pipelines (LDP, formerly Delta Live Tables)</h3>\n        <ul>\n          <li>You <b>declare</b> the tables and their transformations; Databricks handles orchestration, dependencies, retries, and scaling.</li>\n          <li>Built-in <b>data quality expectations</b> (<code>EXPECT</code>) to drop/quarantine bad rows.</li>\n          <li>Supports <b>streaming tables</b> (incremental) and <b>materialized views</b>.</li>\n        </ul>\n        <pre>-- SQL form\nCREATE OR REFRESH STREAMING TABLE bronze\nAS SELECT * FROM cloud_files('/landing','json');\n\nCREATE OR REFRESH MATERIALIZED VIEW silver\n( CONSTRAINT valid_id EXPECT (id IS NOT NULL) ON VIOLATION DROP ROW )\nAS SELECT * FROM bronze WHERE amount > 0;</pre>\n        <h3>DDL / DML you must know</h3>\n        <ul>\n          <li><b>DDL:</b> <code>CREATE TABLE</code>, <code>CREATE OR REPLACE TABLE</code> (always overwrites), <code>CREATE TABLE IF NOT EXISTS</code> (only if absent), <code>ALTER</code>, <code>DROP</code>, CTAS (<code>CREATE TABLE ... AS SELECT</code>).</li>\n          <li><b>DML:</b> <code>INSERT INTO</code>, <code>UPDATE</code>, <code>DELETE</code>, and <code>MERGE INTO</code> (upserts).</li>\n        </ul>\n        <h3>PySpark aggregations</h3>\n        <ul>\n          <li><code>df.groupBy(\"col\").agg(...)</code> with <code>sum</code>, <code>avg</code>, <code>count</code>, and <code>count_distinct</code> (unique counts).</li>\n          <li><code>count(\"x\")</code> counts rows; <code>count_distinct(\"x\")</code> counts unique values — pick carefully (e.g., unique invoices).</li>\n        </ul>",
+      "notes": "\n    <h3>Cleaning (bronze → silver)</h3>\n    <p>Read raw bronze, drop/replace nulls (<code>na.drop</code>, <code>fillna</code>), cast types (<code>cast</code>), standardize, then write trustworthy silver tables.</p>\n    <h3>Joins &amp; set operations</h3>\n    <ul>\n      <li><b>inner / left / cross</b> joins; join on multiple keys.</li>\n      <li><b>Broadcast join</b> — when one side is small enough to fit in memory, Spark ships it to every executor (controlled by <code>spark.sql.autoBroadcastJoinThreshold</code>).</li>\n      <li><code>union</code>/<code>unionAll</code> stack rows and <b>keep duplicates</b> — use <code>distinct()</code> to remove them.</li>\n    </ul>\n    <h3>Column/row ops &amp; dedup/aggregates</h3>\n    <ul>\n      <li><code>withColumn</code>, <code>drop</code>, <code>split</code>, <code>withColumnRenamed</code>, <code>filter</code>/<code>where</code>, <code>explode</code>.</li>\n      <li><code>dropDuplicates</code> removes duplicate rows; <code>count</code>, <code>approx_count_distinct</code> (fast estimate of uniques), <code>mean</code>/<code>avg</code>, and <code>summary()</code>/<code>describe()</code>.</li>\n    </ul>\n    <h3>Tuning parameters</h3>\n    <ul>\n      <li><code>spark.sql.shuffle.partitions</code> — post-shuffle partition count. <code>spark.default.parallelism</code> — default RDD parallelism.</li>\n      <li><code>spark.executor.memory</code>/<code>spark.driver.memory</code>; <code>spark.sql.autoBroadcastJoinThreshold</code> — max size to auto-broadcast.</li>\n    </ul>\n    <h3>Gold layer objects</h3>\n    <p><b>Table</b> = stored data; <b>View</b> = query recomputed on read; <b>Materialized view</b> = precomputed, refreshed results; <b>Streaming table</b> = incremental ingest/transform.</p>",
       "videos": [
         [
-          "Medallion architecture (bronze/silver/gold)",
-          "data modeling",
-          "Databricks medallion architecture bronze silver gold explained"
+          "PySpark joins & unions",
+          "joins",
+          "PySpark inner left broadcast join union tutorial"
         ],
         [
-          "Delta Live Tables / Lakeflow Declarative Pipelines",
-          "LDP hands-on",
-          "Databricks Delta Live Tables tutorial expectations streaming table"
+          "Dedup & aggregations",
+          "aggregates",
+          "PySpark dropDuplicates approx_count_distinct agg tutorial"
         ],
         [
-          "PySpark groupBy & aggregations",
-          "transformations",
-          "PySpark groupBy agg count_distinct tutorial"
+          "Views vs materialized views vs streaming tables",
+          "Gold objects",
+          "Databricks materialized view streaming table vs view"
         ]
       ],
       "quiz": [
         {
-          "q": "Which statement best describes the SILVER layer?",
+          "q": "When is a broadcast join the right choice?",
           "opts": [
-            "Raw, untouched data exactly as ingested",
-            "Cleaned, conformed, validated data joined into a trustworthy view",
-            "Business-level aggregates for dashboards",
-            "A backup copy of gold"
+            "Both tables are huge",
+            "One side is small enough to fit in executor memory",
+            "You need a cross join",
+            "The data is unsorted"
           ],
           "a": 1,
-          "obj": "Medallion architecture",
-          "e": "Bronze = raw, Silver = cleaned/conformed, Gold = business aggregates."
+          "obj": "Combine DataFrames",
+          "e": "Broadcasting ships a small table to all executors, avoiding a shuffle.",
+          "doc": {
+            "u": "https://spark.apache.org/docs/latest/sql-performance-tuning.html",
+            "l": "Spark performance tuning"
+          }
         },
         {
-          "q": "You need a SQL DDL statement that creates a Delta table, overwriting any existing table of the same name. Which is correct?",
+          "q": "In Spark, df1.union(df2) does what with duplicate rows?",
           "opts": [
-            "CREATE TABLE IF NOT EXISTS t (...)",
-            "CREATE OR REPLACE TABLE t (...)",
-            "INSERT INTO t (...)",
-            "ALTER TABLE t ADD COLUMNS (...)"
+            "Removes them",
+            "Keeps them (use distinct to dedup)",
+            "Errors",
+            "Keeps only df1's"
           ],
           "a": 1,
-          "obj": "DDL/DML features",
-          "e": "CREATE OR REPLACE TABLE recreates the table regardless of whether it already exists. IF NOT EXISTS does the opposite."
+          "obj": "Combine DataFrames",
+          "e": "union/unionAll keep duplicates; use distinct() to remove them.",
+          "doc": {
+            "u": "https://spark.apache.org/docs/latest/sql-programming-guide.html",
+            "l": "Spark SQL / DataFrames"
+          }
         },
         {
-          "q": "Which PySpark snippet returns total amount and the count of UNIQUE invoice ids per day?",
+          "q": "Which operation turns each element of an array column into its own row?",
           "opts": [
-            "groupBy('day').agg(sum('amt'), sum('inv_id'))",
-            "groupBy('day').agg(sum('amt'), count('inv_id'))",
-            "groupBy('day').agg(sum('amt'), count_distinct('inv_id'))",
-            "groupBy('day').agg(col('amt'), count('inv_id'))"
+            "split",
+            "explode",
+            "withColumn",
+            "drop"
+          ],
+          "a": 1,
+          "obj": "Manipulate columns/rows",
+          "e": "explode() expands array elements into rows.",
+          "doc": {
+            "u": "https://spark.apache.org/docs/latest/sql-programming-guide.html",
+            "l": "Spark SQL / DataFrames"
+          }
+        },
+        {
+          "q": "Which gives a fast, approximate count of unique values on a large column?",
+          "opts": [
+            "count",
+            "approx_count_distinct",
+            "sum",
+            "first"
+          ],
+          "a": 1,
+          "obj": "Aggregate operations",
+          "e": "approx_count_distinct trades slight accuracy for speed (HyperLogLog).",
+          "doc": {
+            "u": "https://spark.apache.org/docs/latest/sql-programming-guide.html",
+            "l": "Spark SQL / DataFrames"
+          }
+        },
+        {
+          "q": "Which parameter sets the number of partitions produced after a shuffle?",
+          "opts": [
+            "spark.executor.memory",
+            "spark.sql.shuffle.partitions",
+            "spark.driver.cores",
+            "spark.sql.autoBroadcastJoinThreshold"
+          ],
+          "a": 1,
+          "obj": "Tuning parameters",
+          "e": "spark.sql.shuffle.partitions controls post-shuffle partition count.",
+          "doc": {
+            "u": "https://spark.apache.org/docs/latest/sql-performance-tuning.html",
+            "l": "Spark performance tuning"
+          }
+        },
+        {
+          "q": "What is the default value of spark.sql.shuffle.partitions?",
+          "opts": [
+            "8",
+            "100",
+            "200",
+            "1000"
           ],
           "a": 2,
-          "obj": "Complex aggregations with PySpark",
-          "e": "count_distinct('inv_id') gives unique invoices; count() would include duplicates and sum() on an id is meaningless."
+          "obj": "Tuning parameters",
+          "e": "The default is 200.",
+          "doc": {
+            "u": "https://spark.apache.org/docs/latest/sql-performance-tuning.html",
+            "l": "Spark performance tuning"
+          }
         },
         {
-          "q": "A key advantage of Lakeflow Declarative Pipelines (LDP) over hand-written notebook ETL is:",
+          "q": "spark.sql.autoBroadcastJoinThreshold controls what, and its default is:",
           "opts": [
-            "It requires manual dependency wiring",
-            "It declares tables and auto-manages orchestration, quality, and scaling",
-            "It only works with CSV",
-            "It cannot do streaming"
+            "Shuffle partitions; 200",
+            "Max table size auto-broadcast; ~10 MB",
+            "Executor memory; 1 GB",
+            "Driver cores; 4"
           ],
           "a": 1,
-          "obj": "Advantages of LDP",
-          "e": "LDP is declarative: you define the tables/transforms and it handles orchestration, retries, data-quality expectations, and scaling."
+          "obj": "Tuning parameters",
+          "e": "It's the max size (default ~10 MB) a table can be to auto-broadcast in a join.",
+          "doc": {
+            "u": "https://spark.apache.org/docs/latest/sql-performance-tuning.html",
+            "l": "Spark performance tuning"
+          }
         },
         {
-          "q": "Which clause in LDP drops rows that fail a data-quality rule?",
+          "q": "To remove duplicate rows from a DataFrame you use:",
           "opts": [
-            "WHERE",
-            "EXPECT ... ON VIOLATION DROP ROW",
-            "HAVING",
-            "LIMIT"
-          ],
-          "a": 1,
-          "obj": "Implement pipelines using LDP",
-          "e": "LDP expectations (EXPECT) define quality constraints; ON VIOLATION DROP ROW removes bad records."
-        },
-        {
-          "q": "To upsert (insert new, update existing) rows into a Delta table, which DML command is designed for the job?",
-          "opts": [
-            "INSERT INTO",
-            "MERGE INTO",
-            "UPDATE",
-            "COPY INTO"
-          ],
-          "a": 1,
-          "obj": "DDL/DML features",
-          "e": "MERGE INTO performs conditional insert/update/delete — the standard upsert pattern."
-        },
-        {
-          "q": "In the medallion architecture, which layer holds raw, as-ingested data kept for history and fidelity?",
-          "opts": [
-            "Bronze",
-            "Silver",
-            "Gold",
-            "Platinum"
+            "dropDuplicates()",
+            "explode()",
+            "withColumn()",
+            "union()"
           ],
           "a": 0,
-          "obj": "Medallion architecture",
-          "e": "Bronze is the raw append-only landing layer; Silver is cleaned/conformed; Gold is business aggregates.",
-          "_added": true
+          "obj": "Deduplication",
+          "e": "dropDuplicates() removes duplicate rows (optionally on a subset).",
+          "doc": {
+            "u": "https://spark.apache.org/docs/latest/sql-programming-guide.html",
+            "l": "Spark SQL / DataFrames"
+          }
         },
         {
-          "q": "In Lakeflow Declarative Pipelines, which object incrementally ingests new data as it arrives?",
+          "q": "A Gold object that stores precomputed, refreshed results (not recomputed each read) is a:",
           "opts": [
-            "A materialized view",
-            "A streaming table",
-            "A temporary view",
-            "A SQL warehouse"
+            "View",
+            "Materialized view",
+            "Temp view",
+            "CTE"
           ],
           "a": 1,
-          "obj": "Implement pipelines using LDP",
-          "e": "Streaming tables process data incrementally; materialized views recompute results from their sources.",
-          "_added": true
+          "obj": "Build Gold objects",
+          "e": "A materialized view stores refreshed precomputed results; a view recomputes on read.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/ldp/concepts/",
+            "l": "Streaming tables & materialized views"
+          }
         },
         {
-          "q": "What does the DDL statement CREATE TABLE sales AS SELECT * FROM staging (CTAS) do?",
+          "q": "Which method renames a column in a DataFrame?",
           "opts": [
-            "Alters an existing table's columns",
-            "Creates a new table populated from a query",
-            "Deletes rows that fail a constraint",
-            "Grants SELECT on the table"
+            "withColumn",
+            "withColumnRenamed",
+            "alias only",
+            "rename"
           ],
           "a": 1,
-          "obj": "DDL/DML features",
-          "e": "CTAS (CREATE TABLE AS SELECT) creates and populates a new table from a query's results.",
-          "_added": true
+          "obj": "Manipulate columns",
+          "e": "withColumnRenamed(old, new) renames a column.",
+          "doc": {
+            "u": "https://spark.apache.org/docs/latest/sql-programming-guide.html",
+            "l": "Spark SQL / DataFrames"
+          }
         },
         {
-          "q": "Which PySpark expression returns the average order value per customer?",
+          "q": "Cleaning bronze → silver, which removes rows containing nulls?",
           "opts": [
-            "df.groupBy('cust').agg(avg('amount'))",
-            "df.agg(sum('amount'))",
-            "df.groupBy('cust').count()",
-            "df.select(avg('cust'))"
+            "df.na.drop()",
+            "df.explode()",
+            "df.union()",
+            "df.cache()"
           ],
           "a": 0,
-          "obj": "Complex aggregations with PySpark",
-          "e": "groupBy('cust').agg(avg('amount')) computes the mean amount within each customer group.",
-          "_added": true
+          "obj": "Implement data cleaning",
+          "e": "df.na.drop() (dropna) removes rows with nulls; fillna replaces them.",
+          "doc": {
+            "u": "https://spark.apache.org/docs/latest/sql-programming-guide.html",
+            "l": "Spark SQL / DataFrames"
+          }
+        },
+        {
+          "q": "Which quickly produces summary statistics (count, mean, min, max, etc.) for a DataFrame?",
+          "opts": [
+            "df.summary() / describe()",
+            "df.explode()",
+            "df.union()",
+            "df.repartition()"
+          ],
+          "a": 0,
+          "obj": "Aggregate operations",
+          "e": "summary()/describe() return descriptive statistics per column.",
+          "doc": {
+            "u": "https://spark.apache.org/docs/latest/sql-programming-guide.html",
+            "l": "Spark SQL / DataFrames"
+          }
         }
       ],
       "flashcards": [
-        {
-          "front": "Bronze layer",
-          "back": "Raw, as-ingested data — an append-only landing zone that keeps full history and fidelity."
-        },
-        {
-          "front": "Silver layer",
-          "back": "Cleaned, filtered, conformed and joined data — the trustworthy enterprise view."
-        },
-        {
-          "front": "Gold layer",
-          "back": "Business-level aggregates/marts ready for BI, ML and reporting."
-        },
-        {
-          "front": "Lakeflow Declarative Pipelines (LDP)",
-          "back": "Formerly Delta Live Tables: you declare tables and transforms; Databricks handles orchestration, dependencies, retries and scaling."
-        },
-        {
-          "front": "EXPECT (expectations)",
-          "back": "LDP data-quality constraints; e.g. EXPECT (id IS NOT NULL) ON VIOLATION DROP ROW drops or quarantines bad rows."
-        },
-        {
-          "front": "Streaming table vs materialized view",
-          "back": "LDP supports streaming tables (incremental) and materialized views (recomputed results)."
-        },
-        {
-          "front": "CREATE OR REPLACE TABLE",
-          "back": "DDL that always (re)creates the table, overwriting any existing one of the same name."
-        },
-        {
-          "front": "CREATE TABLE IF NOT EXISTS",
-          "back": "DDL that creates the table only if it does not already exist (the opposite of OR REPLACE)."
-        },
-        {
-          "front": "MERGE INTO",
-          "back": "DML for upserts — conditional insert/update/delete in one statement."
-        },
-        {
-          "front": "count vs count_distinct",
-          "back": "count(\"x\") counts rows; count_distinct(\"x\") counts unique values (e.g. unique invoices) — choose carefully."
-        }
+        [
+          "Broadcast join",
+          "Ships a small table to all executors to avoid a shuffle; controlled by spark.sql.autoBroadcastJoinThreshold."
+        ],
+        [
+          "union / unionAll",
+          "Stack rows and KEEP duplicates; use distinct() to dedup."
+        ],
+        [
+          "explode()",
+          "Turns each element of an array column into its own row."
+        ],
+        [
+          "dropDuplicates()",
+          "Removes duplicate rows (optionally by a subset of columns)."
+        ],
+        [
+          "approx_count_distinct",
+          "Fast approximate count of unique values for large data."
+        ],
+        [
+          "spark.sql.shuffle.partitions",
+          "Sets the number of partitions produced after a shuffle."
+        ],
+        [
+          "View vs materialized view vs streaming table",
+          "View recomputes on read; MV stores refreshed precomputed results; streaming table ingests incrementally."
+        ]
       ]
     },
     {
-      "id": "s4",
-      "title": "Productionizing Data Pipelines",
-      "weightHint": "Asset Bundles, Jobs, serverless, Spark UI",
+      "id": "d4",
+      "title": "Working with Lakeflow Jobs",
+      "weightHint": "Control flow, tasks & DAG, triggers, scheduling",
       "objectives": [
-        "Identify the difference between DAB and traditional deployment methods",
-        "Identify the structure of Asset Bundles",
-        "Deploy a workflow; repair and rerun a task after failure",
-        "Use serverless for hands-off, auto-optimized compute",
-        "Analyze the Spark UI to optimize a query"
+        "Implement control flow (retries, conditional/branching, looping) with Lakeflow Jobs",
+        "Configure tasks (notebook, SQL, dashboard, pipeline) and dependencies as a DAG",
+        "Implement schedules with trigger types: scheduled, file arrival, table update",
+        "Choose between time-based and data-driven triggers based on data availability"
       ],
-      "notes": "\n        <h3>Databricks Asset Bundles (DAB)</h3>\n        <ul>\n          <li>Infrastructure-as-code for Databricks: define jobs, pipelines, and settings in <b>YAML</b> and deploy with the Databricks CLI (<code>databricks bundle deploy</code>).</li>\n          <li>Vs traditional (clicking in the UI / ad-hoc): bundles are <b>version-controlled, repeatable, and promotable</b> across environments (dev → staging → prod) via <b>targets</b>.</li>\n          <li>Structure: a <code>databricks.yml</code> at the root with <b>resources</b> (jobs, pipelines) and <b>targets</b> (per-environment overrides), plus your source files.</li>\n        </ul>\n        <pre>bundle:\n  name: sales_pipeline\nresources:\n  jobs:\n    nightly_etl:\n      tasks: [ ... ]\ntargets:\n  dev: { mode: development }\n  prod: { mode: production }</pre>\n        <h3>Jobs / Workflows</h3>\n        <ul>\n          <li>A job has one or more <b>tasks</b> with dependencies, schedules, and retries.</li>\n          <li>On failure you can <b>Repair run</b> — rerun only the failed task(s) instead of the whole job.</li>\n        </ul>\n        <h3>Serverless</h3>\n        <p>Hands-off, auto-optimized compute managed by Databricks — fast startup, no cluster sizing/tuning. Good default for jobs and pipelines when you don't want to manage clusters.</p>\n        <h3>Spark UI for optimization</h3>\n        <ul>\n          <li>Look for <b>skew</b> (one task far slower), heavy <b>shuffle</b>, and <b>spill</b> to disk (not enough memory).</li>\n          <li>Stages/tasks timeline shows where time goes; fix with better partitioning, broadcast joins, or caching.</li>\n        </ul>",
+      "notes": "\n    <h3>Lakeflow Jobs</h3>\n    <ul>\n      <li>A job orchestrates <b>tasks</b> — notebook, SQL, dashboard, and pipeline tasks — with dependencies that form a <b>DAG</b>.</li>\n      <li><b>Control flow:</b> automatic <b>retries</b>, <b>conditional/if-else</b> tasks (branching), and <b>for-each</b> loops over a set of inputs.</li>\n      <li><b>Repair run</b> re-executes only the failed task(s), keeping successful results.</li>\n    </ul>\n    <h3>Triggers &amp; scheduling</h3>\n    <ul>\n      <li><b>Scheduled</b> (time-based / cron), <b>file arrival</b> (runs when new files land), and <b>table update</b> (runs when a table changes).</li>\n      <li><b>Time-based</b> triggers fire on a clock; <b>data-driven</b> triggers (file arrival / table update) fire when data is actually ready — choose based on data availability and dependencies.</li>\n    </ul>",
       "videos": [
         [
-          "Databricks Asset Bundles (DAB) tutorial",
-          "IaC deploy",
-          "Databricks Asset Bundles tutorial databricks.yml deploy"
+          "Lakeflow Jobs: tasks & dependencies",
+          "DAG",
+          "Databricks Lakeflow Jobs tasks dependencies DAG tutorial"
         ],
         [
-          "Jobs / Workflows: tasks, schedule, repair run",
-          "orchestration",
-          "Databricks Workflows jobs repair run failed task tutorial"
+          "Triggers: scheduled, file arrival, table update",
+          "triggers",
+          "Databricks job trigger file arrival table update scheduled"
         ],
         [
-          "Reading the Spark UI to find skew & shuffle",
-          "performance",
-          "Databricks Spark UI tutorial skew shuffle spill"
+          "Control flow: conditional & for-each",
+          "control flow",
+          "Databricks Lakeflow Jobs conditional task for each loop retries"
         ]
       ],
       "quiz": [
         {
-          "q": "A failed multi-task job needs only the one broken task re-executed, keeping successful tasks' results. What do you use?",
+          "q": "Tasks in a Lakeflow Job and their dependencies form a:",
           "opts": [
+            "Single notebook",
+            "DAG (directed acyclic graph)",
+            "SQL warehouse",
+            "Delta table"
+          ],
+          "a": 1,
+          "obj": "Configure tasks & dependencies",
+          "e": "A job's tasks with dependencies form a DAG-based task graph.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/jobs/",
+            "l": "Lakeflow Jobs"
+          }
+        },
+        {
+          "q": "Which trigger runs a job automatically when new files land?",
+          "opts": [
+            "Scheduled (cron)",
+            "File arrival",
+            "Manual",
+            "Continuous only"
+          ],
+          "a": 1,
+          "obj": "Trigger types",
+          "e": "A file-arrival trigger is data-driven; it fires when files appear.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/jobs/triggers",
+            "l": "Job schedules & triggers"
+          }
+        },
+        {
+          "q": "After one task in a multi-task job fails, how do you rerun just that task?",
+          "opts": [
+            "Delete & recreate the job",
+            "Repair run",
             "Clone the job",
-            "Repair run (rerun the failed task)",
-            "Delete and recreate the job",
             "Restart the cluster"
           ],
           "a": 1,
-          "obj": "Repair and rerun a task",
-          "e": "Repair run reruns just the failed task(s) rather than the entire job."
+          "obj": "Control flow",
+          "e": "Repair run re-executes only failed task(s), keeping successful ones.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/jobs/control-flow",
+            "l": "Job control flow"
+          }
         },
         {
-          "q": "What's the main advantage of Databricks Asset Bundles over deploying by clicking in the UI?",
+          "q": "Which is a data-driven (not time-based) trigger?",
           "opts": [
-            "They run faster at query time",
-            "They make deployments version-controlled, repeatable, and promotable across environments",
-            "They remove the need for compute",
-            "They only work in development"
+            "Every day at 6am",
+            "Table update",
+            "Every hour",
+            "A cron expression"
           ],
           "a": 1,
-          "obj": "DAB vs traditional deployment",
-          "e": "DABs are IaC: defined in YAML, source-controlled, and deployable across dev/prod targets consistently."
+          "obj": "Time-based vs data-driven",
+          "e": "Table-update and file-arrival fire when data is ready; cron/hourly are time-based.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/jobs/triggers",
+            "l": "Job schedules & triggers"
+          }
         },
         {
-          "q": "In an Asset Bundle, where are per-environment settings like dev vs prod defined?",
+          "q": "To run a task only when a condition holds, you use a:",
+          "opts": [
+            "for-each task",
+            "conditional / if-else task",
+            "SQL warehouse",
+            "materialized view"
+          ],
+          "a": 1,
+          "obj": "Control flow (branching)",
+          "e": "Conditional/if-else tasks add branching.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/jobs/control-flow",
+            "l": "Job control flow"
+          }
+        },
+        {
+          "q": "To run the same task once per item in a list, use:",
+          "opts": [
+            "A for-each task",
+            "A broadcast join",
+            "COPY INTO",
+            "A cross join"
+          ],
+          "a": 0,
+          "obj": "Control flow (looping)",
+          "e": "A for-each task loops a task over inputs.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/jobs/control-flow",
+            "l": "Job control flow"
+          }
+        },
+        {
+          "q": "A cron/time-of-day schedule is which kind of trigger?",
+          "opts": [
+            "Data-driven",
+            "Time-based",
+            "File arrival",
+            "Table update"
+          ],
+          "a": 1,
+          "obj": "Trigger types",
+          "e": "Cron schedules are time-based triggers.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/jobs/triggers",
+            "l": "Job schedules & triggers"
+          }
+        },
+        {
+          "q": "Which is NOT a standard Lakeflow Jobs task type?",
+          "opts": [
+            "Notebook",
+            "SQL",
+            "Dashboard",
+            "Firewall rule"
+          ],
+          "a": 3,
+          "obj": "Configure tasks",
+          "e": "Task types include notebook, SQL, dashboard and pipeline tasks.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/jobs/",
+            "l": "Lakeflow Jobs"
+          }
+        },
+        {
+          "q": "Automatic retries on a task help with:",
+          "opts": [
+            "Permanent logic bugs",
+            "Transient/intermittent failures",
+            "Schema design",
+            "Granting access"
+          ],
+          "a": 1,
+          "obj": "Control flow (retries)",
+          "e": "Retries recover from transient failures without manual intervention.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/jobs/control-flow",
+            "l": "Job control flow"
+          }
+        },
+        {
+          "q": "You should pick a data-driven trigger when:",
+          "opts": [
+            "Data arrives on an unpredictable schedule",
+            "You want a fixed daily time",
+            "You never depend on upstream data",
+            "You want to disable the job"
+          ],
+          "a": 0,
+          "obj": "Time-based vs data-driven",
+          "e": "Data-driven triggers fire when data is actually available, unlike fixed clock times.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/jobs/triggers",
+            "l": "Job schedules & triggers"
+          }
+        },
+        {
+          "q": "A table-update trigger starts a job when:",
+          "opts": [
+            "A user logs in",
+            "A monitored table changes",
+            "The clock hits midnight",
+            "A cluster restarts"
+          ],
+          "a": 1,
+          "obj": "Trigger types",
+          "e": "Table-update triggers respond to changes in a table (data-driven).",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/jobs/triggers",
+            "l": "Job schedules & triggers"
+          }
+        },
+        {
+          "q": "Viewing a job's DAG in the Jobs UI mainly helps you:",
+          "opts": [
+            "Grant permissions",
+            "Spot upstream blockers and task dependencies",
+            "Change billing",
+            "Write SQL"
+          ],
+          "a": 1,
+          "obj": "Monitor pipeline health",
+          "e": "The DAG shows dependencies so you can find upstream blockers.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/jobs/",
+            "l": "Lakeflow Jobs"
+          }
+        }
+      ],
+      "flashcards": [
+        [
+          "Lakeflow Jobs",
+          "Orchestrates notebook/SQL/dashboard/pipeline tasks with dependencies as a DAG."
+        ],
+        [
+          "DAG",
+          "The directed acyclic task graph formed by a job's tasks and their dependencies."
+        ],
+        [
+          "Repair run",
+          "Reruns only the failed task(s) of a job, keeping successful results."
+        ],
+        [
+          "Trigger types",
+          "Scheduled (time), file arrival, and table update (data-driven)."
+        ],
+        [
+          "Time-based vs data-driven",
+          "Time-based fires on a clock; data-driven fires when files land or a table updates."
+        ],
+        [
+          "Conditional & for-each tasks",
+          "Conditional/if-else adds branching; for-each loops a task over inputs."
+        ]
+      ]
+    },
+    {
+      "id": "d5",
+      "title": "Implementing CI/CD",
+      "weightHint": "Git in workspace, Asset Bundles, targets, Databricks CLI",
+      "objectives": [
+        "Manage code in the workspace: branches, commit/push, pull requests via Databricks Git",
+        "Understand environment config with Asset Bundle variables and overrides across dev/test/prod",
+        "Deploy Asset Bundles to package and promote jobs, pipelines and assets across environments",
+        "Understand the Databricks CLI to validate, deploy and manage bundles in CI/CD"
+      ],
+      "notes": "\n    <h3>Git in the workspace</h3>\n    <p>Databricks <b>Git folders (Repos)</b> integrate Git: create and switch <b>branches</b>, <b>commit</b> and <b>push</b>, and open <b>pull requests</b> through the Git provider — standard dev workflow inside the workspace.</p>\n    <h3>Asset Bundles (Automation Bundles)</h3>\n    <ul>\n      <li>Infrastructure-as-code in <b>YAML</b> (<code>databricks.yml</code>): define <b>resources</b> (jobs, pipelines) and <b>targets</b> (per-environment).</li>\n      <li><b>Variables and overrides</b> let one codebase promote across <b>dev → test → prod</b> targets.</li>\n    </ul>\n    <pre>targets:\n  dev:  { mode: development }\n  prod: { mode: production }</pre>\n    <h3>Databricks CLI</h3>\n    <ul>\n      <li><code>databricks bundle validate</code> — check the bundle config.</li>\n      <li><code>databricks bundle deploy</code> — deploy/promote the bundle to a target.</li>\n    </ul>",
+      "videos": [
+        [
+          "Databricks Git folders & PRs",
+          "Git workflow",
+          "Databricks Repos Git folders branches pull request tutorial"
+        ],
+        [
+          "Asset Bundles: targets & variables",
+          "bundles",
+          "Databricks Asset Bundles databricks.yml targets variables tutorial"
+        ],
+        [
+          "Databricks CLI: validate & deploy",
+          "CLI",
+          "Databricks CLI bundle validate deploy tutorial"
+        ]
+      ],
+      "quiz": [
+        {
+          "q": "In a Databricks Asset Bundle, where do per-environment (dev/test/prod) settings live?",
           "opts": [
             "resources",
             "targets",
@@ -662,535 +1072,873 @@
             "secrets"
           ],
           "a": 1,
-          "obj": "Structure of Asset Bundles",
-          "e": "targets hold environment-specific configuration; resources define jobs/pipelines."
+          "obj": "Environment config",
+          "e": "targets hold environment-specific config/overrides; resources define jobs/pipelines.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/dev-tools/bundles/settings",
+            "l": "Bundle configuration"
+          }
         },
         {
-          "q": "A team wants job compute with fast startup and no cluster sizing or tuning. Best choice?",
-          "opts": [
-            "A large all-purpose cluster",
-            "Serverless compute",
-            "A single-node cluster",
-            "A SQL warehouse"
-          ],
-          "a": 1,
-          "obj": "Use serverless",
-          "e": "Serverless is hands-off and auto-optimized by Databricks, with fast startup."
-        },
-        {
-          "q": "In the Spark UI, one task in a stage takes 10× longer than the others. This most likely indicates:",
-          "opts": [
-            "Data skew",
-            "A syntax error",
-            "Missing Unity Catalog grants",
-            "A scheduling conflict"
-          ],
-          "a": 0,
-          "obj": "Analyze the Spark UI",
-          "e": "A single very slow task among many usually means skew — uneven data distribution across partitions."
-        },
-        {
-          "q": "Which Databricks CLI command deploys the jobs/pipelines defined in a bundle?",
+          "q": "Which CLI command deploys a bundle to a target?",
           "opts": [
             "databricks jobs run",
             "databricks bundle deploy",
             "databricks clusters create",
-            "databricks repos update"
+            "databricks fs cp"
           ],
           "a": 1,
-          "obj": "DAB vs traditional deployment",
-          "e": "`databricks bundle deploy` deploys the resources defined in databricks.yml to the target environment.",
-          "_added": true
+          "obj": "Databricks CLI",
+          "e": "`databricks bundle deploy` deploys/promotes the bundle.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/dev-tools/bundles/settings",
+            "l": "Bundle configuration"
+          }
         },
         {
-          "q": "In the Spark UI, 'spill' (memory to disk) during a stage usually indicates:",
+          "q": "Databricks Asset Bundles define configuration primarily in:",
           "opts": [
-            "A permissions error",
-            "Not enough memory, so data is written to disk",
-            "A missing checkpoint",
-            "A syntax error in SQL"
-          ],
-          "a": 1,
-          "obj": "Analyze the Spark UI",
-          "e": "Spill means tasks ran out of memory and had to write to disk, which slows the job.",
-          "_added": true
-        },
-        {
-          "q": "A Databricks job (workflow) is composed of:",
-          "opts": [
-            "A single notebook only",
-            "One or more tasks with dependencies, schedules, and retries",
-            "Just a SQL warehouse",
-            "Only serverless endpoints"
-          ],
-          "a": 1,
-          "obj": "Deploy a workflow",
-          "e": "A job orchestrates one or more tasks with dependencies, scheduling, and retry behavior.",
-          "_added": true
-        },
-        {
-          "q": "Which files does a Databricks Asset Bundle use to define its configuration?",
-          "opts": [
-            "JSON only",
-            "YAML (e.g. databricks.yml)",
-            "INI files",
+            "JSON",
+            "YAML (databricks.yml)",
+            "INI",
             "XML"
           ],
           "a": 1,
-          "obj": "Structure of Asset Bundles",
-          "e": "Bundles are defined in YAML (databricks.yml) with resources and targets — infrastructure as code.",
-          "_added": true
+          "obj": "Deploy bundles",
+          "e": "Bundles are YAML infrastructure-as-code (databricks.yml).",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/dev-tools/bundles/ci-cd-bundles",
+            "l": "Bundles in CI/CD"
+          }
+        },
+        {
+          "q": "Within Databricks Git folders you can:",
+          "opts": [
+            "Only read files",
+            "Create branches, commit, push and open pull requests",
+            "Only run SQL",
+            "Only schedule jobs"
+          ],
+          "a": 1,
+          "obj": "Git in the workspace",
+          "e": "Git folders support branching, commit/push and PRs via the Git provider.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/repos/repos-setup",
+            "l": "Databricks Git folders"
+          }
+        },
+        {
+          "q": "How do you promote the same codebase across dev/test/prod with a bundle?",
+          "opts": [
+            "Copy notebooks by hand",
+            "Use bundle variables and target overrides",
+            "Make three separate repos",
+            "Use a SQL warehouse"
+          ],
+          "a": 1,
+          "obj": "Environment config",
+          "e": "Variables and per-target overrides promote one bundle across environments.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/dev-tools/bundles/settings",
+            "l": "Bundle configuration"
+          }
+        },
+        {
+          "q": "Which command checks a bundle's configuration before deploying?",
+          "opts": [
+            "databricks bundle validate",
+            "databricks bundle destroy",
+            "databricks repos update",
+            "databricks jobs list"
+          ],
+          "a": 0,
+          "obj": "Databricks CLI",
+          "e": "`databricks bundle validate` verifies the bundle config.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/dev-tools/bundles/ci-cd-bundles",
+            "l": "Bundles in CI/CD"
+          }
+        },
+        {
+          "q": "In a bundle, jobs and pipelines are defined under:",
+          "opts": [
+            "targets",
+            "resources",
+            "secrets",
+            "clusters"
+          ],
+          "a": 1,
+          "obj": "Bundle structure",
+          "e": "resources define the jobs/pipelines; targets hold per-env overrides.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/dev-tools/bundles/reference",
+            "l": "Bundle reference"
+          }
+        },
+        {
+          "q": "The root configuration file of a Databricks Asset Bundle is:",
+          "opts": [
+            "config.ini",
+            "databricks.yml",
+            "bundle.json",
+            "setup.py"
+          ],
+          "a": 1,
+          "obj": "Bundle structure",
+          "e": "databricks.yml is the bundle's root config file.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/dev-tools/bundles/reference",
+            "l": "Bundle reference"
+          }
+        },
+        {
+          "q": "Opening a pull request from the Databricks workspace uses:",
+          "opts": [
+            "Delta Sharing",
+            "Databricks Git integration",
+            "A SQL warehouse",
+            "Auto Loader"
+          ],
+          "a": 1,
+          "obj": "Git in the workspace",
+          "e": "PRs are created through Databricks Git integration with your provider.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/repos/repos-setup",
+            "l": "Databricks Git folders"
+          }
+        },
+        {
+          "q": "Why use the Databricks CLI in a CI/CD pipeline?",
+          "opts": [
+            "To write dashboards",
+            "To validate and deploy bundles automatically",
+            "To grant table access",
+            "To run notebooks interactively"
+          ],
+          "a": 1,
+          "obj": "Databricks CLI",
+          "e": "The CLI validates and deploys bundles in automated CI/CD.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/dev-tools/bundles/ci-cd-bundles",
+            "l": "Bundles in CI/CD"
+          }
+        },
+        {
+          "q": "A bundle target set to production mode vs development mode mainly changes:",
+          "opts": [
+            "The programming language",
+            "Environment behavior/settings for that deployment",
+            "The cloud provider",
+            "The table format"
+          ],
+          "a": 1,
+          "obj": "Environment config",
+          "e": "Target modes (development/production) adjust deployment behavior per environment.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/dev-tools/bundles/settings",
+            "l": "Bundle configuration"
+          }
+        },
+        {
+          "q": "The main advantage of bundles over clicking in the UI is that deployments are:",
+          "opts": [
+            "Faster at query time",
+            "Version-controlled, repeatable and promotable",
+            "Free of compute",
+            "Only for dev"
+          ],
+          "a": 1,
+          "obj": "Deploy bundles",
+          "e": "Bundles make deployments reproducible and promotable across environments.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/dev-tools/bundles/ci-cd-bundles",
+            "l": "Bundles in CI/CD"
+          }
         }
       ],
       "flashcards": [
-        {
-          "front": "Databricks Asset Bundles (DAB)",
-          "back": "Infrastructure-as-code for Databricks: define jobs, pipelines and settings in YAML and deploy with the Databricks CLI."
-        },
-        {
-          "front": "DAB vs UI deployment",
-          "back": "Bundles are version-controlled, repeatable and promotable across environments (dev → staging → prod); clicking in the UI is ad-hoc and not reproducible."
-        },
-        {
-          "front": "databricks.yml",
-          "back": "Root bundle file holding resources (jobs, pipelines) and targets (per-environment overrides)."
-        },
-        {
-          "front": "targets",
-          "back": "The DAB section that holds environment-specific configuration like dev vs prod."
-        },
-        {
-          "front": "resources",
-          "back": "The DAB section that defines jobs and pipelines."
-        },
-        {
-          "front": "Repair run",
-          "back": "Reruns only the failed task(s) of a job, keeping the results of tasks that already succeeded."
-        },
-        {
-          "front": "Serverless compute",
-          "back": "Hands-off, auto-optimized compute with fast startup and no cluster sizing/tuning — a good default for jobs/pipelines."
-        },
-        {
-          "front": "Skew (Spark UI)",
-          "back": "One task in a stage takes far longer than the others — a sign of uneven data distribution across partitions."
-        },
-        {
-          "front": "Shuffle / spill",
-          "back": "Heavy shuffle moves data across the cluster; spill is writing to disk when memory runs out — both hurt performance."
-        }
+        [
+          "Databricks Git folders (Repos)",
+          "Git integration in the workspace: branches, commit/push, and pull requests."
+        ],
+        [
+          "Asset Bundles",
+          "YAML infrastructure-as-code (databricks.yml) defining resources and targets."
+        ],
+        [
+          "targets",
+          "Bundle section holding per-environment (dev/test/prod) config and overrides."
+        ],
+        [
+          "Bundle variables/overrides",
+          "Let one codebase be promoted across dev → test → prod."
+        ],
+        [
+          "databricks bundle deploy",
+          "CLI command that deploys/promotes a bundle to a target."
+        ],
+        [
+          "databricks bundle validate",
+          "CLI command that checks a bundle's configuration before deploy."
+        ]
       ]
     },
     {
-      "id": "s5",
-      "title": "Data Governance & Quality",
-      "weightHint": "Unity Catalog, grants, lineage, Delta Sharing, Federation",
+      "id": "d6",
+      "title": "Troubleshooting, Monitoring & Optimization",
+      "weightHint": "Run history, Spark UI, skew/shuffle/spill, Liquid Clustering",
       "objectives": [
-        "Explain the difference between managed and external tables",
-        "Identify how to grant permissions to users and groups within UC",
-        "Identify key roles in UC",
-        "Identify how audit logs are stored",
-        "Use lineage features in Unity Catalog",
-        "Use Delta Sharing to share data; know its advantages and limitations",
-        "Identify types of Delta Sharing (Databricks-to-Databricks vs external)",
-        "Analyze cost considerations of sharing across clouds",
-        "Identify use cases of Lakehouse Federation"
+        "Identify job performance trends using Lakeflow Jobs run history vs baselines",
+        "Use the Lakeflow Jobs UI to monitor pipeline health (statuses, DAG, run times, failures)",
+        "Identify bottlenecks — skew, shuffling, disk spill — from Spark UI stage metrics",
+        "Understand Liquid Clustering and predictive optimization",
+        "Diagnose cluster startup failures, library conflicts and out-of-memory issues"
       ],
-      "notes": "\n        <h3>Managed vs external tables</h3>\n        <ul>\n          <li><b>Managed</b> — Unity Catalog manages both metadata <i>and</i> the underlying data files. <b>DROP deletes the data.</b></li>\n          <li><b>External</b> — data lives in an external location you specify; UC manages only metadata. <b>DROP keeps the data files.</b></li>\n        </ul>\n        <h3>Unity Catalog namespace & grants</h3>\n        <ul>\n          <li>Three levels: <code>catalog.schema.table</code>. To read a table a user typically needs <code>USE CATALOG</code>, <code>USE SCHEMA</code>, and <code>SELECT</code>.</li>\n          <li><code>GRANT SELECT ON SCHEMA sales TO analysts;</code> — read-only. <code>MODIFY</code> for write; <code>ALL PRIVILEGES</code> for everything.</li>\n          <li>Roles: <b>metastore admin</b>, <b>account admin</b>, plus object <b>owners</b> who can grant on what they own.</li>\n        </ul>\n        <h3>Lineage & audit</h3>\n        <ul>\n          <li>UC captures <b>lineage</b> automatically — table/column-level, upstream/downstream, including notebooks and dashboards.</li>\n          <li><b>Audit logs</b> are delivered/stored to a cloud storage location (and queryable system tables) for who-did-what.</li>\n        </ul>\n        <h3>Delta Sharing</h3>\n        <ul>\n          <li>Open protocol to share live data <b>without copying</b> it. Two flavors: <b>Databricks-to-Databricks</b> (recipient is on Databricks) and <b>open sharing</b> to <b>external</b> non-Databricks clients.</li>\n          <li>You create a <b>share</b>, add tables/views, and grant recipients <b>read</b> access.</li>\n          <li>Watch <b>cross-cloud egress cost</b> when the recipient is in a different cloud/region.</li>\n        </ul>\n        <h3>Lakehouse Federation</h3>\n        <p>Query external systems (PostgreSQL, MySQL, Snowflake, Redshift, etc.) <b>in place</b> from Databricks without ingesting the data first — great for exploration and joining external sources under UC governance.</p>",
+      "notes": "\n    <h3>Monitoring jobs</h3>\n    <ul>\n      <li><b>Run history</b> compares current execution times against historical <b>baselines</b> to spot regressions.</li>\n      <li>The <b>Jobs UI</b> shows statuses, the <b>DAG</b> (to find upstream blockers), run times and failure rates.</li>\n    </ul>\n    <h3>Spark UI bottlenecks</h3>\n    <ul>\n      <li><b>Skew</b> — one task far slower than the rest (uneven data distribution).</li>\n      <li><b>Shuffle</b> — data moved across the cluster; heavy shuffle is costly.</li>\n      <li><b>Spill</b> — not enough memory, so data is written to disk (slow).</li>\n    </ul>\n    <h3>Layout optimization</h3>\n    <ul>\n      <li><b>Liquid Clustering</b> — auto-manages data layout on chosen keys (replaces manual partitioning + ZORDER).</li>\n      <li><b>Predictive optimization</b> — Databricks auto-runs OPTIMIZE (compaction) and VACUUM (cleanup).</li>\n    </ul>\n    <h3>Common failures</h3>\n    <p><b>Cluster startup failures</b> (quota/config), <b>library conflicts</b> (incompatible versions), and <b>out-of-memory</b> (reduce partition size, increase memory, avoid huge collects) — read driver/executor logs and the event log.</p>",
       "videos": [
         [
-          "Unity Catalog: managed vs external + grants",
-          "governance core",
-          "Databricks Unity Catalog managed vs external tables grants tutorial"
+          "Reading the Spark UI (skew, shuffle, spill)",
+          "Spark UI",
+          "Databricks Spark UI skew shuffle spill tutorial"
         ],
         [
-          "Delta Sharing explained",
-          "sharing",
-          "Databricks Delta Sharing tutorial databricks to databricks external"
+          "Monitoring jobs & run history",
+          "monitoring",
+          "Databricks Lakeflow Jobs run history monitor health tutorial"
         ],
         [
-          "Lakehouse Federation overview",
-          "query in place",
-          "Databricks Lakehouse Federation tutorial"
+          "Liquid Clustering & predictive optimization",
+          "optimization",
+          "Databricks Liquid Clustering predictive optimization"
         ]
       ],
       "quiz": [
         {
-          "q": "You DROP a Unity Catalog table and the underlying data files remain in cloud storage. The table was:",
+          "q": "In the Spark UI, one task in a stage takes 10× longer than the rest. Likely cause?",
           "opts": [
-            "A managed table",
-            "An external table",
-            "A streaming table",
-            "A materialized view"
-          ],
-          "a": 1,
-          "obj": "Managed vs external tables",
-          "e": "External tables keep their data on DROP (UC manages only metadata). Dropping a managed table deletes the data."
-        },
-        {
-          "q": "An analyst group already has USE CATALOG and USE SCHEMA on sales_data and needs read-only access. Which grant is correct?",
-          "opts": [
-            "GRANT ALL PRIVILEGES ON SCHEMA sales_data TO analysts",
-            "GRANT SELECT ON SCHEMA sales_data TO analysts",
-            "GRANT INSERT ON SCHEMA sales_data TO analysts",
-            "GRANT MODIFY ON SCHEMA sales_data TO analysts"
-          ],
-          "a": 1,
-          "obj": "Grant permissions in UC",
-          "e": "SELECT gives read-only access. ALL PRIVILEGES/INSERT/MODIFY grant write capability."
-        },
-        {
-          "q": "A partner who does NOT use Databricks needs to read a shared dataset. Which applies?",
-          "opts": [
-            "Databricks-to-Databricks sharing only",
-            "Delta Sharing open (external) sharing",
-            "Lakehouse Federation",
-            "A managed table grant"
-          ],
-          "a": 1,
-          "obj": "Types of Delta Sharing",
-          "e": "Open Delta Sharing serves recipients on non-Databricks/external clients; D2D is for recipients already on Databricks."
-        },
-        {
-          "q": "A team wants to query a Snowflake table from Databricks without first copying the data in. Best fit?",
-          "opts": [
-            "Auto Loader",
-            "Delta Sharing",
-            "Lakehouse Federation",
-            "MERGE INTO"
-          ],
-          "a": 2,
-          "obj": "Lakehouse Federation use cases",
-          "e": "Lakehouse Federation queries external sources in place under UC governance."
-        },
-        {
-          "q": "Which is an accurate cost consideration for Delta Sharing across clouds?",
-          "opts": [
-            "Sharing is always free regardless of location",
-            "Cross-cloud / cross-region data egress can incur cost",
-            "Recipients must duplicate the data to read it",
-            "It requires an external table"
-          ],
-          "a": 1,
-          "obj": "Cost of sharing across clouds",
-          "e": "Reading shared data across clouds/regions can trigger egress charges — plan placement accordingly."
-        },
-        {
-          "q": "Where does Unity Catalog get table- and column-level lineage from?",
-          "opts": [
-            "You must enter it manually",
-            "It's captured automatically as queries run",
-            "Only from Delta Sharing",
-            "From the Spark UI"
-          ],
-          "a": 1,
-          "obj": "Lineage in UC",
-          "e": "UC captures lineage automatically across notebooks, jobs, and dashboards."
-        },
-        {
-          "q": "A Unity Catalog object is referenced with how many namespace levels?",
-          "opts": [
-            "Two: schema.table",
-            "Three: catalog.schema.table",
-            "One: table",
-            "Four: metastore.catalog.schema.table"
-          ],
-          "a": 1,
-          "obj": "Grant permissions in UC",
-          "e": "UC uses a three-level namespace: catalog.schema.table.",
-          "_added": true
-        },
-        {
-          "q": "Besides SELECT on the table, what does a user typically also need to read a table in Unity Catalog?",
-          "opts": [
-            "USE CATALOG and USE SCHEMA",
-            "ALL PRIVILEGES on the metastore",
-            "Account admin role",
-            "MODIFY on the schema"
+            "Data skew",
+            "A syntax error",
+            "Missing grants",
+            "A cron misconfig"
           ],
           "a": 0,
-          "obj": "Grant permissions in UC",
-          "e": "Reading a table generally requires USE CATALOG and USE SCHEMA plus SELECT on the table.",
-          "_added": true
+          "obj": "Identify bottlenecks",
+          "e": "A single very slow task usually means skew — uneven data across partitions.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/optimizations/spark-ui-guide/",
+            "l": "Diagnose with the Spark UI"
+          }
         },
         {
-          "q": "A key advantage of Delta Sharing is that it shares live data:",
+          "q": "'Spill' in the Spark UI means:",
           "opts": [
-            "Only within one workspace",
-            "Without copying the underlying data",
-            "Only as CSV exports",
-            "Only to Databricks recipients"
+            "A permission error",
+            "Tasks ran out of memory and wrote to disk",
+            "Files failed to load",
+            "A cluster was deleted"
           ],
           "a": 1,
-          "obj": "Use Delta Sharing / advantages",
-          "e": "Delta Sharing is an open protocol that shares live data without copying it (to Databricks or external clients).",
-          "_added": true
+          "obj": "Identify bottlenecks",
+          "e": "Spill = insufficient memory, so Spark writes to disk (slow).",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/optimizations/spark-ui-guide/",
+            "l": "Diagnose with the Spark UI"
+          }
         },
         {
-          "q": "You DROP a managed Unity Catalog table. What happens to the underlying data files?",
+          "q": "Which feature auto-manages a table's layout on chosen keys, replacing partitioning + ZORDER?",
           "opts": [
-            "They remain in cloud storage",
-            "They are deleted",
-            "They convert to an external table",
-            "They move to Delta Sharing"
+            "Liquid Clustering",
+            "Delta Sharing",
+            "Auto Loader",
+            "COPY INTO"
+          ],
+          "a": 0,
+          "obj": "Liquid Clustering",
+          "e": "Liquid Clustering manages layout automatically as data grows.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/tables/clustering",
+            "l": "Liquid clustering & predictive optimization"
+          }
+        },
+        {
+          "q": "What does predictive optimization do?",
+          "opts": [
+            "Auto-runs OPTIMIZE and VACUUM maintenance",
+            "Grants permissions",
+            "Creates dashboards",
+            "Broadcasts small tables"
+          ],
+          "a": 0,
+          "obj": "Predictive optimization",
+          "e": "It automatically runs compaction (OPTIMIZE) and cleanup (VACUUM).",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/tables/clustering",
+            "l": "Liquid clustering & predictive optimization"
+          }
+        },
+        {
+          "q": "How do you tell if a job is running slower than usual?",
+          "opts": [
+            "Compare the Lakeflow Jobs run history against baselines",
+            "Delete and recreate it",
+            "Increase shuffle partitions blindly",
+            "Re-run it once"
+          ],
+          "a": 0,
+          "obj": "Job performance trends",
+          "e": "Run history compares current run times against historical baselines.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/optimizations/spark-ui-guide/",
+            "l": "Diagnose with the Spark UI"
+          }
+        },
+        {
+          "q": "A job repeatedly fails with out-of-memory. A reasonable first step:",
+          "opts": [
+            "Add more shuffle",
+            "Reduce data per task / increase memory, avoid huge collects",
+            "Grant ALL PRIVILEGES",
+            "Switch to a SQL warehouse"
           ],
           "a": 1,
-          "obj": "Managed vs external tables",
-          "e": "For a managed table, UC manages the data, so DROP deletes the underlying files (unlike an external table).",
-          "_added": true
+          "obj": "Diagnose OOM",
+          "e": "Address OOM by shrinking per-task data, adding memory, and avoiding large driver collects.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/compute/",
+            "l": "Compute & troubleshooting"
+          }
+        },
+        {
+          "q": "Heavy 'shuffle' in a job indicates:",
+          "opts": [
+            "Data being moved across the cluster between stages",
+            "A governance error",
+            "A masked column",
+            "A deleted table"
+          ],
+          "a": 0,
+          "obj": "Identify bottlenecks",
+          "e": "Shuffle is cross-cluster data movement; heavy shuffle is expensive.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/optimizations/spark-ui-guide/",
+            "l": "Diagnose with the Spark UI"
+          }
+        },
+        {
+          "q": "To spot which upstream task is blocking a pipeline, use:",
+          "opts": [
+            "The Jobs UI DAG view",
+            "Delta Sharing",
+            "A broadcast join",
+            "dbutils.widgets"
+          ],
+          "a": 0,
+          "obj": "Monitor pipeline health",
+          "e": "The DAG view reveals dependencies and upstream blockers.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/jobs/",
+            "l": "Lakeflow Jobs"
+          }
+        },
+        {
+          "q": "A cluster fails to start. A plausible cause to investigate is:",
+          "opts": [
+            "A correct SELECT grant",
+            "Cloud quota/config or instance availability",
+            "A materialized view",
+            "A row filter"
+          ],
+          "a": 1,
+          "obj": "Diagnose startup failures",
+          "e": "Startup failures often stem from quota/config/availability issues — check event logs.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/compute/",
+            "l": "Compute & troubleshooting"
+          }
+        },
+        {
+          "q": "An imported library breaks a job after an upgrade. This is most likely a:",
+          "opts": [
+            "Library/version conflict",
+            "Row-level security issue",
+            "Shuffle partition setting",
+            "Delta Sharing limit"
+          ],
+          "a": 0,
+          "obj": "Diagnose library conflicts",
+          "e": "Incompatible library versions cause conflicts; pin/resolve versions.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/compute/",
+            "l": "Compute & troubleshooting"
+          }
+        },
+        {
+          "q": "Where do you read stage-level metrics to find skew, shuffle and spill?",
+          "opts": [
+            "The Spark UI",
+            "The billing page",
+            "Delta Sharing",
+            "The Catalog Explorer"
+          ],
+          "a": 0,
+          "obj": "Identify bottlenecks",
+          "e": "The Spark UI exposes stage/task metrics for diagnosing bottlenecks.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/optimizations/spark-ui-guide/",
+            "l": "Diagnose with the Spark UI"
+          }
+        },
+        {
+          "q": "Liquid Clustering is preferred over manual partitioning + ZORDER because it:",
+          "opts": [
+            "Encrypts data",
+            "Adapts the layout automatically as data changes",
+            "Grants access",
+            "Runs dashboards"
+          ],
+          "a": 1,
+          "obj": "Liquid Clustering",
+          "e": "Liquid Clustering manages/adapts clustering automatically without manual re-tuning.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/tables/clustering",
+            "l": "Liquid clustering & predictive optimization"
+          }
         }
       ],
       "flashcards": [
+        [
+          "Data skew",
+          "One task far slower than others due to uneven data distribution across partitions."
+        ],
+        [
+          "Shuffle",
+          "Movement of data across the cluster between stages; heavy shuffle is expensive."
+        ],
+        [
+          "Spill",
+          "Writing data to disk because memory ran out — a performance red flag."
+        ],
+        [
+          "Run history",
+          "Compares a job's current run times against historical baselines to spot regressions."
+        ],
+        [
+          "Liquid Clustering",
+          "Auto-manages table layout on chosen keys, replacing manual partitioning + ZORDER."
+        ],
+        [
+          "Predictive optimization",
+          "Databricks automatically runs OPTIMIZE (compaction) and VACUUM (cleanup)."
+        ],
+        [
+          "OOM / library conflicts",
+          "Diagnose via driver/executor logs; fix OOM with more memory / smaller partitions, resolve version conflicts."
+        ]
+      ]
+    },
+    {
+      "id": "d7",
+      "title": "Governance & Security",
+      "weightHint": "Managed/external, GRANT/REVOKE/DENY, masking, RLS, ABAC",
+      "objectives": [
+        "Differentiate managed vs external tables and perform operations (create/modify/delete/convert)",
+        "Configure access controls via UI and SQL: GRANT, REVOKE, DENY to principals across the hierarchy",
+        "Understand column-level masking and row-level security to restrict visibility by group",
+        "Understand Unity Catalog ABAC policies for central row filtering and column masking"
+      ],
+      "notes": "\n    <h3>Managed vs external tables</h3>\n    <ul>\n      <li><b>Managed</b> — UC manages metadata <i>and</i> data files; <b>DROP deletes the data</b>.</li>\n      <li><b>External</b> — data lives in a location you specify; UC manages only metadata; <b>DROP keeps the data</b>. Tables can be converted between the two.</li>\n    </ul>\n    <h3>Access control</h3>\n    <ul>\n      <li><code>GRANT</code> gives a privilege, <code>REVOKE</code> removes a previously-granted one, <code>DENY</code> explicitly blocks it.</li>\n      <li>Privileges apply to <b>principals</b> — users, <b>groups</b>, and <b>service principals</b> — at levels of the hierarchy (catalog / schema / table). Reading a table needs <code>USE CATALOG</code>, <code>USE SCHEMA</code> and <code>SELECT</code>.</li>\n    </ul>\n    <h3>Masking, row-level security &amp; ABAC</h3>\n    <ul>\n      <li><b>Column masking</b> — obscure sensitive column values for some users. <b>Row-level security</b> — a row filter limits which rows a group can see.</li>\n      <li><b>ABAC policies</b> (attribute-based access control) in UC centrally apply row filters and column masks based on <b>attributes/tags</b>, instead of per-table rules.</li>\n    </ul>",
+      "videos": [
+        [
+          "Managed vs external tables",
+          "tables",
+          "Databricks Unity Catalog managed vs external tables"
+        ],
+        [
+          "GRANT / REVOKE / DENY in UC",
+          "access control",
+          "Databricks Unity Catalog GRANT REVOKE privileges tutorial"
+        ],
+        [
+          "Row-level security, masking & ABAC",
+          "fine-grained access",
+          "Databricks Unity Catalog row filter column mask ABAC policy"
+        ]
+      ],
+      "quiz": [
         {
-          "front": "Managed table",
-          "back": "Unity Catalog manages both the metadata and the underlying data files — DROP deletes the data."
+          "q": "You DROP a table and the data files remain in cloud storage. The table was:",
+          "opts": [
+            "Managed",
+            "External",
+            "Streaming",
+            "A materialized view"
+          ],
+          "a": 1,
+          "obj": "Managed vs external",
+          "e": "External tables keep data on DROP (UC manages only metadata).",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/",
+            "l": "Unity Catalog"
+          }
         },
         {
-          "front": "External table",
-          "back": "Data lives in an external location you specify; UC manages only metadata — DROP keeps the data files."
+          "q": "Which statement removes a privilege that was previously granted?",
+          "opts": [
+            "GRANT",
+            "REVOKE",
+            "SELECT",
+            "USE"
+          ],
+          "a": 1,
+          "obj": "Access controls",
+          "e": "REVOKE removes a previously granted privilege; DENY explicitly blocks it.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/manage-privileges/",
+            "l": "Manage privileges (GRANT/REVOKE)"
+          }
         },
         {
-          "front": "UC namespace",
-          "back": "Three levels: catalog.schema.table. Reading a table typically needs USE CATALOG, USE SCHEMA and SELECT."
+          "q": "To limit which ROWS a group can see in a table, you use:",
+          "opts": [
+            "Column masking",
+            "Row-level security (a row filter)",
+            "A broadcast join",
+            "Time travel"
+          ],
+          "a": 1,
+          "obj": "Row-level security",
+          "e": "A row filter restricts which rows a group can see.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/filters-and-masks/",
+            "l": "Row filters & column masks"
+          }
         },
         {
-          "front": "GRANT SELECT",
-          "back": "Gives read-only access to an object; MODIFY adds write, ALL PRIVILEGES grants everything."
+          "q": "To obscure a sensitive column's values for certain users, you use:",
+          "opts": [
+            "Column-level masking",
+            "A cross join",
+            "COPY INTO",
+            "Predictive optimization"
+          ],
+          "a": 0,
+          "obj": "Column masking",
+          "e": "Column masking hides/obfuscates column values based on the user/group.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/filters-and-masks/",
+            "l": "Row filters & column masks"
+          }
         },
         {
-          "front": "UC roles",
-          "back": "Metastore admin, account admin, plus object owners who can grant privileges on what they own."
+          "q": "Which UC feature centrally applies row filters and column masks based on attributes/tags?",
+          "opts": [
+            "ABAC policies",
+            "Delta Sharing",
+            "Auto Loader",
+            "Liquid Clustering"
+          ],
+          "a": 0,
+          "obj": "ABAC policies",
+          "e": "ABAC policies use governed tags to apply row filters/column masks across many tables.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/abac/",
+            "l": "ABAC in Unity Catalog"
+          }
         },
         {
-          "front": "Lineage",
-          "back": "UC captures table- and column-level lineage automatically as queries run, across notebooks, jobs and dashboards."
+          "q": "A Unity Catalog principal can be a user, a service principal, or a:",
+          "opts": [
+            "Cluster",
+            "Group",
+            "Notebook",
+            "Warehouse"
+          ],
+          "a": 1,
+          "obj": "Access controls",
+          "e": "Privileges are granted to users, groups, and service principals.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/manage-privileges/",
+            "l": "Manage privileges (GRANT/REVOKE)"
+          }
         },
         {
-          "front": "Audit logs",
-          "back": "Recorded who-did-what, delivered to a cloud storage location and queryable via system tables."
+          "q": "You DROP a managed table. What happens to its data files?",
+          "opts": [
+            "They remain",
+            "They are deleted",
+            "They convert to external",
+            "They move to a share"
+          ],
+          "a": 1,
+          "obj": "Managed vs external",
+          "e": "For managed tables UC owns the data, so DROP deletes the files.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/",
+            "l": "Unity Catalog"
+          }
         },
         {
-          "front": "Delta Sharing",
-          "back": "Open protocol to share live data without copying it."
+          "q": "Besides SELECT on a table, what does a user also generally need to read it?",
+          "opts": [
+            "USE CATALOG and USE SCHEMA",
+            "Account admin role",
+            "ALL PRIVILEGES on the metastore",
+            "MODIFY on the schema"
+          ],
+          "a": 0,
+          "obj": "Access controls",
+          "e": "Reading a table needs USE CATALOG and USE SCHEMA plus SELECT.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/manage-privileges/",
+            "l": "Manage privileges (GRANT/REVOKE)"
+          }
         },
         {
-          "front": "D2D vs open sharing",
-          "back": "Databricks-to-Databricks sharing (recipient on Databricks) vs open sharing to external, non-Databricks clients."
+          "q": "Which grant gives read-only access to a schema?",
+          "opts": [
+            "GRANT SELECT",
+            "GRANT MODIFY",
+            "GRANT ALL PRIVILEGES",
+            "GRANT INSERT"
+          ],
+          "a": 0,
+          "obj": "Access controls",
+          "e": "SELECT is read-only; MODIFY/INSERT/ALL add write capability.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/manage-privileges/",
+            "l": "Manage privileges (GRANT/REVOKE)"
+          }
         },
         {
-          "front": "Cross-cloud egress",
-          "back": "Reading shared data across clouds/regions can incur data egress cost — plan placement."
+          "q": "Which statement explicitly blocks a privilege even if otherwise granted?",
+          "opts": [
+            "GRANT",
+            "REVOKE",
+            "DENY",
+            "USE"
+          ],
+          "a": 2,
+          "obj": "Access controls",
+          "e": "DENY explicitly blocks; REVOKE just removes a prior grant.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/manage-privileges/",
+            "l": "Manage privileges (GRANT/REVOKE)"
+          }
         },
         {
-          "front": "Lakehouse Federation",
-          "back": "Query external systems (PostgreSQL, MySQL, Snowflake, Redshift…) in place from Databricks, under UC governance, without ingesting first."
+          "q": "A row filter that decides which rows a user sees is implemented as:",
+          "opts": [
+            "A SQL UDF evaluated per row",
+            "A partition",
+            "A shuffle",
+            "A checkpoint"
+          ],
+          "a": 0,
+          "obj": "Row-level security",
+          "e": "Row filters and column masks are SQL UDFs evaluated at query time.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/filters-and-masks/",
+            "l": "Row filters & column masks"
+          }
+        },
+        {
+          "q": "A key advantage of ABAC policies over per-table row filters/masks is:",
+          "opts": [
+            "They only work on one table",
+            "One tag-based policy covers many matching tables and can't be overridden by table owners",
+            "They disable governance",
+            "They require copying data"
+          ],
+          "a": 1,
+          "obj": "ABAC policies",
+          "e": "ABAC scales via governed tags across catalogs/schemas and is set by admins so owners can't override it.",
+          "doc": {
+            "u": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/abac/",
+            "l": "ABAC in Unity Catalog"
+          }
         }
+      ],
+      "flashcards": [
+        [
+          "Managed vs external table",
+          "Managed: UC owns data, DROP deletes it. External: data in your location, DROP keeps it."
+        ],
+        [
+          "GRANT / REVOKE / DENY",
+          "GRANT gives a privilege, REVOKE removes a granted one, DENY explicitly blocks it."
+        ],
+        [
+          "Principals",
+          "Who privileges are granted to: users, groups, and service principals."
+        ],
+        [
+          "Row-level security",
+          "A row filter restricting which rows a user/group can see."
+        ],
+        [
+          "Column masking",
+          "Obscures sensitive column values for certain users/groups."
+        ],
+        [
+          "ABAC policies",
+          "Attribute/tag-based policies that centrally apply row filters and column masks in UC."
+        ]
       ]
     }
   ],
   "fillblank": [
     {
-      "sec": "s1",
+      "sec": "d1",
       "type": "concept",
-      "prompt": "____ Clustering replaces manual partitioning + ZORDER and lets Databricks manage table layout automatically.",
-      "answer": "Liquid",
+      "prompt": "____ Catalog is the governance layer with a catalog.schema.table namespace.",
+      "answer": "Unity",
       "accept": [
-        "liquid"
+        "unity"
       ],
-      "hint": "Modern data-layout feature"
+      "hint": "\"U…\" Catalog"
     },
     {
-      "sec": "s1",
+      "sec": "d1",
       "type": "concept",
-      "prompt": "____ Optimization auto-runs OPTIMIZE and VACUUM so engineers don't schedule them.",
-      "answer": "Predictive",
-      "accept": [
-        "predictive"
-      ],
-      "hint": "\"P…\" optimization"
-    },
-    {
-      "sec": "s1",
-      "type": "concept",
-      "prompt": "For a scheduled nightly ETL job, the cheapest compute is ____ compute (started for the run, torn down after).",
-      "answer": "job",
-      "accept": [
-        "jobs"
-      ],
-      "hint": "Not all-purpose"
-    },
-    {
-      "sec": "s1",
-      "type": "concept",
-      "prompt": "BI dashboards issuing SQL should run on a SQL ____.",
-      "answer": "warehouse",
+      "prompt": "Delta Lake supports ACID and ____ travel to older versions.",
+      "answer": "time",
       "accept": [],
-      "hint": "Purpose-built for SQL/BI"
+      "hint": "query the past"
     },
     {
-      "sec": "s2",
+      "sec": "d2",
+      "type": "code",
+      "prompt": "____ INTO my.table FROM 's3://…' FILEFORMAT = JSON;  (incremental, idempotent load)",
+      "answer": "COPY",
+      "accept": [
+        "copy"
+      ],
+      "hint": "SQL load command"
+    },
+    {
+      "sec": "d2",
       "type": "code",
       "prompt": "spark.readStream.format(\"____\")  # Auto Loader source",
       "answer": "cloudFiles",
       "accept": [
         "cloudfiles"
       ],
-      "hint": "camelCase, two words joined"
+      "hint": "camelCase"
     },
     {
-      "sec": "s2",
+      "sec": "d3",
       "type": "code",
-      "prompt": ".option(\"checkpointLocation\", \"/chk/events\")  # the ____ lets a stream resume without reprocessing",
-      "answer": "checkpoint",
-      "accept": [
-        "checkpoint location",
-        "checkpointlocation"
-      ],
-      "hint": "Tracks processed files"
-    },
-    {
-      "sec": "s2",
-      "type": "code",
-      "prompt": "%____ ./other_notebook   # run another notebook inline",
-      "answer": "run",
+      "prompt": "df.____('items')  # turn array elements into separate rows",
+      "answer": "explode",
       "accept": [],
-      "hint": "A notebook magic"
+      "hint": "array → rows"
     },
     {
-      "sec": "s2",
-      "type": "concept",
-      "prompt": "Use Databricks ____ to develop PySpark in VS Code but execute on a remote cluster.",
-      "answer": "Connect",
-      "accept": [
-        "connect"
-      ],
-      "hint": "Local IDE → remote compute"
-    },
-    {
-      "sec": "s3",
-      "type": "concept",
-      "prompt": "Medallion layers in order: ____ → silver → gold.",
-      "answer": "bronze",
+      "sec": "d3",
+      "type": "code",
+      "prompt": "spark.sql.____.partitions  # number of post-shuffle partitions",
+      "answer": "shuffle",
       "accept": [],
-      "hint": "Raw landing layer"
+      "hint": "…after a shuffle"
     },
     {
-      "sec": "s3",
-      "type": "code",
-      "prompt": "CREATE OR ____ TABLE t (...)   # always overwrites any existing table",
-      "answer": "REPLACE",
-      "accept": [
-        "replace"
-      ],
-      "hint": "Opposite of IF NOT EXISTS"
-    },
-    {
-      "sec": "s3",
-      "type": "code",
-      "prompt": "MERGE ____ target USING source ON ...   # the upsert pattern",
-      "answer": "INTO",
-      "accept": [
-        "into"
-      ],
-      "hint": "MERGE ____ …"
-    },
-    {
-      "sec": "s3",
-      "type": "code",
-      "prompt": "df.groupBy(\"day\").agg(____(\"inv_id\"))  # count UNIQUE invoices",
-      "answer": "count_distinct",
-      "accept": [
-        "countDistinct",
-        "count distinct"
-      ],
-      "hint": "Not plain count()"
-    },
-    {
-      "sec": "s3",
-      "type": "code",
-      "prompt": "CONSTRAINT valid_id ____ (id IS NOT NULL) ON VIOLATION DROP ROW   # LDP quality rule",
-      "answer": "EXPECT",
-      "accept": [
-        "expect"
-      ],
-      "hint": "LDP expectation keyword"
-    },
-    {
-      "sec": "s4",
+      "sec": "d3",
       "type": "concept",
-      "prompt": "Databricks Asset ____ define jobs/pipelines as YAML infrastructure-as-code.",
-      "answer": "Bundles",
-      "accept": [
-        "bundle",
-        "bundles"
-      ],
-      "hint": "DAB"
+      "prompt": "A ____ join ships a small table to all executors to avoid a shuffle.",
+      "answer": "broadcast",
+      "accept": [],
+      "hint": "small side to everyone"
     },
     {
-      "sec": "s4",
+      "sec": "d4",
       "type": "concept",
-      "prompt": "In a bundle, per-environment settings (dev vs prod) live under ____.",
+      "prompt": "A job's tasks and dependencies form a ____ (task graph).",
+      "answer": "DAG",
+      "accept": [
+        "dag"
+      ],
+      "hint": "directed acyclic graph"
+    },
+    {
+      "sec": "d4",
+      "type": "concept",
+      "prompt": "A ____ arrival trigger runs a job when new files land.",
+      "answer": "file",
+      "accept": [],
+      "hint": "data-driven trigger"
+    },
+    {
+      "sec": "d5",
+      "type": "code",
+      "prompt": "databricks bundle ____   # deploy/promote a bundle",
+      "answer": "deploy",
+      "accept": [],
+      "hint": "push it to a target"
+    },
+    {
+      "sec": "d5",
+      "type": "concept",
+      "prompt": "Per-environment overrides in an Asset Bundle live under ____.",
       "answer": "targets",
       "accept": [
         "target"
       ],
-      "hint": "Not 'resources'"
+      "hint": "dev/test/prod"
     },
     {
-      "sec": "s4",
+      "sec": "d6",
       "type": "concept",
-      "prompt": "After a multi-task job fails, use ____ run to rerun only the failed task(s).",
-      "answer": "repair",
-      "accept": [
-        "Repair"
-      ],
-      "hint": "\"R…\" run"
+      "prompt": "One very slow task in a stage indicates data ____.",
+      "answer": "skew",
+      "accept": [],
+      "hint": "uneven partitions"
     },
     {
-      "sec": "s5",
+      "sec": "d6",
       "type": "concept",
-      "prompt": "Dropping a(n) ____ table keeps the data files (UC manages only metadata).",
-      "answer": "external",
+      "prompt": "____ Clustering auto-manages table layout (replaces partition + ZORDER).",
+      "answer": "Liquid",
       "accept": [
-        "External"
+        "liquid"
       ],
-      "hint": "Opposite of managed"
+      "hint": "modern layout feature"
     },
     {
-      "sec": "s5",
+      "sec": "d7",
       "type": "code",
-      "prompt": "GRANT ____ ON SCHEMA sales TO analysts;   # read-only access",
-      "answer": "SELECT",
+      "prompt": "____ SELECT ON SCHEMA sales TO analysts;  # give read access",
+      "answer": "GRANT",
       "accept": [
-        "select"
+        "grant"
       ],
-      "hint": "Read privilege"
+      "hint": "opposite of REVOKE"
     },
     {
-      "sec": "s5",
+      "sec": "d7",
       "type": "concept",
-      "prompt": "____ Sharing is an open protocol to share live data without copying it.",
-      "answer": "Delta",
+      "prompt": "____-level masking obscures sensitive column values for some users.",
+      "answer": "column",
       "accept": [
-        "delta"
+        "Column"
       ],
-      "hint": "\"D…\" Sharing"
+      "hint": "not row"
     },
     {
-      "sec": "s5",
+      "sec": "d7",
       "type": "concept",
-      "prompt": "Lakehouse ____ queries external systems (Snowflake, Postgres…) in place without ingesting.",
-      "answer": "Federation",
+      "prompt": "UC ____ policies centrally apply row filters and column masks by attributes/tags.",
+      "answer": "ABAC",
       "accept": [
-        "federation"
+        "abac"
       ],
-      "hint": "Query-in-place"
+      "hint": "attribute-based access control"
     }
   ],
   "meta": {
     "examName": "Databricks Certified Data Engineer — Associate",
-    "outlineVersion": "July 25, 2025",
+    "outlineVersion": "May 4, 2026",
     "officialGuide": "https://www.databricks.com/learn/certification/data-engineer-associate",
-    "groundingNote": "All notes, flashcards and fill-in-the-blank answers are derived from this study hub's section notes, which follow the official exam outline. The AI tutor is instructed to stay within these topics and say when it is unsure."
+    "groundingNote": "Notes, flashcards and fill-in-the-blank answers are original, grounded in the official May 4, 2026 exam outline (7 domains) and Databricks product documentation. The AI tutor is instructed to stay within these topics and say when it is unsure."
   }
 }
