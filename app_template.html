@@ -966,7 +966,7 @@ var Leaderboard={
     var base=lbBase();
     if(!/^https:\/\/.+\..+/.test(base)){ cb(null,"The Project URL looks wrong: \""+base+"\". It should be like https://xxxx.supabase.co (no spaces/newlines)."); return; }
     try{
-      fetch(base+"/rest/v1/scores?select=name,xp,eggs,correct&order=xp.desc&limit=50&_="+Date.now(),{
+      fetch(base+"/rest/v1/scores?select=name,xp,eggs,correct&order=xp.desc&limit=50",{
         headers:lbHeaders(c), cache:"no-store"
       }).then(function(r){ return r.text().then(function(t){
         if(!r.ok){ cb(null,"HTTP "+r.status+" — "+(t||"").slice(0,180)); return; }
