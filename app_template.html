@@ -82,15 +82,28 @@
 
   /* ===== Feed-the-Duck: stats HUD + roaming corn-fed duck ===== */
   .duckhud{position:fixed;top:14px;right:16px;z-index:60;background:#fff;border:1px solid var(--line);border-radius:14px;
-        box-shadow:0 6px 22px rgba(20,30,60,.13);padding:9px 13px;min-width:210px;}
-  .duckhud .lv{font-size:11px;font-weight:800;color:var(--navy);}
-  .duckhud .xpbar{height:7px;background:#eef1f6;border-radius:99px;overflow:hidden;margin:4px 0 3px;}
+        box-shadow:0 6px 22px rgba(20,30,60,.13);padding:10px 14px;min-width:196px;}
+  .duckhud .hud-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+  .duckhud .hud-name{font-size:12px;font-weight:800;color:var(--navy);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .duckhud .hud-lv{font-size:10px;font-weight:800;color:var(--brand2);text-transform:uppercase;letter-spacing:.5px;}
+  .duckhud .hud-pts{font-size:22px;font-weight:900;color:var(--ink);line-height:1.1;margin:1px 0 2px;}
+  .duckhud .hud-pts b{color:var(--brand2);}
+  .duckhud .xpbar{height:7px;background:#eef1f6;border-radius:99px;overflow:hidden;margin:2px 0 4px;}
   .duckhud .xpfill{height:100%;width:0;background:linear-gradient(90deg,var(--brand),var(--brand2));transition:width .4s;}
-  .duckhud .sub{font-size:10.5px;color:var(--muted);}
-  .duckhud .flame{font-size:11px;font-weight:800;color:var(--brand2);}
+  .duckhud .sub{font-size:11px;font-weight:700;color:var(--muted);}
+  .duckhud .flame{color:var(--brand2);}
+  /* egg-lay + hatch */
+  .egg{position:fixed;z-index:57;pointer-events:none;font-size:26px;animation:eggdrop .5s ease;}
+  @keyframes eggdrop{0%{transform:translateY(-14px) scale(.6);opacity:0}100%{transform:translateY(0) scale(1);opacity:1}}
+  .egg.wiggle{animation:eggwig .7s ease-in-out;}
+  @keyframes eggwig{0%,100%{transform:rotate(0)}25%{transform:rotate(-16deg)}50%{transform:rotate(14deg)}75%{transform:rotate(-10deg)}}
+  .hatchling{position:fixed;z-index:58;pointer-events:none;font-size:30px;animation:hatchpop .9s ease forwards;}
+  @keyframes hatchpop{0%{transform:scale(.2) translateY(6px);opacity:0}35%{transform:scale(1.3) translateY(-10px);opacity:1}70%{transform:scale(1) translateY(-14px)}100%{transform:scale(1) translateY(-34px);opacity:0}}
+  .spark{position:fixed;z-index:58;pointer-events:none;font-size:15px;animation:sparkle .8s ease forwards;}
+  @keyframes sparkle{0%{transform:scale(.4);opacity:1}100%{transform:scale(1.1) translateY(-20px);opacity:0}}
 
   /* roaming duck — waddles around the whole screen, never blocks clicks */
-  .duck{position:fixed;left:40px;top:60vh;z-index:55;pointer-events:none;width:78px;height:96px;
+  .duck{position:fixed;left:40px;top:60vh;z-index:55;pointer-events:none;width:80px;height:93px;
         transition:left 2.6s linear, top 2.6s linear;will-change:left,top;filter:drop-shadow(0 4px 4px rgba(0,0,0,.18));}
   .duck .duck-flip{width:100%;height:100%;transition:transform .25s;}
   .duck .duck-bob{width:100%;height:100%;animation:waddle .52s ease-in-out infinite;transform-origin:50% 90%;}
@@ -166,7 +179,7 @@
   .aipanel p{font-size:13px;color:var(--muted);margin:7px 0;}
   .aipanel .close{position:absolute;top:10px;right:14px;cursor:pointer;color:var(--muted);font-weight:800;}
 
-  @media(max-width:760px){.side{display:none;} .duckhud{top:8px;right:8px;min-width:0;padding:6px 9px;} .duck{width:62px;height:76px;} .jboard{font-size:9px;}}
+  @media(max-width:760px){.side{display:none;} .duckhud{top:8px;right:8px;min-width:0;padding:6px 9px;} .duck{width:64px;height:74px;} .jboard{font-size:9px;}}
 </style>
 </head>
 <body>
@@ -194,34 +207,33 @@
   <div class="main"><div class="wrap" id="view"></div></div>
 </div>
 
-<!-- Feed-the-Duck: stats HUD -->
+<!-- Feed-the-Duck: points tracker HUD -->
 <div class="duckhud" id="duckhud" title="Answer correctly to feed your duck!">
-  <div class="lv">🌽 <span id="duckLv">Hatchling</span> · <span id="duckXp">0</span> XP</div>
+  <div class="hud-top"><span class="hud-name" id="hudName">You</span><span class="hud-lv" id="duckLv">Hatchling</span></div>
+  <div class="hud-pts"><b id="duckXp">0</b> pts</div>
   <div class="xpbar"><div class="xpfill" id="duckFill"></div></div>
-  <div class="sub"><span id="duckNext"></span> &nbsp;·&nbsp; <span class="flame" id="duckStreak">🔥 0</span></div>
+  <div class="sub"><span id="hudCorrect">✅ 0</span> &nbsp; <span class="flame" id="duckStreak">🔥 0</span> &nbsp; <span id="hudHatch">🥚 0</span></div>
 </div>
 
 <!-- the roaming corn-fed duck (waddles around the screen) -->
 <div class="duck" id="duck">
   <div class="duck-flip" id="duckFlip"><div class="duck-bob"><div class="duck-fat" id="duckFat">
-    <svg viewBox="0 0 130 160" xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox="0 0 150 175" xmlns="http://www.w3.org/2000/svg">
       <g stroke="#1c150f" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round">
         <!-- back leg (planted) -->
         <g class="d-legB">
-          <path d="M58 116 L47 143" fill="none" stroke="#bf6a34" stroke-width="8"/>
-          <path d="M38 145 q9 -7 18 -2 q-2 8 -10 9 q-9 0 -8 -7 Z" fill="#bf6a34"/>
+          <path d="M60 120 L49 150" fill="none" stroke="#bf6a34" stroke-width="8"/>
+          <path d="M40 152 q9 -7 18 -2 q-2 8 -10 9 q-9 0 -8 -7 Z" fill="#bf6a34"/>
         </g>
         <!-- front leg (stepping) -->
         <g class="d-legF">
-          <path d="M72 116 L90 134" fill="none" stroke="#bf6a34" stroke-width="8"/>
-          <path d="M86 132 q10 -3 17 4 q-3 7 -11 6 q-9 -2 -6 -10 Z" fill="#bf6a34"/>
+          <path d="M74 120 L94 140" fill="none" stroke="#bf6a34" stroke-width="8"/>
+          <path d="M90 138 q10 -3 17 4 q-3 7 -11 6 q-9 -2 -6 -10 Z" fill="#bf6a34"/>
         </g>
-        <!-- body + neck + head -->
-        <path d="M82 26 C93 26 101 33 100 45 C100 53 97 57 95 61 C92 81 90 99 86 117
-                 C83 129 72 135 60 134 C49 133 44 124 43 108 C42 92 45 73 52 57
-                 C56 45 62 37 68 31 C72 27 77 26 82 26 Z" fill="#eef4f7"/>
-        <!-- belly shading -->
-        <path d="M50 112 C56 126 78 126 84 112 C80 124 56 126 50 112 Z" fill="#d6e4ef" stroke="none"/>
+        <!-- body+neck+head — the belly is a circle regenerated from fullness (balloons round) -->
+        <path id="duckBody" class="d-body" d="M80.0 24.0 C85.8 22.7 93.5 30.0 97.0 34.0 C100.5 38.0 101.8 43.7 101.0 48.0 C100.2 52.3 94.2 53.7 92.0 60.0 C89.8 66.3 87.4 77.2 87.6 85.5 C87.9 93.9 94.8 102.8 93.3 110.2 C91.9 117.6 85.1 126.2 79.0 130.0 C72.9 133.8 63.6 134.9 56.7 133.1 C49.9 131.3 41.4 125.7 38.0 119.0 C34.6 112.3 34.2 102.6 36.2 92.8 C38.2 82.9 45.7 68.5 50.0 60.0 C54.3 51.5 57.0 48.0 62.0 42.0 C67.0 36.0 74.2 25.3 80.0 24.0 Z" fill="#eef4f7"/>
+        <!-- belly shading (also follows fullness) -->
+        <path id="duckShade" d="M45 110 C55 123 73 123 83 110 C73 117 55 117 45 110 Z" fill="#d6e4ef" stroke="none"/>
         <!-- wing (raised, swings) -->
         <path class="d-wing" d="M58 70 C44 65 27 69 17 82 C24 83 30 83 34 85 C29 87 35 89 39 90
                  C34 92 41 94 45 94 C55 91 61 81 58 70 Z" fill="#e7eef3"/>
@@ -267,6 +279,8 @@ state.quiz=state.quiz||{};            // quiz[secId]={best,total}
 state.xp=state.xp||0;
 state.maxStreak=state.maxStreak||0;
 state.fullness=(typeof state.fullness==="number")?state.fullness:1;  // duck body size
+state.correct=state.correct||0;        // total correct answers
+state.ducksHatched=state.ducksHatched||0;  // eggs laid when belly maxes out
 state.srs=state.srs||{};              // srs[cardKey]={box,due,reps}
 state.games=state.games||{};
 state.games.jeopardy=state.games.jeopardy||{solved:{}};
@@ -292,9 +306,43 @@ function levelFor(xp){var L=LEVELS[0];for(var i=0;i<LEVELS.length;i++){if(xp>=LE
 function nextLevel(xp){for(var i=0;i<LEVELS.length;i++){if(LEVELS[i].min>xp)return LEVELS[i];}return null;}
 
 /* roaming duck refs + helpers */
-var duckEl, flipEl, fatEl, duckDir=1, roamTimer=null;
-var FAT_MIN=0.74, FAT_MAX=1.6;
-function applyFat(){ if(!fatEl)return; var f=state.fullness||1; var fy=1+(f-1)*0.45; fatEl.style.transform="scale("+f.toFixed(3)+","+fy.toFixed(3)+")"; }
+var duckEl, flipEl, fatEl, bodyEl, shadeEl, duckDir=1, roamTimer=null;
+var FAT_MIN=0.74, FAT_BASE=1.0, HATCH_AT=1.82;   // belly maxes out -> lays an egg
+var GAIN=0.16, LOSS=0.12;                          // per correct / wrong answer
+/* the body is ONE outline; only the belly anchors move, so just the stomach
+   grows/shrinks with fullness (head, wing, legs stay the same size). */
+function crClosed(pts){
+  var n=pts.length, d="M"+pts[0][0].toFixed(1)+" "+pts[0][1].toFixed(1)+" ";
+  for(var i=0;i<n;i++){
+    var p0=pts[(i-1+n)%n],p1=pts[i],p2=pts[(i+1)%n],p3=pts[(i+2)%n];
+    d+="C"+(p1[0]+(p2[0]-p0[0])/6).toFixed(1)+" "+(p1[1]+(p2[1]-p0[1])/6).toFixed(1)+" "
+      +(p2[0]-(p3[0]-p1[0])/6).toFixed(1)+" "+(p2[1]-(p3[1]-p1[1])/6).toFixed(1)+" "
+      +p2[0].toFixed(1)+" "+p2[1].toFixed(1)+" ";
+  }
+  return d+"Z";
+}
+/* belly is a CIRCLE (centre BCX,BCY) whose radius grows with fullness, so the
+   stomach balloons round instead of just getting wider. */
+var BCX=64, BCY=104, BR0=30, BRK=26, BANG=[-38,12,60,104,150,202];
+function bodyPath(g){
+  var R=BR0+BRK*(g-1), pts=[[80,24],[97,34],[101,48],[92,60]];
+  for(var i=0;i<BANG.length;i++){var a=BANG[i]*Math.PI/180; pts.push([BCX+R*Math.cos(a), BCY+R*Math.sin(a)]);}
+  pts.push([50,60],[62,42]);
+  return crClosed(pts);
+}
+function bellyShade(g){var R=(BR0+BRK*(g-1))*0.62;
+  return "M"+(BCX-R).toFixed(0)+" "+(BCY+6)+" C"+(BCX-R*0.5).toFixed(0)+" "+(BCY+R).toFixed(0)+" "+(BCX+R*0.5).toFixed(0)+" "+(BCY+R).toFixed(0)+" "+(BCX+R).toFixed(0)+" "+(BCY+6)
+    +" C"+(BCX+R*0.5).toFixed(0)+" "+(BCY+R*0.7).toFixed(0)+" "+(BCX-R*0.5).toFixed(0)+" "+(BCY+R*0.7).toFixed(0)+" "+(BCX-R).toFixed(0)+" "+(BCY+6)+" Z";}
+function drawBelly(g){ if(bodyEl)bodyEl.setAttribute("d",bodyPath(g)); if(shadeEl)shadeEl.setAttribute("d",bellyShade(g)); }
+function applyFat(){ drawBelly(state.fullness||1); }   // instant (boot/reset)
+var gShown=null;
+function tweenBelly(){
+  if(!bodyEl)return;
+  var target=state.fullness||1; if(gShown===null)gShown=target;
+  var start=gShown, t0=performance.now(), dur=380;
+  (function step(now){ var k=Math.min(1,(now-t0)/dur); var g=start+(target-start)*(0.5-0.5*Math.cos(Math.PI*k));
+    gShown=g; drawBelly(g); if(k<1)requestAnimationFrame(step); })(performance.now());
+}
 function pulse(cls){ if(!duckEl)return; duckEl.classList.remove(cls); void duckEl.offsetWidth; duckEl.classList.add(cls);
   setTimeout(function(){duckEl.classList.remove(cls);}, 800); }
 function moveDuck(){
@@ -310,7 +358,7 @@ function moveDuck(){
 function feedCorn(){
   if(!duckEl)return;
   var r=duckEl.getBoundingClientRect(), faceRight=duckDir>=0;
-  var mx=r.left+(faceRight?r.width*0.86:r.width*0.14), my=r.top+r.height*0.31;
+  var mx=r.left+(faceRight?r.width*0.74:r.width*0.26), my=r.top+r.height*0.28;
   for(var i=0;i<6;i++){(function(){ setTimeout(function(){
     var k=document.createElement("div"); k.className="kernel";
     var sx=mx+(faceRight?70:-70)+(Math.random()*50-25), sy=my-40+Math.random()*80;
@@ -320,40 +368,67 @@ function feedCorn(){
     setTimeout(function(){k.remove();},600);
   }, i*70); })();}
 }
+function hatchEgg(){
+  if(!duckEl){ state.fullness=FAT_BASE; state.ducksHatched++; save(state); Duck.render(); return; }
+  var r=duckEl.getBoundingClientRect();
+  var ex=r.left+r.width*0.5-13, ey=r.top+r.height-8;
+  state.fullness=FAT_BASE; save(state); tweenBelly();       // belly deflates (egg laid)
+  var egg=document.createElement("div"); egg.className="egg"; egg.textContent="🥚";
+  egg.style.left=ex+"px"; egg.style.top=ey+"px"; document.body.appendChild(egg);
+  setTimeout(function(){egg.classList.add("wiggle");},480);
+  setTimeout(function(){
+    egg.remove();
+    for(var i=0;i<5;i++){(function(){var s=document.createElement("div");s.className="spark";s.textContent="✨";
+      s.style.left=(ex+Math.random()*40-14)+"px"; s.style.top=(ey-10)+"px"; document.body.appendChild(s);
+      setTimeout(function(){s.remove();},820);})();}
+    var baby=document.createElement("div"); baby.className="hatchling"; baby.textContent="🐣";
+    baby.style.left=ex+"px"; baby.style.top=ey+"px"; document.body.appendChild(baby);
+    setTimeout(function(){baby.remove();},950);
+    state.ducksHatched++; save(state);
+    toast("🥚➜🐣 Belly full! Your duck laid an egg — duckling #"+state.ducksHatched+" hatched!");
+    Duck.render();
+  }, 1180);
+}
 var Duck={
   render:function(){
     var xp=state.xp, L=levelFor(xp), N=nextLevel(xp);
+    document.getElementById("hudName").textContent=state.name||"You";
     document.getElementById("duckLv").textContent=L.name;
     document.getElementById("duckXp").textContent=xp;
-    var fill, sub;
-    if(N){var span=N.min-L.min, into=xp-L.min; fill=Math.round(into/span*100); sub=(N.min-xp)+" XP → "+N.name;}
-    else{fill=100; sub="Max level!";}
-    document.getElementById("duckFill").style.width=fill+"%";
-    document.getElementById("duckNext").textContent=sub;
+    document.getElementById("duckFill").style.width=(N?Math.round((xp-L.min)/(N.min-L.min)*100):100)+"%";
+    document.getElementById("hudCorrect").textContent="✅ "+state.correct;
     document.getElementById("duckStreak").textContent="🔥 "+streak;
+    document.getElementById("hudHatch").textContent="🥚 "+state.ducksHatched;
   },
   feed:function(xp,correct){
     if(correct){
-      streak++; if(streak>state.maxStreak)state.maxStreak=streak;
+      streak++; if(streak>state.maxStreak)state.maxStreak=streak; state.correct++;
       if(streak%5===0){xp+=25; toast("🔥 "+streak+" streak! +25 bonus XP");}
     } else { streak=0; }
     var before=levelFor(state.xp).name;
     if(xp>0) state.xp+=xp;
-    // duck body responds: corn fattens it, a miss slims it
-    state.fullness=Math.min(FAT_MAX,Math.max(FAT_MIN,(state.fullness||1)+(correct?0.08:-0.10)));
-    save(state);
     if(correct){
+      state.fullness=(state.fullness||1)+GAIN;              // belly grows
       feedCorn();
-      setTimeout(function(){ pulse("eat"); applyFat(); }, 380);
-      if(streak>0 && streak%5===0) pulse("dance");
-    } else { pulse("sad"); applyFat(); }
+      if(state.fullness>=HATCH_AT){                          // stuffed -> lay an egg
+        setTimeout(function(){ pulse("eat"); hatchEgg(); }, 380);
+      } else {
+        setTimeout(function(){ pulse("eat"); tweenBelly(); }, 380);
+        if(streak>0 && streak%5===0) pulse("dance");
+      }
+    } else {
+      state.fullness=Math.max(FAT_MIN,(state.fullness||1)-LOSS);  // belly shrinks
+      pulse("sad"); tweenBelly();
+    }
+    save(state);
     var after=levelFor(state.xp).name;
     if(after!==before) toast("⬆️ Level up! Your duck is now a "+after);
     Duck.render();
   },
   startRoaming:function(){
     duckEl=document.getElementById("duck"); flipEl=document.getElementById("duckFlip"); fatEl=document.getElementById("duckFat");
-    applyFat();
+    bodyEl=document.getElementById("duckBody"); shadeEl=document.getElementById("duckShade");
+    gShown=state.fullness||1; applyFat();
     duckEl.style.left="40px"; duckEl.style.top=Math.round(window.innerHeight*0.58)+"px";
     if(roamTimer)clearInterval(roamTimer);
     setTimeout(moveDuck,500);
@@ -516,20 +591,20 @@ function tallyQuiz(secId){
 
 function resetQuiz(secId){ delete state.quiz[secId]; save(state); var sec=EXAM.sections.find(function(s){return s.id===secId;}); if(sec){go(secId);} }
 function resetAll(){ if(confirm("Reset ALL progress, XP, streak, flashcards and game scores?")){
-  state={objDone:{},quiz:{},xp:0,maxStreak:0,fullness:1,srs:{},games:{jeopardy:{solved:{}},fillblank:{best:0}},name:state.name};
-  streak=0; save(state); applyFat(); Duck.render(); go("overview"); } }
+  state={objDone:{},quiz:{},xp:0,maxStreak:0,fullness:1,correct:0,ducksHatched:0,srs:{},games:{jeopardy:{solved:{}},fillblank:{best:0}},name:state.name};
+  streak=0; gShown=1; save(state); applyFat(); Duck.render(); go("overview"); } }
 
 /* ============================ MOCK EXAM ============================= */
 function mockHTML(){
   var pool=[]; EXAM.sections.forEach(function(s){s.quiz.forEach(function(q){pool.push({s:s.id,q:q});});});
   for(var i=pool.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=pool[i];pool[i]=pool[j];pool[j]=t;}
-  var pick=pool.slice(0,10);
+  var pick=pool.slice(0,20);
   var body=pick.map(function(p,qi){
     var q=p.q;
     var opts=q.opts.map(function(o,oi){return '<div class="opt" data-o="'+oi+'">'+String.fromCharCode(65+oi)+'. '+esc(o)+'</div>';}).join("");
     return '<div class="q" data-secid="mock" data-ans="'+q.a+'" data-qi="'+qi+'"><div class="qn">'+(qi+1)+'. '+esc(q.q)+'</div><div class="obj-tag">'+esc(q.obj)+'</div>'+opts+'<div class="expl" id="ex-mock-'+qi+'"><b>Answer: '+String.fromCharCode(65+q.a)+'.</b> '+esc(q.e)+'</div></div>';
   }).join("");
-  return '<h1>Mock exam</h1><p class="lead">10 mixed questions drawn at random from every section. Each correct answer feeds your duck.</p>'+
+  return '<h1>Mock exam</h1><p class="lead">20 mixed questions drawn at random from every section. Each correct answer feeds your duck.</p>'+
     '<div class="scorebar"><span id="sc-mock" class="pillbig">0 answered</span><button class="btn brand" onclick="go(\'mock\')">New set</button></div>'+body;
 }
 

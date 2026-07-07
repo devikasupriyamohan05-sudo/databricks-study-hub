@@ -9,11 +9,7 @@
       "time limit"
     ],
     [
-      "$200",
-      "registration"
-    ],
-    [
-      "~68%",
+      "~70%",
       "aim to pass*"
     ],
     [
@@ -109,6 +105,58 @@
           "a": 2,
           "obj": "Identify the applicable compute",
           "e": "SQL warehouses are purpose-built for SQL and BI tools."
+        },
+        {
+          "q": "Which Delta Lake capability lets you query a previous version of a table (e.g. as of a past timestamp)?",
+          "opts": [
+            "Liquid Clustering",
+            "Time travel",
+            "Delta Sharing",
+            "Photon"
+          ],
+          "a": 1,
+          "obj": "Optimize query performance / Delta Lake",
+          "e": "Delta Lake keeps a transaction log, enabling time travel to earlier versions of a table.",
+          "_added": true
+        },
+        {
+          "q": "The lakehouse stores data in which open formats?",
+          "opts": [
+            "A proprietary Databricks-only format",
+            "Delta/Parquet in cloud object storage",
+            "CSV files only",
+            "An in-memory format that isn't persisted"
+          ],
+          "a": 1,
+          "obj": "Explain the value of the platform",
+          "e": "The lakehouse uses open Delta/Parquet files in cloud storage — no proprietary lock-in.",
+          "_added": true
+        },
+        {
+          "q": "What does the OPTIMIZE command do to a Delta table?",
+          "opts": [
+            "Deletes old files with VACUUM",
+            "Compacts many small files into fewer larger ones",
+            "Grants permissions",
+            "Creates a materialized view"
+          ],
+          "a": 1,
+          "obj": "Simplify data layout decisions",
+          "e": "OPTIMIZE compacts small files to improve read performance; VACUUM is the separate cleanup command.",
+          "_added": true
+        },
+        {
+          "q": "Compared to classic compute, serverless compute is best described as:",
+          "opts": [
+            "Running in your own cloud account and manually tuned",
+            "Managed and auto-optimized by Databricks with fast startup",
+            "Only usable for BI dashboards",
+            "A storage format"
+          ],
+          "a": 1,
+          "obj": "Identify the applicable compute",
+          "e": "Serverless is managed and auto-optimized by Databricks and starts quickly; classic runs in your cloud account.",
+          "_added": true
         }
       ],
       "flashcards": [
@@ -255,6 +303,58 @@
           "a": 0,
           "obj": "Debugging tools",
           "e": "The Spark UI exposes stages/tasks, shuffle and skew so you can pinpoint the bottleneck."
+        },
+        {
+          "q": "Which notebook magic command renders a cell as formatted markdown text?",
+          "opts": [
+            "%md",
+            "%sh",
+            "%sql",
+            "%run"
+          ],
+          "a": 0,
+          "obj": "Notebook capabilities",
+          "e": "%md renders markdown; %sh runs shell, %sql runs SQL, %run executes another notebook.",
+          "_added": true
+        },
+        {
+          "q": "Auto Loader needs to infer and track a table's schema over time. Which option points it at the schema store?",
+          "opts": [
+            "cloudFiles.format",
+            "cloudFiles.schemaLocation",
+            "checkpointLocation",
+            "cloudFiles.maxFiles"
+          ],
+          "a": 1,
+          "obj": "Auto Loader syntax",
+          "e": "cloudFiles.schemaLocation stores the inferred schema and supports schema evolution.",
+          "_added": true
+        },
+        {
+          "q": "Which utility parameterizes a notebook so a job can pass in values?",
+          "opts": [
+            "dbutils.widgets",
+            "dbutils.fs",
+            "df.explain()",
+            "%pip"
+          ],
+          "a": 0,
+          "obj": "Notebook capabilities",
+          "e": "dbutils.widgets defines notebook parameters/widgets that can be set at runtime.",
+          "_added": true
+        },
+        {
+          "q": "To inspect how Spark will execute a DataFrame query (its plan), you use:",
+          "opts": [
+            "df.show()",
+            "df.explain()",
+            "df.count()",
+            "df.cache()"
+          ],
+          "a": 1,
+          "obj": "Debugging tools",
+          "e": "df.explain() prints the physical/logical query plan, useful for debugging performance.",
+          "_added": true
         }
       ],
       "flashcards": [
@@ -402,6 +502,58 @@
           "a": 1,
           "obj": "DDL/DML features",
           "e": "MERGE INTO performs conditional insert/update/delete — the standard upsert pattern."
+        },
+        {
+          "q": "In the medallion architecture, which layer holds raw, as-ingested data kept for history and fidelity?",
+          "opts": [
+            "Bronze",
+            "Silver",
+            "Gold",
+            "Platinum"
+          ],
+          "a": 0,
+          "obj": "Medallion architecture",
+          "e": "Bronze is the raw append-only landing layer; Silver is cleaned/conformed; Gold is business aggregates.",
+          "_added": true
+        },
+        {
+          "q": "In Lakeflow Declarative Pipelines, which object incrementally ingests new data as it arrives?",
+          "opts": [
+            "A materialized view",
+            "A streaming table",
+            "A temporary view",
+            "A SQL warehouse"
+          ],
+          "a": 1,
+          "obj": "Implement pipelines using LDP",
+          "e": "Streaming tables process data incrementally; materialized views recompute results from their sources.",
+          "_added": true
+        },
+        {
+          "q": "What does the DDL statement CREATE TABLE sales AS SELECT * FROM staging (CTAS) do?",
+          "opts": [
+            "Alters an existing table's columns",
+            "Creates a new table populated from a query",
+            "Deletes rows that fail a constraint",
+            "Grants SELECT on the table"
+          ],
+          "a": 1,
+          "obj": "DDL/DML features",
+          "e": "CTAS (CREATE TABLE AS SELECT) creates and populates a new table from a query's results.",
+          "_added": true
+        },
+        {
+          "q": "Which PySpark expression returns the average order value per customer?",
+          "opts": [
+            "df.groupBy('cust').agg(avg('amount'))",
+            "df.agg(sum('amount'))",
+            "df.groupBy('cust').count()",
+            "df.select(avg('cust'))"
+          ],
+          "a": 0,
+          "obj": "Complex aggregations with PySpark",
+          "e": "groupBy('cust').agg(avg('amount')) computes the mean amount within each customer group.",
+          "_added": true
         }
       ],
       "flashcards": [
@@ -536,6 +688,58 @@
           "a": 0,
           "obj": "Analyze the Spark UI",
           "e": "A single very slow task among many usually means skew — uneven data distribution across partitions."
+        },
+        {
+          "q": "Which Databricks CLI command deploys the jobs/pipelines defined in a bundle?",
+          "opts": [
+            "databricks jobs run",
+            "databricks bundle deploy",
+            "databricks clusters create",
+            "databricks repos update"
+          ],
+          "a": 1,
+          "obj": "DAB vs traditional deployment",
+          "e": "`databricks bundle deploy` deploys the resources defined in databricks.yml to the target environment.",
+          "_added": true
+        },
+        {
+          "q": "In the Spark UI, 'spill' (memory to disk) during a stage usually indicates:",
+          "opts": [
+            "A permissions error",
+            "Not enough memory, so data is written to disk",
+            "A missing checkpoint",
+            "A syntax error in SQL"
+          ],
+          "a": 1,
+          "obj": "Analyze the Spark UI",
+          "e": "Spill means tasks ran out of memory and had to write to disk, which slows the job.",
+          "_added": true
+        },
+        {
+          "q": "A Databricks job (workflow) is composed of:",
+          "opts": [
+            "A single notebook only",
+            "One or more tasks with dependencies, schedules, and retries",
+            "Just a SQL warehouse",
+            "Only serverless endpoints"
+          ],
+          "a": 1,
+          "obj": "Deploy a workflow",
+          "e": "A job orchestrates one or more tasks with dependencies, scheduling, and retry behavior.",
+          "_added": true
+        },
+        {
+          "q": "Which files does a Databricks Asset Bundle use to define its configuration?",
+          "opts": [
+            "JSON only",
+            "YAML (e.g. databricks.yml)",
+            "INI files",
+            "XML"
+          ],
+          "a": 1,
+          "obj": "Structure of Asset Bundles",
+          "e": "Bundles are defined in YAML (databricks.yml) with resources and targets — infrastructure as code.",
+          "_added": true
         }
       ],
       "flashcards": [
@@ -682,6 +886,58 @@
           "a": 1,
           "obj": "Lineage in UC",
           "e": "UC captures lineage automatically across notebooks, jobs, and dashboards."
+        },
+        {
+          "q": "A Unity Catalog object is referenced with how many namespace levels?",
+          "opts": [
+            "Two: schema.table",
+            "Three: catalog.schema.table",
+            "One: table",
+            "Four: metastore.catalog.schema.table"
+          ],
+          "a": 1,
+          "obj": "Grant permissions in UC",
+          "e": "UC uses a three-level namespace: catalog.schema.table.",
+          "_added": true
+        },
+        {
+          "q": "Besides SELECT on the table, what does a user typically also need to read a table in Unity Catalog?",
+          "opts": [
+            "USE CATALOG and USE SCHEMA",
+            "ALL PRIVILEGES on the metastore",
+            "Account admin role",
+            "MODIFY on the schema"
+          ],
+          "a": 0,
+          "obj": "Grant permissions in UC",
+          "e": "Reading a table generally requires USE CATALOG and USE SCHEMA plus SELECT on the table.",
+          "_added": true
+        },
+        {
+          "q": "A key advantage of Delta Sharing is that it shares live data:",
+          "opts": [
+            "Only within one workspace",
+            "Without copying the underlying data",
+            "Only as CSV exports",
+            "Only to Databricks recipients"
+          ],
+          "a": 1,
+          "obj": "Use Delta Sharing / advantages",
+          "e": "Delta Sharing is an open protocol that shares live data without copying it (to Databricks or external clients).",
+          "_added": true
+        },
+        {
+          "q": "You DROP a managed Unity Catalog table. What happens to the underlying data files?",
+          "opts": [
+            "They remain in cloud storage",
+            "They are deleted",
+            "They convert to an external table",
+            "They move to Delta Sharing"
+          ],
+          "a": 1,
+          "obj": "Managed vs external tables",
+          "e": "For a managed table, UC manages the data, so DROP deletes the underlying files (unlike an external table).",
+          "_added": true
         }
       ],
       "flashcards": [
