@@ -955,18 +955,19 @@ var Leaderboard={
     if(!c.url||!c.key||!name){cb&&cb(false);return;}
     try{
       var h=lbHeaders(c); h["Content-Type"]="application/json"; h["Prefer"]="resolution=merge-duplicates,return=minimal";
-      fetch(lbBase()+"/rest/v1/scores?on_conflict=name",{method:"POST",headers:h,
+      fetch(lbBase()+"/rest/v1/scores?on_conflict=name",{method:"POST",headers:h,cache:"no-store",
         body:JSON.stringify([{name:name,xp:state.xp,eggs:state.ducksHatched,correct:state.correct,updated_at:new Date().toISOString()}])
-      }).then(function(r){cb&&cb(r.ok);}).catch(function(){cb&&cb(false);});
-    }catch(e){ cb&&cb(false); }
+      }).then(function(r){ if(r.ok){cb&&cb(true);return;} r.text().then(function(t){cb&&cb(false,"HTTP "+r.status+" — "+((t||"").slice(0,180)));}); })
+        .catch(function(e){cb&&cb(false,"Network/CORS: "+((e&&e.message)||e));});
+    }catch(e){ cb&&cb(false,"Request failed: "+((e&&e.message)||e)); }
   },
   fetch:function(cb){
     var c=lbCfg(); if(!c.url||!c.key){cb(null,"Not configured");return;}
     var base=lbBase();
     if(!/^https:\/\/.+\..+/.test(base)){ cb(null,"The Project URL looks wrong: \""+base+"\". It should be like https://xxxx.supabase.co (no spaces/newlines)."); return; }
     try{
-      fetch(base+"/rest/v1/scores?select=name,xp,eggs,correct&order=xp.desc&limit=50",{
-        headers:lbHeaders(c)
+      fetch(base+"/rest/v1/scores?select=name,xp,eggs,correct&order=xp.desc&limit=50&_="+Date.now(),{
+        headers:lbHeaders(c), cache:"no-store"
       }).then(function(r){ return r.text().then(function(t){
         if(!r.ok){ cb(null,"HTTP "+r.status+" — "+(t||"").slice(0,180)); return; }
         var d; try{d=JSON.parse(t);}catch(e){ cb(null,"Unexpected response: "+(t||"").slice(0,180)); return; }
@@ -997,6 +998,7 @@ function renderLeaderboard(){
   }
   V.innerHTML='<h1>🏆 Leaderboard</h1><p class="lead">Loading…</p>';
   var me=(state.name||"").trim();
+  var lastWrite="";
   function show(rows,err){
     if(rows===null){
       V.innerHTML='<h1>🏆 Leaderboard</h1><div class="note"><b>Couldn\'t load the leaderboard.</b><br>Reason: '+esc(err||"unknown")+
@@ -1013,13 +1015,13 @@ function renderLeaderboard(){
     }).join("") || '<p>No scores yet — be the first! (Set a display name on the Overview, answer a question, then Refresh.)</p>';
     var src=(LEADERBOARD_CFG&&LEADERBOARD_CFG.url)?"built-in config":"settings you pasted in this browser";
     V.innerHTML='<h1>🏆 Leaderboard</h1><p class="lead">Top interns by XP. Your score updates when you open this page.</p>'+
-      '<p style="font-size:11.5px;color:#8b97b5">Connected to <b>'+esc(lbBase().replace(/^https?:\/\//,""))+'</b> · '+rows.length+' player(s) · via '+src+'</p>'+
+      '<p style="font-size:11.5px;color:#8b97b5">Connected to <b>'+esc(lbBase().replace(/^https?:\/\//,""))+'</b> · '+rows.length+' player(s) · via '+src+' '+esc(lastWrite)+'</p>'+
       '<div class="scorebar"><button class="btn ghost" onclick="renderLeaderboard()">Refresh</button> <button class="btn ghost" onclick="clearLb()">Reset connection</button>'+(me?'':' <span style="font-size:12px;color:var(--red)">Set a display name on the Overview to appear here</span>')+'</div>'+
       '<div class="card">'+body+'</div>';
   }
   // read now (fast), and submit in parallel; when the write lands, refresh to include yourself
   Leaderboard.fetch(show);
-  Leaderboard.submit(function(ok){ if(ok) Leaderboard.fetch(show); });
+  Leaderboard.submit(function(ok,werr){ lastWrite = ok ? "· your score saved ✓" : "· ⚠️ save failed: "+(werr||"unknown"); Leaderboard.fetch(show); });
 }
 function clearLb(){ try{localStorage.removeItem("dbx-lb");}catch(e){} renderLeaderboard(); }
 
@@ -1121,16 +1123,6 @@ function askTutorAbout(secId,qi){
 function openAI(){document.getElementById("aibody").innerHTML=aiBodyHTML();document.getElementById("aipanel").classList.add("show");}
 document.getElementById("aichip").onclick=function(){var p=document.getElementById("aipanel");p.classList.toggle("show");if(p.classList.contains("show"))document.getElementById("aibody").innerHTML=aiBodyHTML();};
 document.getElementById("aiclose").onclick=function(){document.getElementById("aipanel").classList.remove("show");};
-
-/* ============================ LEADERBOARD (pluggable stub) ========== */
-/* Local-only for now: each intern's XP lives in their own browser.
-   To switch on a shared leaderboard later, implement submit()/fetch()
-   against a free backend (e.g. Supabase). See README "Leaderboard". */
-var Leaderboard={
-  provider:"local",
-  submit:function(name,xp){ /* TODO: POST to Supabase table `scores` */ },
-  fetch:function(cb){ cb([{name:state.name||"You",xp:state.xp,me:true}]); }
-};
 
 /* ============================ BOOT ================================== */
 Duck.render();
