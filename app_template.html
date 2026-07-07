@@ -940,7 +940,7 @@ function badgesHTML(){
 /* Fill these in (or paste them in the Leaderboard page) to switch it on. The
    anon key is safe to expose when the table uses the RLS policies in the README.
    All interns must use the SAME url + key to share one board. */
-var LEADERBOARD_CFG={ url:"", key:"" };
+var LEADERBOARD_CFG={ url:"https://rvwfzqkkzcpfjgxlrgtp.supabase.co/rest/v1/", key:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2d2Z6cWtremNwZmpneGxyZ3RwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0NDU3MzMsImV4cCI6MjA5OTAyMTczM30.j9jZueYIo4PD50y4_4bgLFXT3YSV6b2Hpr40u8lq4hg" };
 function lbCfg(){
   var c={url:LEADERBOARD_CFG.url||"", key:LEADERBOARD_CFG.key||""};
   if(!c.url){ try{var s=JSON.parse(localStorage.getItem("dbx-lb")||"{}"); if(s.url)c=s;}catch(e){} }
