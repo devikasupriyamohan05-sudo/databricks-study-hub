@@ -940,27 +940,39 @@ function badgesHTML(){
 /* Fill these in (or paste them in the Leaderboard page) to switch it on. The
    anon key is safe to expose when the table uses the RLS policies in the README.
    All interns must use the SAME url + key to share one board. */
-var LEADERBOARD_CFG={ url:"https://rvwfzqkkzcpfjgxlrgtp.supabase.co/rest/v1/", key:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2d2Z6cWtremNwZmpneGxyZ3RwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0NDU3MzMsImV4cCI6MjA5OTAyMTczM30.j9jZueYIo4PD50y4_4bgLFXT3YSV6b2Hpr40u8lq4hg" };
+var LEADERBOARD_CFG={ url:"https://rvwfzqkkzcpfjgxlrgtp.supabase.co", key:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2d2Z6cWtremNwZmpneGxyZ3RwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0NDU3MzMsImV4cCI6MjA5OTAyMTczM30.j9jZueYIo4PD50y4_4bgLFXT3YSV6b2Hpr40u8lq4hg" };
 function lbCfg(){
   var c={url:LEADERBOARD_CFG.url||"", key:LEADERBOARD_CFG.key||""};
   if(!c.url){ try{var s=JSON.parse(localStorage.getItem("dbx-lb")||"{}"); if(s.url)c=s;}catch(e){} }
   return c;
 }
 function lbEnabled(){var c=lbCfg();return !!(c.url&&c.key);}
+function lbBase(){return (lbCfg().url||"").trim().replace(/\/+$/,"").replace(/\/rest\/v1$/,"").replace(/\/+$/,"");}
+function lbHeaders(c){ var k=(c.key||"").trim(); var h={"apikey":k}; if(/^eyJ/.test(k)) h["Authorization"]="Bearer "+k; return h; }
 var Leaderboard={
   submit:function(cb){
-    var c=lbCfg(); if(!c.url||!c.key){cb&&cb(false);return;}
-    var name=(state.name||"").trim(); if(!name){cb&&cb(false,"name");return;}
-    fetch(c.url.replace(/\/$/,"")+"/rest/v1/scores?on_conflict=name",{method:"POST",
-      headers:{"apikey":c.key,"Authorization":"Bearer "+c.key,"Content-Type":"application/json","Prefer":"resolution=merge-duplicates,return=minimal"},
-      body:JSON.stringify([{name:name,xp:state.xp,eggs:state.ducksHatched,correct:state.correct,updated_at:new Date().toISOString()}])
-    }).then(function(r){cb&&cb(r.ok);}).catch(function(){cb&&cb(false);});
+    var c=lbCfg(); var name=(state.name||"").trim();
+    if(!c.url||!c.key||!name){cb&&cb(false);return;}
+    try{
+      var h=lbHeaders(c); h["Content-Type"]="application/json"; h["Prefer"]="resolution=merge-duplicates,return=minimal";
+      fetch(lbBase()+"/rest/v1/scores?on_conflict=name",{method:"POST",headers:h,
+        body:JSON.stringify([{name:name,xp:state.xp,eggs:state.ducksHatched,correct:state.correct,updated_at:new Date().toISOString()}])
+      }).then(function(r){cb&&cb(r.ok);}).catch(function(){cb&&cb(false);});
+    }catch(e){ cb&&cb(false); }
   },
   fetch:function(cb){
-    var c=lbCfg(); if(!c.url||!c.key){cb([]);return;}
-    fetch(c.url.replace(/\/$/,"")+"/rest/v1/scores?select=name,xp,eggs,correct&order=xp.desc&limit=50",{
-      headers:{"apikey":c.key,"Authorization":"Bearer "+c.key}
-    }).then(function(r){return r.json();}).then(function(d){cb(Array.isArray(d)?d:null);}).catch(function(){cb(null);});
+    var c=lbCfg(); if(!c.url||!c.key){cb(null,"Not configured");return;}
+    var base=lbBase();
+    if(!/^https:\/\/.+\..+/.test(base)){ cb(null,"The Project URL looks wrong: \""+base+"\". It should be like https://xxxx.supabase.co (no spaces/newlines)."); return; }
+    try{
+      fetch(base+"/rest/v1/scores?select=name,xp,eggs,correct&order=xp.desc&limit=50",{
+        headers:lbHeaders(c)
+      }).then(function(r){ return r.text().then(function(t){
+        if(!r.ok){ cb(null,"HTTP "+r.status+" — "+(t||"").slice(0,180)); return; }
+        var d; try{d=JSON.parse(t);}catch(e){ cb(null,"Unexpected response: "+(t||"").slice(0,180)); return; }
+        if(Array.isArray(d)) cb(d); else cb(null,"Unexpected response: "+(t||"").slice(0,180));
+      }); }).catch(function(e){ cb(null,"Network/CORS error: "+((e&&e.message)||e)); });
+    }catch(e){ cb(null,"Request failed (bad URL?): "+((e&&e.message)||e)); }
   }
 };
 function saveLbSettings(){
@@ -984,22 +996,28 @@ function renderLeaderboard(){
     return;
   }
   V.innerHTML='<h1>🏆 Leaderboard</h1><p class="lead">Loading…</p>';
-  Leaderboard.submit(function(){
-    Leaderboard.fetch(function(rows){
-      if(rows===null){ V.innerHTML='<h1>🏆 Leaderboard</h1><div class="note">Couldn\'t reach the leaderboard. Double-check the Supabase URL/key and that the table\'s read policy is enabled.</div><div class="scorebar" style="margin-top:10px"><button class="btn ghost" onclick="clearLb()">Change settings</button></div>'; return; }
-      var me=(state.name||"").trim();
-      var body=rows.map(function(r,i){var mine=r.name===me;
-        return '<div class="obj" style="cursor:default;'+(mine?'background:var(--okbg);border-radius:8px':'')+'">'+
-          '<div style="width:30px;font-weight:800;color:#5f6b7c">'+(i+1)+'</div>'+
-          '<div style="flex:1;font-weight:'+(mine?800:600)+'">'+esc(r.name||"—")+(mine?' (you)':'')+'</div>'+
-          '<div style="font-weight:800">'+(r.xp||0)+' XP</div>'+
-          '<div style="width:64px;text-align:right;color:#5f6b7c;font-size:12px">🥚 '+(r.eggs||0)+'</div></div>';
-      }).join("") || '<p>No scores yet — be the first!</p>';
-      V.innerHTML='<h1>🏆 Leaderboard</h1><p class="lead">Top interns by XP. Your score updates each time you open this page.</p>'+
-        '<div class="scorebar"><button class="btn ghost" onclick="renderLeaderboard()">Refresh</button>'+(me?'':'<span style="font-size:12px;color:var(--red)">Set a display name on the Overview to appear here</span>')+'</div>'+
-        '<div class="card">'+body+'</div>';
-    });
-  });
+  var me=(state.name||"").trim();
+  function show(rows,err){
+    if(rows===null){
+      V.innerHTML='<h1>🏆 Leaderboard</h1><div class="note"><b>Couldn\'t load the leaderboard.</b><br>Reason: '+esc(err||"unknown")+
+        '<br><br>Checklist: the Project URL is the <code>https://…supabase.co</code> value (from Data API), the key is the <b>legacy anon</b> key (<code>eyJ…</code>), and you ran the table + read-policy SQL.</div>'+
+        '<div class="scorebar" style="margin-top:10px"><button class="btn ghost" onclick="renderLeaderboard()">Retry</button> <button class="btn ghost" onclick="clearLb()">Change settings</button></div>';
+      return;
+    }
+    var body=rows.map(function(r,i){var mine=r.name===me;
+      return '<div class="obj" style="cursor:default;'+(mine?'background:var(--okbg);border-radius:8px':'')+'">'+
+        '<div style="width:30px;font-weight:800;color:#5f6b7c">'+(i+1)+'</div>'+
+        '<div style="flex:1;font-weight:'+(mine?800:600)+'">'+esc(r.name||"—")+(mine?' (you)':'')+'</div>'+
+        '<div style="font-weight:800">'+(r.xp||0)+' XP</div>'+
+        '<div style="width:64px;text-align:right;color:#5f6b7c;font-size:12px">🥚 '+(r.eggs||0)+'</div></div>';
+    }).join("") || '<p>No scores yet — be the first! (Set a display name on the Overview, answer a question, then Refresh.)</p>';
+    V.innerHTML='<h1>🏆 Leaderboard</h1><p class="lead">Top interns by XP. Your score updates when you open this page.</p>'+
+      '<div class="scorebar"><button class="btn ghost" onclick="renderLeaderboard()">Refresh</button>'+(me?'':'<span style="font-size:12px;color:var(--red)">Set a display name on the Overview to appear here</span>')+'</div>'+
+      '<div class="card">'+body+'</div>';
+  }
+  // read now (fast), and submit in parallel; when the write lands, refresh to include yourself
+  Leaderboard.fetch(show);
+  Leaderboard.submit(function(ok){ if(ok) Leaderboard.fetch(show); });
 }
 function clearLb(){ try{localStorage.removeItem("dbx-lb");}catch(e){} renderLeaderboard(); }
 
