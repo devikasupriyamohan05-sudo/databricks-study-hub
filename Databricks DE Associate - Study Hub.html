@@ -62,6 +62,7 @@
   .opt.correct{border-color:#9fdcbb;background:var(--okbg);}
   .opt.wrong{border-color:#f2b9b1;background:var(--redbg);}
   .opt.dim{opacity:.6;}
+  .opt.sel{border-color:var(--accent);background:#eef2ff;font-weight:700;}
   .expl{margin-top:9px;font-size:13px;background:#f6f8fc;border-left:3px solid var(--accent);border-radius:6px;padding:9px 12px;display:none;}
   .expl.show{display:block;}
   .askt{display:inline-block;margin-top:8px;font-size:12px;color:var(--accent);cursor:pointer;font-weight:700;text-decoration:none;}
@@ -80,19 +81,62 @@
   .note{background:var(--amberbg);border:1px solid #f0dcab;color:var(--amber);border-radius:11px;padding:11px 15px;font-size:13.3px;margin:14px 0;}
   .reset{font-size:12px;color:var(--muted);cursor:pointer;text-decoration:underline;}
 
-  /* ===== Feed-the-Duck XP widget (fixed, on every screen) ===== */
-  .duck{position:fixed;top:14px;right:16px;z-index:60;background:#fff;border:1px solid var(--line);border-radius:14px;
-        box-shadow:0 6px 22px rgba(20,30,60,.13);padding:10px 13px;display:flex;align-items:center;gap:11px;min-width:212px;}
-  .duck .face{font-size:30px;line-height:1;filter:drop-shadow(0 2px 2px rgba(0,0,0,.12));transition:transform .18s;}
-  .duck.eat .face{animation:nom .5s ease;}
-  @keyframes nom{0%{transform:scale(1)}30%{transform:scale(1.28) rotate(-8deg)}60%{transform:scale(.92)}100%{transform:scale(1)}}
-  .duck .lv{font-size:11px;font-weight:800;color:var(--navy);}
-  .duck .xpbar{height:7px;background:#eef1f6;border-radius:99px;overflow:hidden;margin:4px 0 3px;}
-  .duck .xpfill{height:100%;width:0;background:linear-gradient(90deg,var(--brand),var(--brand2));transition:width .4s;}
-  .duck .sub{font-size:10.5px;color:var(--muted);}
-  .duck .flame{font-size:11px;font-weight:800;color:var(--brand2);}
-  .crumb{position:fixed;z-index:61;font-size:15px;pointer-events:none;animation:fall .6s ease forwards;}
-  @keyframes fall{0%{opacity:1;transform:translateY(-6px) scale(1)}100%{opacity:0;transform:translateY(26px) scale(.6)}}
+  /* ===== Feed-the-Duck: stats HUD + roaming corn-fed duck ===== */
+  .duckhud{position:fixed;top:14px;right:16px;z-index:60;background:#fff;border:1px solid var(--line);border-radius:14px;
+        box-shadow:0 6px 22px rgba(20,30,60,.13);padding:10px 14px;min-width:196px;}
+  .duckhud .hud-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+  .duckhud .hud-name{font-size:12px;font-weight:800;color:var(--navy);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .duckhud .hud-lv{font-size:10px;font-weight:800;color:var(--brand2);text-transform:uppercase;letter-spacing:.5px;}
+  .duckhud .hud-pts{font-size:22px;font-weight:900;color:var(--ink);line-height:1.1;margin:1px 0 2px;}
+  .duckhud .hud-pts b{color:var(--brand2);}
+  .duckhud .xpbar{height:7px;background:#eef1f6;border-radius:99px;overflow:hidden;margin:2px 0 4px;}
+  .duckhud .xpfill{height:100%;width:0;background:linear-gradient(90deg,var(--brand),var(--brand2));transition:width .4s;}
+  .duckhud .sub{font-size:11px;font-weight:700;color:var(--muted);}
+  .duckhud .flame{color:var(--brand2);}
+  /* egg-lay + hatch */
+  .egg{position:fixed;z-index:57;pointer-events:none;font-size:26px;animation:eggdrop .5s ease;}
+  @keyframes eggdrop{0%{transform:translateY(-14px) scale(.6);opacity:0}100%{transform:translateY(0) scale(1);opacity:1}}
+  .egg.wiggle{animation:eggwig .7s ease-in-out;}
+  @keyframes eggwig{0%,100%{transform:rotate(0)}25%{transform:rotate(-16deg)}50%{transform:rotate(14deg)}75%{transform:rotate(-10deg)}}
+  .hatchling{position:fixed;z-index:58;pointer-events:none;font-size:30px;animation:hatchpop .9s ease forwards;}
+  @keyframes hatchpop{0%{transform:scale(.2) translateY(6px);opacity:0}35%{transform:scale(1.3) translateY(-10px);opacity:1}70%{transform:scale(1) translateY(-14px)}100%{transform:scale(1) translateY(-34px);opacity:0}}
+  .spark{position:fixed;z-index:58;pointer-events:none;font-size:15px;animation:sparkle .8s ease forwards;}
+  .hatchcel{position:fixed;inset:0;z-index:90;display:flex;align-items:center;justify-content:center;pointer-events:none;overflow:hidden;}
+  .hatchcel-in{background:#fff;border:3px solid var(--brand);border-radius:20px;padding:22px 34px;text-align:center;box-shadow:0 18px 60px rgba(0,0,0,.32);animation:celpop .5s cubic-bezier(.34,1.56,.64,1);}
+  .hatchcel-t{font-size:24px;font-weight:900;color:var(--brand2);margin-top:4px;}
+  .hatchcel-s{font-size:14px;color:var(--muted);}
+  @keyframes celpop{0%{transform:scale(.3) rotate(-6deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
+  .confp{position:absolute;top:-14px;width:9px;height:14px;border-radius:2px;animation:conf 1.9s ease-in forwards;}
+  @keyframes conf{0%{transform:translateY(-10px) rotate(0);opacity:1}100%{transform:translateY(106vh) rotate(560deg);opacity:.9}}
+  @keyframes sparkle{0%{transform:scale(.4);opacity:1}100%{transform:scale(1.1) translateY(-20px);opacity:0}}
+
+  /* roaming duck — waddles around the whole screen, never blocks clicks */
+  .duck{position:fixed;left:40px;top:60vh;z-index:55;pointer-events:none;width:80px;height:93px;
+        transition:left 2.6s linear, top 2.6s linear;will-change:left,top;filter:drop-shadow(0 4px 4px rgba(0,0,0,.18));}
+  .duck .duck-flip{width:100%;height:100%;transition:transform .25s;}
+  .duck .duck-bob{width:100%;height:100%;animation:waddle .52s ease-in-out infinite;transform-origin:50% 90%;}
+  .duck .duck-fat{width:100%;height:100%;transition:transform .5s cubic-bezier(.34,1.56,.64,1);transform-origin:50% 82%;}
+  .duck svg{width:100%;height:100%;display:block;overflow:visible;}
+  @keyframes waddle{0%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-4px) rotate(3deg)}100%{transform:translateY(0) rotate(-3deg)}}
+  /* walk cycle: legs alternate, wing swings, tuft bobs */
+  .duck .d-legF{transform-box:fill-box;transform-origin:50% 6%;animation:stepF .52s ease-in-out infinite;}
+  .duck .d-legB{transform-box:fill-box;transform-origin:50% 6%;animation:stepB .52s ease-in-out infinite;}
+  .duck .d-wing{transform-box:fill-box;transform-origin:88% 14%;animation:wingsw .52s ease-in-out infinite;}
+  .duck .d-tuft{transform-box:fill-box;transform-origin:50% 100%;animation:tuftw .52s ease-in-out infinite;}
+  @keyframes stepF{0%,100%{transform:rotate(14deg)}50%{transform:rotate(-12deg)}}
+  @keyframes stepB{0%,100%{transform:rotate(-14deg)}50%{transform:rotate(12deg)}}
+  @keyframes wingsw{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(9deg)}}
+  @keyframes tuftw{0%,100%{transform:rotate(-9deg)}50%{transform:rotate(9deg)}}
+  .duck.eat .duck-fat{animation:nom .45s ease;}
+  @keyframes nom{0%{transform:none}40%{transform:scale(1.14,.88)}70%{transform:scale(.95,1.06)}100%{transform:none}}
+  .duck.dance .duck-bob{animation:dance .7s ease;}
+  @keyframes dance{0%{transform:rotate(0)}25%{transform:rotate(-18deg) translateY(-9px)}50%{transform:rotate(0)}75%{transform:rotate(18deg) translateY(-9px)}100%{transform:rotate(0)}}
+  .duck.sad .duck-bob{animation:shake .5s ease;}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px) rotate(-6deg)}40%{transform:translateX(6px) rotate(6deg)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+  .kernel{position:fixed;z-index:56;pointer-events:none;width:9px;height:12px;
+          border-radius:50% 50% 50% 50% / 62% 62% 38% 38%;
+          background:radial-gradient(circle at 50% 32%,#ffe79a,#f3ad12);box-shadow:0 1px 2px rgba(0,0,0,.22);
+          transition:left .55s ease-in, top .55s ease-in, transform .55s, opacity .55s;}
   .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:600;z-index:80;box-shadow:0 8px 24px rgba(0,0,0,.25);opacity:0;transition:opacity .25s,transform .25s;}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(-4px);}
 
@@ -143,7 +187,7 @@
   .aipanel p{font-size:13px;color:var(--muted);margin:7px 0;}
   .aipanel .close{position:absolute;top:10px;right:14px;cursor:pointer;color:var(--muted);font-weight:800;}
 
-  @media(max-width:760px){.side{display:none;} .duck{top:8px;right:8px;min-width:0;padding:7px 9px;} .jboard{font-size:9px;}}
+  @media(max-width:760px){.side{display:none;} .duckhud{top:8px;right:8px;min-width:0;padding:6px 9px;} .duck{width:64px;height:74px;} .jboard{font-size:9px;}}
 </style>
 </head>
 <body>
@@ -155,14 +199,20 @@
     </div>
     <nav class="nav" id="nav">
       <a data-v="overview" class="on">Overview <span class="pct"></span></a>
+      <a data-v="tips">💡 Exam tips</a>
       <div class="grouplbl">EXAM SECTIONS</div>
       <!-- section links injected -->
       <div class="grouplbl">PRACTICE</div>
       <a data-v="mock">Mock exam <span class="pct"></span></a>
+      <a data-v="exam">📝 Exam simulator</a>
       <a data-v="flash">Flashcards <span class="pct" id="pct-flash"></span></a>
+      <a data-v="review">🔁 Review mistakes</a>
+      <a data-v="badges">🏅 Badges</a>
+      <a data-v="leaderboard">🏆 Leaderboard</a>
       <div class="grouplbl">PLAY</div>
       <a data-v="jeopardy">🎯 Jeopardy</a>
       <a data-v="fillblank">⌨️ Fill the blank</a>
+      <a data-v="shop">🎩 Duck shop</a>
       <div class="grouplbl">MORE</div>
       <a data-v="resources">Resources</a>
     </nav>
@@ -171,14 +221,51 @@
   <div class="main"><div class="wrap" id="view"></div></div>
 </div>
 
-<!-- Feed-the-Duck XP widget -->
-<div class="duck" id="duck" title="Feed your duck by answering correctly!">
-  <div class="face" id="duckFace">🐣</div>
-  <div style="flex:1">
-    <div class="lv"><span id="duckLv">Hatchling</span> · <span id="duckXp">0</span> XP</div>
-    <div class="xpbar"><div class="xpfill" id="duckFill"></div></div>
-    <div class="sub"><span id="duckNext"></span> &nbsp;·&nbsp; <span class="flame" id="duckStreak">🔥 0</span></div>
-  </div>
+<!-- Feed-the-Duck: points tracker HUD -->
+<div class="duckhud" id="duckhud" title="Answer correctly to feed your duck!">
+  <div class="hud-top"><span class="hud-name" id="hudName">You</span><span class="hud-lv" id="duckLv">Hatchling</span></div>
+  <div class="hud-pts"><b id="duckXp">0</b> pts</div>
+  <div class="xpbar"><div class="xpfill" id="duckFill"></div></div>
+  <div class="sub"><span id="hudCorrect">✅ 0</span> &nbsp; <span class="flame" id="duckStreak">🔥 0</span> &nbsp; <span id="hudHatch">🥚 0</span></div>
+</div>
+
+<!-- the roaming corn-fed duck (waddles around the screen) -->
+<div class="duck" id="duck">
+  <div class="duck-flip" id="duckFlip"><div class="duck-bob"><div class="duck-fat" id="duckFat">
+    <svg viewBox="0 0 150 175" xmlns="http://www.w3.org/2000/svg">
+      <g stroke="#1c150f" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round">
+        <!-- back leg (planted) -->
+        <g class="d-legB">
+          <path d="M60 120 L49 150" fill="none" stroke="#bf6a34" stroke-width="8"/>
+          <path d="M40 152 q9 -7 18 -2 q-2 8 -10 9 q-9 0 -8 -7 Z" fill="#bf6a34"/>
+        </g>
+        <!-- front leg (stepping) -->
+        <g class="d-legF">
+          <path d="M74 120 L94 140" fill="none" stroke="#bf6a34" stroke-width="8"/>
+          <path d="M90 138 q10 -3 17 4 q-3 7 -11 6 q-9 -2 -6 -10 Z" fill="#bf6a34"/>
+        </g>
+        <!-- body+neck+head — the belly is a circle regenerated from fullness (balloons round) -->
+        <path id="duckBody" class="d-body" d="M80.0 24.0 C85.8 22.7 93.5 30.0 97.0 34.0 C100.5 38.0 101.8 43.7 101.0 48.0 C100.2 52.3 94.2 53.7 92.0 60.0 C89.8 66.3 87.4 77.2 87.6 85.5 C87.9 93.9 94.8 102.8 93.3 110.2 C91.9 117.6 85.1 126.2 79.0 130.0 C72.9 133.8 63.6 134.9 56.7 133.1 C49.9 131.3 41.4 125.7 38.0 119.0 C34.6 112.3 34.2 102.6 36.2 92.8 C38.2 82.9 45.7 68.5 50.0 60.0 C54.3 51.5 57.0 48.0 62.0 42.0 C67.0 36.0 74.2 25.3 80.0 24.0 Z" fill="#eef4f7"/>
+        <!-- belly shading (also follows fullness) -->
+        <path id="duckShade" d="M45 110 C55 123 73 123 83 110 C73 117 55 117 45 110 Z" fill="#d6e4ef" stroke="none"/>
+        <!-- wing (raised, swings) -->
+        <path class="d-wing" d="M58 70 C44 65 27 69 17 82 C24 83 30 83 34 85 C29 87 35 89 39 90
+                 C34 92 41 94 45 94 C55 91 61 81 58 70 Z" fill="#e7eef3"/>
+        <!-- beak (brown) — corn target -->
+        <path d="M92 43 C105 39 117 44 117 50 C117 57 104 59 94 55 C90 53 89 46 92 43 Z" fill="#bf6a34"/>
+        <!-- hair tuft -->
+        <g class="d-tuft">
+          <path d="M73 24 C69 15 70 9 73 5 C76 11 76 18 78 24 Z" fill="#eef4f7"/>
+          <path d="M78 23 C78 15 81 11 85 8 C83 15 82 19 81 24 Z" fill="#eef4f7"/>
+        </g>
+      </g>
+      <!-- eye -->
+      <ellipse cx="85" cy="42" rx="2.7" ry="3.5" fill="#1c150f"/>
+      <!-- cosmetics (filled by the duck shop) -->
+      <g id="duckAcc"></g>
+      <g id="duckHat"></g>
+    </svg>
+  </div></div></div>
 </div>
 
 <!-- AI tutor chip + info panel -->
@@ -196,7 +283,7 @@
    written to match the stated objectives. Flashcards & fill-in-the-blank
    answers are derived directly from these section notes — no invented facts.
    ========================================================================= */
-var CONTENT = {"facts": [["45", "scored questions"], ["90 min", "time limit"], ["$200", "registration"], ["~68%", "aim to pass*"], ["2 yrs", "validity"]], "sections": [{"id": "s1", "title": "Databricks Intelligence Platform", "weightHint": "Platform value, compute, data layout", "objectives": ["Enable features that simplify data layout decisions and optimize query performance", "Explain the value of the Data Intelligence Platform", "Identify the applicable compute to use for a specific use case"], "notes": "\n        <h3>The value of the Data Intelligence Platform<\/h3>\n        <p>One platform over a single <b>lakehouse<\/b> (open Delta/Parquet in cloud storage) that unifies engineering, analytics, ML and AI, governed end-to-end by <b>Unity Catalog<\/b>. \"Intelligence\" = AI woven in (assistant, natural-language search, predictive optimization). Key wins: open formats (no lock-in), one governance layer, collaboration, ACID via Delta Lake.<\/p>\n        <h3>Optimizing data layout & query performance<\/h3>\n        <ul>\n          <li><b>Delta Lake<\/b> gives ACID transactions, time travel, schema enforcement.<\/li>\n          <li><b>Liquid Clustering<\/b> \u2014 modern replacement for partitioning + ZORDER; cluster a table on chosen keys, Databricks manages layout as data grows.<\/li>\n          <li><b>Predictive Optimization<\/b> \u2014 Databricks auto-runs <code>OPTIMIZE<\/code> (compaction) and <code>VACUUM<\/code> for you.<\/li>\n          <li>Legacy levers you should still recognize: <code>OPTIMIZE<\/code> (compact small files), <code>ZORDER BY<\/code> (co-locate by column), partitioning, auto compaction.<\/li>\n        <\/ul>\n        <h3>Pick the right compute<\/h3>\n        <ul>\n          <li><b>All-purpose compute<\/b> \u2014 interactive notebook/dev work; can be shared; stays up.<\/li>\n          <li><b>Job compute<\/b> \u2014 spun up for an automated job and torn down after; cheaper for scheduled work.<\/li>\n          <li><b>SQL warehouse<\/b> \u2014 for SQL/BI queries and dashboards.<\/li>\n          <li><b>Serverless<\/b> vs <b>classic<\/b> \u2014 serverless starts fast and is managed/auto-optimized by Databricks; classic runs in your cloud account.<\/li>\n        <\/ul>\n        <p class=\"lead\">Rule of thumb: scheduled pipeline \u2192 job compute (or serverless); a person exploring in a notebook \u2192 all-purpose; BI/SQL dashboard \u2192 SQL warehouse.<\/p>", "videos": [["What is the Databricks Lakehouse / DI Platform", "concept overview", "Databricks Data Intelligence Platform overview"], ["Compute types: all-purpose vs jobs vs SQL warehouse", "when to use each", "Databricks cluster types all purpose vs job compute"], ["Liquid Clustering & OPTIMIZE / ZORDER", "data layout", "Databricks liquid clustering OPTIMIZE ZORDER tutorial"]], "quiz": [{"q": "A scheduled nightly ETL job currently runs on an always-on all-purpose cluster. The team wants to cut cost without changing the logic. What's the best change?", "opts": ["Switch the job to a SQL warehouse", "Run it on job compute that starts and terminates with the run", "Increase the all-purpose cluster size", "Move the job to a personal cluster"], "a": 1, "obj": "Identify the applicable compute", "e": "Job compute is provisioned for the run and torn down after, so you don't pay for idle time. SQL warehouses are for SQL/BI, not arbitrary ETL logic."}, {"q": "Which feature lets Databricks automatically run OPTIMIZE and VACUUM on a table so engineers don't have to schedule them?", "opts": ["Liquid Clustering", "Predictive Optimization", "Auto Loader", "Delta Sharing"], "a": 1, "obj": "Simplify data layout decisions", "e": "Predictive Optimization automates maintenance like compaction (OPTIMIZE) and cleanup (VACUUM)."}, {"q": "A team wants to cluster a large Delta table on frequently filtered columns and have Databricks manage the layout as it grows, instead of choosing partitions and ZORDER manually. What should they use?", "opts": ["Static partitioning by date", "Liquid Clustering", "A SQL warehouse", "Bucketing"], "a": 1, "obj": "Optimize query performance", "e": "Liquid Clustering replaces the old partition + ZORDER approach and adapts the layout automatically."}, {"q": "Which is a core value of the Data Intelligence Platform / lakehouse architecture?", "opts": ["It stores data in a proprietary closed format for speed", "It unifies engineering, BI and AI on open formats with one governance layer", "It requires a separate data warehouse and data lake", "It removes the need for any compute"], "a": 1, "obj": "Explain the value of the platform", "e": "The lakehouse unifies workloads on open formats (Delta/Parquet) governed by Unity Catalog \u2014 no separate warehouse + lake silos."}, {"q": "Which compute is the right default for a BI dashboard issuing SQL queries?", "opts": ["All-purpose compute", "Job compute", "SQL warehouse", "Single-node cluster"], "a": 2, "obj": "Identify the applicable compute", "e": "SQL warehouses are purpose-built for SQL and BI tools."}], "flashcards": [{"front": "Lakehouse", "back": "One platform over open Delta/Parquet files in cloud storage that unifies engineering, analytics, ML and AI \u2014 no separate warehouse + lake silos."}, {"front": "Unity Catalog", "back": "The single governance layer that governs the platform end-to-end (data, AI assets, permissions, lineage)."}, {"front": "Delta Lake", "back": "Storage layer giving ACID transactions, time travel, and schema enforcement on top of Parquet."}, {"front": "Liquid Clustering", "back": "Modern replacement for partitioning + ZORDER: you pick cluster keys and Databricks manages the data layout automatically as the table grows."}, {"front": "Predictive Optimization", "back": "Databricks automatically runs maintenance like OPTIMIZE (compaction) and VACUUM (cleanup) so engineers don't have to schedule them."}, {"front": "OPTIMIZE / ZORDER", "back": "Legacy layout levers: OPTIMIZE compacts small files; ZORDER BY co-locates data by column. Liquid Clustering now supersedes this combo."}, {"front": "All-purpose compute", "back": "Interactive notebook/dev work; can be shared and stays up. Best for a person exploring."}, {"front": "Job compute", "back": "Spun up for an automated job and torn down after it finishes \u2014 cheaper for scheduled work (no idle cost)."}, {"front": "SQL warehouse", "back": "Compute purpose-built for SQL/BI queries and dashboards."}, {"front": "Serverless vs classic", "back": "Serverless starts fast and is managed/auto-optimized by Databricks; classic runs in your own cloud account."}]}, {"id": "s2", "title": "Development & Ingestion", "weightHint": "Notebooks, Auto Loader, Databricks Connect, debugging", "objectives": ["Use Databricks Connect in a data engineering workflow", "Determine the capabilities of Notebooks functionality", "Classify valid Auto Loader sources and use cases", "Demonstrate knowledge of Auto Loader syntax", "Use Databricks' built-in debugging tools to troubleshoot a given issue"], "notes": "\n        <h3>Databricks Connect<\/h3>\n        <p>Run code from your <b>local IDE<\/b> (VS Code, PyCharm) or app against <b>remote Databricks compute<\/b>. You develop locally with full PySpark/Spark Connect but execution happens on the cluster \u2014 handy for testing and apps without working only in the web notebook.<\/p>\n        <h3>Notebooks<\/h3>\n        <ul>\n          <li>Multi-language cells via magics: <code>%python<\/code>, <code>%sql<\/code>, <code>%scala<\/code>, <code>%r<\/code>, <code>%md<\/code>, <code>%sh<\/code>.<\/li>\n          <li><code>%run ./other_notebook<\/code> imports another notebook; <code>dbutils<\/code> for files, secrets, widgets; <code>dbutils.widgets<\/code> for parameters.<\/li>\n          <li>Collaborative editing, version history, results, and visualizations inline.<\/li>\n        <\/ul>\n        <h3>Auto Loader (incremental file ingestion)<\/h3>\n        <ul>\n          <li>Incrementally and efficiently loads <b>new files<\/b> as they land in <b>cloud object storage<\/b> (S3, ADLS, GCS).<\/li>\n          <li>Uses the <code>cloudFiles<\/code> source, tracks what's processed via a <b>checkpoint<\/b>, and supports <b>schema inference & evolution<\/b>.<\/li>\n          <li>Best for: continuously / unpredictably arriving files; far better than re-listing a whole directory each run.<\/li>\n        <\/ul>\n        <pre>spark.readStream\n  .format(\"cloudFiles\")\n  .option(\"cloudFiles.format\", \"json\")\n  .option(\"cloudFiles.schemaLocation\", \"/chk/schema\")\n  .load(\"/landing/events\")\n.writeStream\n  .option(\"checkpointLocation\", \"/chk/events\")\n  .table(\"bronze_events\")<\/pre>\n        <h3>Debugging tools<\/h3>\n        <ul>\n          <li><b>Spark UI<\/b> \u2014 see stages/tasks, find skew, shuffle, and spills.<\/li>\n          <li>Notebook error tracebacks; <code>df.explain()<\/code> for the query plan; cluster <b>event logs<\/b> and driver/executor logs.<\/li>\n        <\/ul>", "videos": [["Auto Loader explained + syntax", "cloudFiles, schema evolution", "Databricks Auto Loader cloudFiles tutorial"], ["Databricks notebooks: magics, %run, dbutils, widgets", "notebook basics", "Databricks notebook magic commands dbutils widgets tutorial"], ["Databricks Connect from VS Code", "local dev", "Databricks Connect VS Code tutorial"]], "quiz": [{"q": "Which source format string does Auto Loader use in spark.readStream.format(...) ?", "opts": ["\"autoloader\"", "\"cloudFiles\"", "\"delta\"", "\"kafka\""], "a": 1, "obj": "Auto Loader syntax", "e": "Auto Loader is invoked with format(\"cloudFiles\") and the underlying file type set via the cloudFiles.format option."}, {"q": "Which scenario is the best fit for Auto Loader?", "opts": ["A one-time load of a single static CSV", "Continuously ingesting new JSON files that land in a cloud storage folder", "Querying a Delta table for a dashboard", "Sharing a table with an external partner"], "a": 1, "obj": "Auto Loader sources & use cases", "e": "Auto Loader shines for incrementally picking up new files as they arrive in cloud object storage."}, {"q": "A data engineer wants to develop and test PySpark code in VS Code but execute it on a Databricks cluster. What should they use?", "opts": ["Databricks Connect", "Delta Sharing", "Auto Loader", "Unity Catalog"], "a": 0, "obj": "Use Databricks Connect", "e": "Databricks Connect runs locally-authored code against remote Databricks compute."}, {"q": "In a Databricks notebook, which command runs another notebook inline so its functions/variables are available?", "opts": ["%sh ./nb", "%md ./nb", "%run ./nb", "import ./nb"], "a": 2, "obj": "Notebook capabilities", "e": "%run ./notebook executes another notebook in the same context."}, {"q": "A streaming Auto Loader job must avoid reprocessing files it already ingested after a restart. What makes this work?", "opts": ["A larger cluster", "The checkpoint location", "ZORDER", "A SQL warehouse"], "a": 1, "obj": "Auto Loader syntax / debugging", "e": "The checkpoint tracks processed files and stream progress, so a restart resumes without duplicating work."}, {"q": "Which built-in tool best helps diagnose a slow stage caused by data skew?", "opts": ["The Spark UI", "Delta Sharing", "dbutils.widgets", "The Catalog Explorer"], "a": 0, "obj": "Debugging tools", "e": "The Spark UI exposes stages/tasks, shuffle and skew so you can pinpoint the bottleneck."}], "flashcards": [{"front": "Databricks Connect", "back": "Run locally-authored code (VS Code, PyCharm) against remote Databricks compute \u2014 develop locally, execute on the cluster."}, {"front": "Notebook magics", "back": "%python, %sql, %scala, %r, %md, %sh let a single notebook mix languages cell by cell."}, {"front": "%run", "back": "%run ./other_notebook executes another notebook inline so its functions/variables are available in the current context."}, {"front": "dbutils", "back": "Notebook utilities for files, secrets, and widgets; dbutils.widgets defines parameters."}, {"front": "Auto Loader", "back": "Incrementally and efficiently loads only NEW files as they land in cloud object storage (S3, ADLS, GCS)."}, {"front": "cloudFiles", "back": "The source format string Auto Loader uses: spark.readStream.format(\"cloudFiles\"), with the file type set via cloudFiles.format."}, {"front": "Checkpoint", "back": "Tracks which files/offsets a stream has processed so a restart resumes without reprocessing or duplicating work."}, {"front": "Schema evolution", "back": "Auto Loader can infer the schema and adapt as new columns appear, using a schema location."}, {"front": "Spark UI", "back": "Built-in tool showing stages/tasks, shuffle, skew and spills \u2014 used to find performance bottlenecks."}, {"front": "df.explain()", "back": "Prints the query plan to help debug and understand how Spark will execute a DataFrame."}]}, {"id": "s3", "title": "Data Processing & Transformations", "weightHint": "Medallion, LDP, DDL/DML, PySpark aggregations", "objectives": ["Describe the three layers of the Medallion Architecture and the purpose of each", "Classify the cluster type/configuration for optimal performance by scenario", "Explain the advantages of LDP (Lakeflow Declarative Pipelines) for ETL", "Implement data pipelines using LDP", "Identify DDL/DML features", "Compute complex aggregations and metrics with PySpark DataFrames"], "notes": "\n        <h3>Medallion architecture<\/h3>\n        <ul>\n          <li><b>Bronze<\/b> \u2014 raw, as-ingested data (append-only landing zone, keeps history/fidelity).<\/li>\n          <li><b>Silver<\/b> \u2014 cleaned, filtered, conformed, joined; the trustworthy \"enterprise\" view.<\/li>\n          <li><b>Gold<\/b> \u2014 business-level aggregates/marts ready for BI, ML, reporting.<\/li>\n        <\/ul>\n        <h3>Lakeflow Declarative Pipelines (LDP, formerly Delta Live Tables)<\/h3>\n        <ul>\n          <li>You <b>declare<\/b> the tables and their transformations; Databricks handles orchestration, dependencies, retries, and scaling.<\/li>\n          <li>Built-in <b>data quality expectations<\/b> (<code>EXPECT<\/code>) to drop/quarantine bad rows.<\/li>\n          <li>Supports <b>streaming tables<\/b> (incremental) and <b>materialized views<\/b>.<\/li>\n        <\/ul>\n        <pre>-- SQL form\nCREATE OR REFRESH STREAMING TABLE bronze\nAS SELECT * FROM cloud_files('/landing','json');\n\nCREATE OR REFRESH MATERIALIZED VIEW silver\n( CONSTRAINT valid_id EXPECT (id IS NOT NULL) ON VIOLATION DROP ROW )\nAS SELECT * FROM bronze WHERE amount > 0;<\/pre>\n        <h3>DDL / DML you must know<\/h3>\n        <ul>\n          <li><b>DDL:<\/b> <code>CREATE TABLE<\/code>, <code>CREATE OR REPLACE TABLE<\/code> (always overwrites), <code>CREATE TABLE IF NOT EXISTS<\/code> (only if absent), <code>ALTER<\/code>, <code>DROP<\/code>, CTAS (<code>CREATE TABLE ... AS SELECT<\/code>).<\/li>\n          <li><b>DML:<\/b> <code>INSERT INTO<\/code>, <code>UPDATE<\/code>, <code>DELETE<\/code>, and <code>MERGE INTO<\/code> (upserts).<\/li>\n        <\/ul>\n        <h3>PySpark aggregations<\/h3>\n        <ul>\n          <li><code>df.groupBy(\"col\").agg(...)<\/code> with <code>sum<\/code>, <code>avg<\/code>, <code>count<\/code>, and <code>count_distinct<\/code> (unique counts).<\/li>\n          <li><code>count(\"x\")<\/code> counts rows; <code>count_distinct(\"x\")<\/code> counts unique values \u2014 pick carefully (e.g., unique invoices).<\/li>\n        <\/ul>", "videos": [["Medallion architecture (bronze/silver/gold)", "data modeling", "Databricks medallion architecture bronze silver gold explained"], ["Delta Live Tables / Lakeflow Declarative Pipelines", "LDP hands-on", "Databricks Delta Live Tables tutorial expectations streaming table"], ["PySpark groupBy & aggregations", "transformations", "PySpark groupBy agg count_distinct tutorial"]], "quiz": [{"q": "Which statement best describes the SILVER layer?", "opts": ["Raw, untouched data exactly as ingested", "Cleaned, conformed, validated data joined into a trustworthy view", "Business-level aggregates for dashboards", "A backup copy of gold"], "a": 1, "obj": "Medallion architecture", "e": "Bronze = raw, Silver = cleaned/conformed, Gold = business aggregates."}, {"q": "You need a SQL DDL statement that creates a Delta table, overwriting any existing table of the same name. Which is correct?", "opts": ["CREATE TABLE IF NOT EXISTS t (...)", "CREATE OR REPLACE TABLE t (...)", "INSERT INTO t (...)", "ALTER TABLE t ADD COLUMNS (...)"], "a": 1, "obj": "DDL/DML features", "e": "CREATE OR REPLACE TABLE recreates the table regardless of whether it already exists. IF NOT EXISTS does the opposite."}, {"q": "Which PySpark snippet returns total amount and the count of UNIQUE invoice ids per day?", "opts": ["groupBy('day').agg(sum('amt'), sum('inv_id'))", "groupBy('day').agg(sum('amt'), count('inv_id'))", "groupBy('day').agg(sum('amt'), count_distinct('inv_id'))", "groupBy('day').agg(col('amt'), count('inv_id'))"], "a": 2, "obj": "Complex aggregations with PySpark", "e": "count_distinct('inv_id') gives unique invoices; count() would include duplicates and sum() on an id is meaningless."}, {"q": "A key advantage of Lakeflow Declarative Pipelines (LDP) over hand-written notebook ETL is:", "opts": ["It requires manual dependency wiring", "It declares tables and auto-manages orchestration, quality, and scaling", "It only works with CSV", "It cannot do streaming"], "a": 1, "obj": "Advantages of LDP", "e": "LDP is declarative: you define the tables/transforms and it handles orchestration, retries, data-quality expectations, and scaling."}, {"q": "Which clause in LDP drops rows that fail a data-quality rule?", "opts": ["WHERE", "EXPECT ... ON VIOLATION DROP ROW", "HAVING", "LIMIT"], "a": 1, "obj": "Implement pipelines using LDP", "e": "LDP expectations (EXPECT) define quality constraints; ON VIOLATION DROP ROW removes bad records."}, {"q": "To upsert (insert new, update existing) rows into a Delta table, which DML command is designed for the job?", "opts": ["INSERT INTO", "MERGE INTO", "UPDATE", "COPY INTO"], "a": 1, "obj": "DDL/DML features", "e": "MERGE INTO performs conditional insert/update/delete \u2014 the standard upsert pattern."}], "flashcards": [{"front": "Bronze layer", "back": "Raw, as-ingested data \u2014 an append-only landing zone that keeps full history and fidelity."}, {"front": "Silver layer", "back": "Cleaned, filtered, conformed and joined data \u2014 the trustworthy enterprise view."}, {"front": "Gold layer", "back": "Business-level aggregates/marts ready for BI, ML and reporting."}, {"front": "Lakeflow Declarative Pipelines (LDP)", "back": "Formerly Delta Live Tables: you declare tables and transforms; Databricks handles orchestration, dependencies, retries and scaling."}, {"front": "EXPECT (expectations)", "back": "LDP data-quality constraints; e.g. EXPECT (id IS NOT NULL) ON VIOLATION DROP ROW drops or quarantines bad rows."}, {"front": "Streaming table vs materialized view", "back": "LDP supports streaming tables (incremental) and materialized views (recomputed results)."}, {"front": "CREATE OR REPLACE TABLE", "back": "DDL that always (re)creates the table, overwriting any existing one of the same name."}, {"front": "CREATE TABLE IF NOT EXISTS", "back": "DDL that creates the table only if it does not already exist (the opposite of OR REPLACE)."}, {"front": "MERGE INTO", "back": "DML for upserts \u2014 conditional insert/update/delete in one statement."}, {"front": "count vs count_distinct", "back": "count(\"x\") counts rows; count_distinct(\"x\") counts unique values (e.g. unique invoices) \u2014 choose carefully."}]}, {"id": "s4", "title": "Productionizing Data Pipelines", "weightHint": "Asset Bundles, Jobs, serverless, Spark UI", "objectives": ["Identify the difference between DAB and traditional deployment methods", "Identify the structure of Asset Bundles", "Deploy a workflow; repair and rerun a task after failure", "Use serverless for hands-off, auto-optimized compute", "Analyze the Spark UI to optimize a query"], "notes": "\n        <h3>Databricks Asset Bundles (DAB)<\/h3>\n        <ul>\n          <li>Infrastructure-as-code for Databricks: define jobs, pipelines, and settings in <b>YAML<\/b> and deploy with the Databricks CLI (<code>databricks bundle deploy<\/code>).<\/li>\n          <li>Vs traditional (clicking in the UI / ad-hoc): bundles are <b>version-controlled, repeatable, and promotable<\/b> across environments (dev \u2192 staging \u2192 prod) via <b>targets<\/b>.<\/li>\n          <li>Structure: a <code>databricks.yml<\/code> at the root with <b>resources<\/b> (jobs, pipelines) and <b>targets<\/b> (per-environment overrides), plus your source files.<\/li>\n        <\/ul>\n        <pre>bundle:\n  name: sales_pipeline\nresources:\n  jobs:\n    nightly_etl:\n      tasks: [ ... ]\ntargets:\n  dev: { mode: development }\n  prod: { mode: production }<\/pre>\n        <h3>Jobs / Workflows<\/h3>\n        <ul>\n          <li>A job has one or more <b>tasks<\/b> with dependencies, schedules, and retries.<\/li>\n          <li>On failure you can <b>Repair run<\/b> \u2014 rerun only the failed task(s) instead of the whole job.<\/li>\n        <\/ul>\n        <h3>Serverless<\/h3>\n        <p>Hands-off, auto-optimized compute managed by Databricks \u2014 fast startup, no cluster sizing/tuning. Good default for jobs and pipelines when you don't want to manage clusters.<\/p>\n        <h3>Spark UI for optimization<\/h3>\n        <ul>\n          <li>Look for <b>skew<\/b> (one task far slower), heavy <b>shuffle<\/b>, and <b>spill<\/b> to disk (not enough memory).<\/li>\n          <li>Stages/tasks timeline shows where time goes; fix with better partitioning, broadcast joins, or caching.<\/li>\n        <\/ul>", "videos": [["Databricks Asset Bundles (DAB) tutorial", "IaC deploy", "Databricks Asset Bundles tutorial databricks.yml deploy"], ["Jobs / Workflows: tasks, schedule, repair run", "orchestration", "Databricks Workflows jobs repair run failed task tutorial"], ["Reading the Spark UI to find skew & shuffle", "performance", "Databricks Spark UI tutorial skew shuffle spill"]], "quiz": [{"q": "A failed multi-task job needs only the one broken task re-executed, keeping successful tasks' results. What do you use?", "opts": ["Clone the job", "Repair run (rerun the failed task)", "Delete and recreate the job", "Restart the cluster"], "a": 1, "obj": "Repair and rerun a task", "e": "Repair run reruns just the failed task(s) rather than the entire job."}, {"q": "What's the main advantage of Databricks Asset Bundles over deploying by clicking in the UI?", "opts": ["They run faster at query time", "They make deployments version-controlled, repeatable, and promotable across environments", "They remove the need for compute", "They only work in development"], "a": 1, "obj": "DAB vs traditional deployment", "e": "DABs are IaC: defined in YAML, source-controlled, and deployable across dev/prod targets consistently."}, {"q": "In an Asset Bundle, where are per-environment settings like dev vs prod defined?", "opts": ["resources", "targets", "tasks", "secrets"], "a": 1, "obj": "Structure of Asset Bundles", "e": "targets hold environment-specific configuration; resources define jobs/pipelines."}, {"q": "A team wants job compute with fast startup and no cluster sizing or tuning. Best choice?", "opts": ["A large all-purpose cluster", "Serverless compute", "A single-node cluster", "A SQL warehouse"], "a": 1, "obj": "Use serverless", "e": "Serverless is hands-off and auto-optimized by Databricks, with fast startup."}, {"q": "In the Spark UI, one task in a stage takes 10\u00d7 longer than the others. This most likely indicates:", "opts": ["Data skew", "A syntax error", "Missing Unity Catalog grants", "A scheduling conflict"], "a": 0, "obj": "Analyze the Spark UI", "e": "A single very slow task among many usually means skew \u2014 uneven data distribution across partitions."}], "flashcards": [{"front": "Databricks Asset Bundles (DAB)", "back": "Infrastructure-as-code for Databricks: define jobs, pipelines and settings in YAML and deploy with the Databricks CLI."}, {"front": "DAB vs UI deployment", "back": "Bundles are version-controlled, repeatable and promotable across environments (dev \u2192 staging \u2192 prod); clicking in the UI is ad-hoc and not reproducible."}, {"front": "databricks.yml", "back": "Root bundle file holding resources (jobs, pipelines) and targets (per-environment overrides)."}, {"front": "targets", "back": "The DAB section that holds environment-specific configuration like dev vs prod."}, {"front": "resources", "back": "The DAB section that defines jobs and pipelines."}, {"front": "Repair run", "back": "Reruns only the failed task(s) of a job, keeping the results of tasks that already succeeded."}, {"front": "Serverless compute", "back": "Hands-off, auto-optimized compute with fast startup and no cluster sizing/tuning \u2014 a good default for jobs/pipelines."}, {"front": "Skew (Spark UI)", "back": "One task in a stage takes far longer than the others \u2014 a sign of uneven data distribution across partitions."}, {"front": "Shuffle / spill", "back": "Heavy shuffle moves data across the cluster; spill is writing to disk when memory runs out \u2014 both hurt performance."}]}, {"id": "s5", "title": "Data Governance & Quality", "weightHint": "Unity Catalog, grants, lineage, Delta Sharing, Federation", "objectives": ["Explain the difference between managed and external tables", "Identify how to grant permissions to users and groups within UC", "Identify key roles in UC", "Identify how audit logs are stored", "Use lineage features in Unity Catalog", "Use Delta Sharing to share data; know its advantages and limitations", "Identify types of Delta Sharing (Databricks-to-Databricks vs external)", "Analyze cost considerations of sharing across clouds", "Identify use cases of Lakehouse Federation"], "notes": "\n        <h3>Managed vs external tables<\/h3>\n        <ul>\n          <li><b>Managed<\/b> \u2014 Unity Catalog manages both metadata <i>and<\/i> the underlying data files. <b>DROP deletes the data.<\/b><\/li>\n          <li><b>External<\/b> \u2014 data lives in an external location you specify; UC manages only metadata. <b>DROP keeps the data files.<\/b><\/li>\n        <\/ul>\n        <h3>Unity Catalog namespace & grants<\/h3>\n        <ul>\n          <li>Three levels: <code>catalog.schema.table<\/code>. To read a table a user typically needs <code>USE CATALOG<\/code>, <code>USE SCHEMA<\/code>, and <code>SELECT<\/code>.<\/li>\n          <li><code>GRANT SELECT ON SCHEMA sales TO analysts;<\/code> \u2014 read-only. <code>MODIFY<\/code> for write; <code>ALL PRIVILEGES<\/code> for everything.<\/li>\n          <li>Roles: <b>metastore admin<\/b>, <b>account admin<\/b>, plus object <b>owners<\/b> who can grant on what they own.<\/li>\n        <\/ul>\n        <h3>Lineage & audit<\/h3>\n        <ul>\n          <li>UC captures <b>lineage<\/b> automatically \u2014 table/column-level, upstream/downstream, including notebooks and dashboards.<\/li>\n          <li><b>Audit logs<\/b> are delivered/stored to a cloud storage location (and queryable system tables) for who-did-what.<\/li>\n        <\/ul>\n        <h3>Delta Sharing<\/h3>\n        <ul>\n          <li>Open protocol to share live data <b>without copying<\/b> it. Two flavors: <b>Databricks-to-Databricks<\/b> (recipient is on Databricks) and <b>open sharing<\/b> to <b>external<\/b> non-Databricks clients.<\/li>\n          <li>You create a <b>share<\/b>, add tables/views, and grant recipients <b>read<\/b> access.<\/li>\n          <li>Watch <b>cross-cloud egress cost<\/b> when the recipient is in a different cloud/region.<\/li>\n        <\/ul>\n        <h3>Lakehouse Federation<\/h3>\n        <p>Query external systems (PostgreSQL, MySQL, Snowflake, Redshift, etc.) <b>in place<\/b> from Databricks without ingesting the data first \u2014 great for exploration and joining external sources under UC governance.<\/p>", "videos": [["Unity Catalog: managed vs external + grants", "governance core", "Databricks Unity Catalog managed vs external tables grants tutorial"], ["Delta Sharing explained", "sharing", "Databricks Delta Sharing tutorial databricks to databricks external"], ["Lakehouse Federation overview", "query in place", "Databricks Lakehouse Federation tutorial"]], "quiz": [{"q": "You DROP a Unity Catalog table and the underlying data files remain in cloud storage. The table was:", "opts": ["A managed table", "An external table", "A streaming table", "A materialized view"], "a": 1, "obj": "Managed vs external tables", "e": "External tables keep their data on DROP (UC manages only metadata). Dropping a managed table deletes the data."}, {"q": "An analyst group already has USE CATALOG and USE SCHEMA on sales_data and needs read-only access. Which grant is correct?", "opts": ["GRANT ALL PRIVILEGES ON SCHEMA sales_data TO analysts", "GRANT SELECT ON SCHEMA sales_data TO analysts", "GRANT INSERT ON SCHEMA sales_data TO analysts", "GRANT MODIFY ON SCHEMA sales_data TO analysts"], "a": 1, "obj": "Grant permissions in UC", "e": "SELECT gives read-only access. ALL PRIVILEGES/INSERT/MODIFY grant write capability."}, {"q": "A partner who does NOT use Databricks needs to read a shared dataset. Which applies?", "opts": ["Databricks-to-Databricks sharing only", "Delta Sharing open (external) sharing", "Lakehouse Federation", "A managed table grant"], "a": 1, "obj": "Types of Delta Sharing", "e": "Open Delta Sharing serves recipients on non-Databricks/external clients; D2D is for recipients already on Databricks."}, {"q": "A team wants to query a Snowflake table from Databricks without first copying the data in. Best fit?", "opts": ["Auto Loader", "Delta Sharing", "Lakehouse Federation", "MERGE INTO"], "a": 2, "obj": "Lakehouse Federation use cases", "e": "Lakehouse Federation queries external sources in place under UC governance."}, {"q": "Which is an accurate cost consideration for Delta Sharing across clouds?", "opts": ["Sharing is always free regardless of location", "Cross-cloud / cross-region data egress can incur cost", "Recipients must duplicate the data to read it", "It requires an external table"], "a": 1, "obj": "Cost of sharing across clouds", "e": "Reading shared data across clouds/regions can trigger egress charges \u2014 plan placement accordingly."}, {"q": "Where does Unity Catalog get table- and column-level lineage from?", "opts": ["You must enter it manually", "It's captured automatically as queries run", "Only from Delta Sharing", "From the Spark UI"], "a": 1, "obj": "Lineage in UC", "e": "UC captures lineage automatically across notebooks, jobs, and dashboards."}], "flashcards": [{"front": "Managed table", "back": "Unity Catalog manages both the metadata and the underlying data files \u2014 DROP deletes the data."}, {"front": "External table", "back": "Data lives in an external location you specify; UC manages only metadata \u2014 DROP keeps the data files."}, {"front": "UC namespace", "back": "Three levels: catalog.schema.table. Reading a table typically needs USE CATALOG, USE SCHEMA and SELECT."}, {"front": "GRANT SELECT", "back": "Gives read-only access to an object; MODIFY adds write, ALL PRIVILEGES grants everything."}, {"front": "UC roles", "back": "Metastore admin, account admin, plus object owners who can grant privileges on what they own."}, {"front": "Lineage", "back": "UC captures table- and column-level lineage automatically as queries run, across notebooks, jobs and dashboards."}, {"front": "Audit logs", "back": "Recorded who-did-what, delivered to a cloud storage location and queryable via system tables."}, {"front": "Delta Sharing", "back": "Open protocol to share live data without copying it."}, {"front": "D2D vs open sharing", "back": "Databricks-to-Databricks sharing (recipient on Databricks) vs open sharing to external, non-Databricks clients."}, {"front": "Cross-cloud egress", "back": "Reading shared data across clouds/regions can incur data egress cost \u2014 plan placement."}, {"front": "Lakehouse Federation", "back": "Query external systems (PostgreSQL, MySQL, Snowflake, Redshift\u2026) in place from Databricks, under UC governance, without ingesting first."}]}], "fillblank": [{"sec": "s1", "type": "concept", "prompt": "____ Clustering replaces manual partitioning + ZORDER and lets Databricks manage table layout automatically.", "answer": "Liquid", "accept": ["liquid"], "hint": "Modern data-layout feature"}, {"sec": "s1", "type": "concept", "prompt": "____ Optimization auto-runs OPTIMIZE and VACUUM so engineers don't schedule them.", "answer": "Predictive", "accept": ["predictive"], "hint": "\"P\u2026\" optimization"}, {"sec": "s1", "type": "concept", "prompt": "For a scheduled nightly ETL job, the cheapest compute is ____ compute (started for the run, torn down after).", "answer": "job", "accept": ["jobs"], "hint": "Not all-purpose"}, {"sec": "s1", "type": "concept", "prompt": "BI dashboards issuing SQL should run on a SQL ____.", "answer": "warehouse", "accept": [], "hint": "Purpose-built for SQL/BI"}, {"sec": "s2", "type": "code", "prompt": "spark.readStream.format(\"____\")  # Auto Loader source", "answer": "cloudFiles", "accept": ["cloudfiles"], "hint": "camelCase, two words joined"}, {"sec": "s2", "type": "code", "prompt": ".option(\"checkpointLocation\", \"/chk/events\")  # the ____ lets a stream resume without reprocessing", "answer": "checkpoint", "accept": ["checkpoint location", "checkpointlocation"], "hint": "Tracks processed files"}, {"sec": "s2", "type": "code", "prompt": "%____ ./other_notebook   # run another notebook inline", "answer": "run", "accept": [], "hint": "A notebook magic"}, {"sec": "s2", "type": "concept", "prompt": "Use Databricks ____ to develop PySpark in VS Code but execute on a remote cluster.", "answer": "Connect", "accept": ["connect"], "hint": "Local IDE \u2192 remote compute"}, {"sec": "s3", "type": "concept", "prompt": "Medallion layers in order: ____ \u2192 silver \u2192 gold.", "answer": "bronze", "accept": [], "hint": "Raw landing layer"}, {"sec": "s3", "type": "code", "prompt": "CREATE OR ____ TABLE t (...)   # always overwrites any existing table", "answer": "REPLACE", "accept": ["replace"], "hint": "Opposite of IF NOT EXISTS"}, {"sec": "s3", "type": "code", "prompt": "MERGE ____ target USING source ON ...   # the upsert pattern", "answer": "INTO", "accept": ["into"], "hint": "MERGE ____ \u2026"}, {"sec": "s3", "type": "code", "prompt": "df.groupBy(\"day\").agg(____(\"inv_id\"))  # count UNIQUE invoices", "answer": "count_distinct", "accept": ["countDistinct", "count distinct"], "hint": "Not plain count()"}, {"sec": "s3", "type": "code", "prompt": "CONSTRAINT valid_id ____ (id IS NOT NULL) ON VIOLATION DROP ROW   # LDP quality rule", "answer": "EXPECT", "accept": ["expect"], "hint": "LDP expectation keyword"}, {"sec": "s4", "type": "concept", "prompt": "Databricks Asset ____ define jobs/pipelines as YAML infrastructure-as-code.", "answer": "Bundles", "accept": ["bundle", "bundles"], "hint": "DAB"}, {"sec": "s4", "type": "concept", "prompt": "In a bundle, per-environment settings (dev vs prod) live under ____.", "answer": "targets", "accept": ["target"], "hint": "Not 'resources'"}, {"sec": "s4", "type": "concept", "prompt": "After a multi-task job fails, use ____ run to rerun only the failed task(s).", "answer": "repair", "accept": ["Repair"], "hint": "\"R\u2026\" run"}, {"sec": "s5", "type": "concept", "prompt": "Dropping a(n) ____ table keeps the data files (UC manages only metadata).", "answer": "external", "accept": ["External"], "hint": "Opposite of managed"}, {"sec": "s5", "type": "code", "prompt": "GRANT ____ ON SCHEMA sales TO analysts;   # read-only access", "answer": "SELECT", "accept": ["select"], "hint": "Read privilege"}, {"sec": "s5", "type": "concept", "prompt": "____ Sharing is an open protocol to share live data without copying it.", "answer": "Delta", "accept": ["delta"], "hint": "\"D\u2026\" Sharing"}, {"sec": "s5", "type": "concept", "prompt": "Lakehouse ____ queries external systems (Snowflake, Postgres\u2026) in place without ingesting.", "answer": "Federation", "accept": ["federation"], "hint": "Query-in-place"}], "meta": {"examName": "Databricks Certified Data Engineer \u2014 Associate", "outlineVersion": "July 25, 2025", "officialGuide": "https://www.databricks.com/learn/certification/data-engineer-associate", "groundingNote": "All notes, flashcards and fill-in-the-blank answers are derived from this study hub's section notes, which follow the official exam outline. The AI tutor is instructed to stay within these topics and say when it is unsure."}};
+var CONTENT = {"facts": [["45", "scored questions"], ["90 min", "time limit"], ["~70%", "aim to pass*"], ["7", "domains"], ["2 yrs", "validity"]], "sections": [{"id": "d1", "title": "Databricks Intelligence Platform", "weightHint": "Architecture, Delta Lake, Unity Catalog, compute & cost", "objectives": ["Understand the core components of the Data Intelligence Platform (architecture, Delta Lake, Unity Catalog)", "Understand the compute services, their characteristics, limits and cost models, and pick the right one per workload"], "notes": "\n    <h3>Core components<\/h3>\n    <ul>\n      <li><b>Lakehouse architecture<\/b> \u2014 open Delta/Parquet data in cloud storage, unifying engineering, analytics, ML and AI under one governance layer.<\/li>\n      <li><b>Delta Lake<\/b> \u2014 the table format: ACID transactions, <b>time travel<\/b> (query past versions), schema enforcement, and the transaction log.<\/li>\n      <li><b>Unity Catalog (UC)<\/b> \u2014 the governance layer: a three-level namespace <code>catalog.schema.table<\/code>, permissions, automatic lineage, and audit.<\/li>\n    <\/ul>\n    <h3>Compute services &amp; cost<\/h3>\n    <ul>\n      <li><b>All-purpose compute<\/b> \u2014 interactive dev in notebooks; stays up; most expensive if left idle.<\/li>\n      <li><b>Job compute<\/b> \u2014 created for an automated job and torn down after; cheaper for scheduled work.<\/li>\n      <li><b>SQL warehouse<\/b> \u2014 for SQL/BI queries and dashboards.<\/li>\n      <li><b>Serverless vs classic<\/b> \u2014 serverless is managed & auto-optimized by Databricks with fast startup; classic runs in your cloud account.<\/li>\n      <li>Billing is measured in <b>DBUs<\/b> (per-second). Rule of thumb: scheduled pipeline \u2192 job/serverless; interactive exploration \u2192 all-purpose; BI dashboard \u2192 SQL warehouse.<\/li>\n    <\/ul>", "videos": [["Data Intelligence Platform overview", "architecture", "Databricks Data Intelligence Platform architecture overview"], ["Delta Lake + Unity Catalog basics", "components", "Databricks Delta Lake Unity Catalog explained"], ["Compute types & when to use them", "compute & cost", "Databricks compute all purpose vs job vs SQL warehouse serverless"]], "quiz": [{"q": "A team needs reliable rollbacks after bad ingests, audit trails for regulatory compliance, and one consistent source of truth for both AI and BI. Which strategy fits best?", "opts": ["Store CSVs in DBFS with nightly copies for manual rollback", "Use Delta Lake ACID transactions and time travel, governed by Unity Catalog", "Query raw files in cloud object storage ad hoc and recover from backups", "Keep data in in-memory DataFrames for audit and BI"], "a": 1, "obj": "Value of the platform / Delta Lake + Unity Catalog", "e": "Delta Lake gives ACID transactions and time travel (rollback + history); Unity Catalog governs access and lineage for a single AI/BI source of truth.", "doc": {"u": "https://docs.databricks.com/aws/en/delta/", "l": "What is Delta Lake"}}, {"q": "Many analysts run ad hoc SQL on curated Delta tables all day. You need fast startup, many concurrent users, and cost control (no oversized clusters). Best compute?", "opts": ["A job cluster with autoscaling built for scheduled ETL", "An all-purpose cluster with a fixed number of workers", "A serverless SQL warehouse", "A single-node cluster for lightweight dev"], "a": 2, "obj": "Select the right compute for a workload", "e": "A serverless SQL warehouse is purpose-built for concurrent SQL/BI with fast startup and elastic scaling.", "doc": {"u": "https://docs.databricks.com/aws/en/delta/", "l": "What is Delta Lake"}}, {"q": "An engineer accidentally overwrote a Delta table with bad data. What is the fastest way to recover the prior state?", "opts": ["Restore the table to a previous version using Delta time travel", "Re-ingest everything from the source", "Delete the table and rebuild from a nightly CSV backup", "Enlarge the cluster and re-run the job"], "a": 0, "obj": "Delta Lake time travel", "e": "Delta's transaction log lets you time travel / RESTORE to a previous version instantly.", "doc": {"u": "https://docs.databricks.com/aws/en/delta/history", "l": "Delta time travel & history"}}, {"q": "A nightly ETL job runs on an always-on all-purpose cluster. The team wants to cut cost without changing the logic. Best change?", "opts": ["Enlarge the all-purpose cluster", "Run it on job compute that starts and terminates with the run", "Move it to a SQL warehouse", "Add autoscaling to the always-on cluster"], "a": 1, "obj": "Compute cost models", "e": "Job compute is provisioned per run and torn down after, eliminating idle cost.", "doc": {"u": "https://docs.databricks.com/aws/en/compute/choose-compute", "l": "Choosing compute"}}, {"q": "An organization wants one governance layer for permissions, lineage, and audit across all workspaces. Which component provides this?", "opts": ["Delta Lake", "Unity Catalog", "Auto Loader", "Photon"], "a": 1, "obj": "Core components / Unity Catalog", "e": "Unity Catalog centralizes governance (permissions, lineage, audit) across the account.", "doc": {"u": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/", "l": "Unity Catalog"}}, {"q": "An engineer on a legacy no-isolation cluster can't see any Unity Catalog catalogs. What should they do?", "opts": ["Switch to a Unity-Catalog-enabled access mode (Standard or Dedicated)", "Grant ALL PRIVILEGES on the metastore", "Disable row-level security", "Restart the driver node"], "a": 0, "obj": "Compute access modes for UC", "e": "UC requires a supported access mode \u2014 Standard (shared) or Dedicated (single-user); legacy no-isolation compute can't access UC.", "doc": {"u": "https://docs.databricks.com/aws/en/compute/choose-compute", "l": "Choosing compute"}}, {"q": "An append fails because the incoming DataFrame has an unexpected extra column. What most likely caused the failure?", "opts": ["Delta schema enforcement rejected the mismatched columns", "Time travel blocked the write", "Liquid Clustering reorganized the files", "Predictive optimization vacuumed the data"], "a": 0, "obj": "Delta schema enforcement", "e": "Schema enforcement blocks writes whose columns don't match the table schema (evolution would instead adapt it).", "doc": {"u": "https://docs.databricks.com/aws/en/delta/", "l": "What is Delta Lake"}}, {"q": "A scheduled pipeline should run on compute that starts fast and needs no cluster sizing or tuning. Best option?", "opts": ["Serverless compute", "A large all-purpose cluster", "A single-node cluster", "A SQL warehouse for arbitrary Python ETL"], "a": 0, "obj": "Serverless vs classic", "e": "Serverless is managed and auto-optimized with fast startup \u2014 no sizing/tuning.", "doc": {"u": "https://docs.databricks.com/aws/en/compute/choose-compute", "l": "Choosing compute"}}, {"q": "How does Databricks bill compute consumption?", "opts": ["A flat monthly fee per user", "In DBUs, billed per second by compute type", "Per row scanned", "Per gigabyte stored"], "a": 1, "obj": "Cost models / DBUs", "e": "Usage is measured in DBUs on a per-second, pay-as-you-go basis.", "doc": {"u": "https://docs.databricks.com/aws/en/compute/choose-compute", "l": "Choosing compute"}}, {"q": "Which statement best describes the value of the lakehouse architecture?", "opts": ["It requires separate data lake and warehouse systems", "It unifies engineering, BI and AI on open formats under one governance layer", "It stores data in a closed proprietary format", "It removes the need for compute"], "a": 1, "obj": "Value of the Data Intelligence Platform", "e": "The lakehouse unifies workloads on open Delta/Parquet governed by Unity Catalog.", "doc": {"u": "https://docs.databricks.com/aws/en/compute/choose-compute", "l": "Choosing compute"}}, {"q": "A scheduled PySpark ETL job (not SQL) needs the cheapest, isolated compute. Which fits?", "opts": ["A shared all-purpose cluster left running", "Job compute provisioned for the run", "A SQL warehouse", "A single-node interactive cluster"], "a": 1, "obj": "Select the right compute", "e": "Job compute is isolated per run and cheaper than an always-on interactive cluster; SQL warehouses are for SQL, not arbitrary PySpark.", "doc": {"u": "https://docs.databricks.com/aws/en/compute/choose-compute", "l": "Choosing compute"}}, {"q": "Which technology adds ACID transactions and time travel on top of Parquet files?", "opts": ["Parquet alone", "Delta Lake", "CSV with checksums", "Unity Catalog"], "a": 1, "obj": "Delta Lake", "e": "Delta Lake layers a transaction log over Parquet to provide ACID and time travel.", "doc": {"u": "https://docs.databricks.com/aws/en/delta/history", "l": "Delta time travel & history"}}], "flashcards": [["Lakehouse", "Open Delta/Parquet data in cloud storage unifying engineering, analytics, ML and AI under one governance layer."], ["Delta Lake", "Table format giving ACID transactions, time travel, and schema enforcement via a transaction log."], ["Unity Catalog", "Governance layer with a 3-level namespace (catalog.schema.table), permissions, lineage and audit."], ["All-purpose vs job compute", "All-purpose = interactive, stays up; job = spun up per run and torn down (cheaper for schedules)."], ["SQL warehouse", "Compute purpose-built for SQL and BI dashboards."], ["Serverless vs classic", "Serverless is Databricks-managed and auto-optimized with fast startup; classic runs in your cloud account."], ["DBU", "Databricks Unit \u2014 the per-second measure of compute consumption used for billing."]]}, {"id": "d2", "title": "Data Ingestion & Loading", "weightHint": "COPY INTO, Auto Loader, Lakeflow Connect, JDBC/REST, JSON", "objectives": ["Enable batch, streaming and incremental ingestion from sources like local files and Lakeflow Connect connectors", "Use COPY INTO to incrementally load files from cloud storage into UC tables", "Use Auto Loader with schema enforcement and evolution (directory listing / file notification)", "Configure Lakeflow Connect to ingest from enterprise sources into UC tables", "Use JDBC/ODBC or REST clients in notebooks to land data, orchestrated by Lakeflow Jobs", "Prioritize between Auto Loader, Lakeflow Connect and other methods by volume, frequency, types and governance", "Ingest semi-structured/unstructured data (e.g. nested JSON) into UC-governed Delta tables"], "notes": "\n    <h3>COPY INTO<\/h3>\n    <p>SQL command that <b>incrementally<\/b> loads files from cloud object storage (S3/ADLS/GCS) into a UC table. It is <b>idempotent<\/b> \u2014 re-running skips files already loaded, so it's safe to retry.<\/p>\n    <pre>COPY INTO my_catalog.sales.bronze\nFROM 's3://bucket/landing/'\nFILEFORMAT = JSON;<\/pre>\n    <h3>Auto Loader<\/h3>\n    <ul>\n      <li>Uses the <code>cloudFiles<\/code> source to incrementally pick up <b>new files<\/b> as they arrive.<\/li>\n      <li>Two file-detection modes: <b>directory listing<\/b> and <b>file notification<\/b> (event-based, better at scale).<\/li>\n      <li>Supports <b>schema inference, enforcement and evolution<\/b> via a schema location; tracks progress with a checkpoint.<\/li>\n    <\/ul>\n    <h3>Lakeflow Connect<\/h3>\n    <p><b>Managed connectors<\/b> that reliably ingest from enterprise sources (SaaS apps, databases) into UC tables with little code; <b>standard<\/b> connectors cover common formats/sources.<\/p>\n    <h3>Choosing a method &amp; other clients<\/h3>\n    <ul>\n      <li>Auto Loader \u2192 continuous files landing in cloud storage. Lakeflow Connect \u2192 managed pulls from enterprise systems. COPY INTO \u2192 simple incremental SQL loads.<\/li>\n      <li><b>JDBC/ODBC or REST<\/b> clients in notebooks can land data too, usually scheduled with <b>Lakeflow Jobs<\/b>.<\/li>\n      <li>Semi-structured <b>JSON / nested<\/b> data is ingested into Delta and flattened with functions like <code>from_json<\/code> and <code>explode<\/code>.<\/li>\n    <\/ul>", "videos": [["COPY INTO for incremental loads", "COPY INTO", "Databricks COPY INTO tutorial incremental load"], ["Auto Loader: schema evolution & modes", "Auto Loader", "Databricks Auto Loader cloudFiles schema evolution file notification"], ["Lakeflow Connect ingestion", "Lakeflow Connect", "Databricks Lakeflow Connect managed connectors ingestion"]], "quiz": [{"q": "New JSON files land continuously in an S3 bucket and must be ingested incrementally as they arrive. Best approach?", "opts": ["Run COPY INTO manually each morning", "Use Auto Loader with the cloudFiles source", "Re-read the whole bucket in a batch job each run", "Use Delta Sharing"], "a": 1, "obj": "Auto Loader sources & use cases", "e": "Auto Loader (cloudFiles) incrementally picks up new files as they arrive at scale.", "doc": {"u": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/", "l": "Auto Loader"}}, {"q": "Incoming JSON begins including new nullable columns. You want them added to the target automatically without manual edits. What should you configure?", "opts": ["Disable inference and hardcode the schema", "Auto Loader with a schema location so it evolves and adds new columns", "Drop and recreate the table each run", "Convert the source to CSV"], "a": 1, "obj": "Schema evolution", "e": "Auto Loader with cloudFiles.schemaLocation supports schema evolution, adding new (nullable) columns as they appear.", "doc": {"u": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/", "l": "Auto Loader"}}, {"q": "Millions of files per hour arrive in ADLS and directory listing has become too slow. Which Auto Loader mode should you use?", "opts": ["Directory listing mode", "File notification mode (event-based)", "Manual re-listing on a timer", "A larger driver node"], "a": 1, "obj": "Auto Loader file-detection modes", "e": "File notification mode uses cloud events/queues and scales far beyond directory listing.", "doc": {"u": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/file-notification-mode", "l": "Auto Loader file modes"}}, {"q": "You need a SQL command that incrementally and idempotently loads files from cloud storage into a Unity Catalog table. Which is it?", "opts": ["MERGE INTO", "COPY INTO", "INSERT OVERWRITE", "CREATE STREAMING TABLE from a view"], "a": 1, "obj": "Use COPY INTO", "e": "COPY INTO loads incrementally and skips already-loaded files (idempotent).", "doc": {"u": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/copy-into/", "l": "COPY INTO"}}, {"q": "A source occasionally overwrites and re-uploads a file. How can you still query historical versions of the ingested Delta table?", "opts": ["Delta keeps prior versions \u2014 use time travel to query history", "Overwrites permanently erase all history", "Only CSV preserves history", "Disable checkpointing to keep history"], "a": 0, "obj": "Preserving history / time travel", "e": "Delta retains prior table versions, so time travel can query earlier states even after overwrites.", "doc": {"u": "https://docs.databricks.com/aws/en/ingestion/overview", "l": "Ingestion overview"}}, {"q": "You must ingest from a SaaS application and an operational database into UC tables with minimal custom code. Best tool?", "opts": ["Auto Loader on cloud files", "Lakeflow Connect managed connectors", "Delta Sharing", "A broadcast join"], "a": 1, "obj": "Lakeflow Connect", "e": "Lakeflow Connect provides managed connectors for enterprise/SaaS sources into UC tables.", "doc": {"u": "https://docs.databricks.com/aws/en/ingestion/lakeflow-connect/", "l": "Lakeflow Connect"}}, {"q": "An Auto Loader stream restarts after a failure and must not reprocess files it already ingested. What makes this work?", "opts": ["A bigger cluster", "The checkpoint location tracks processed files", "ZORDER on the target", "A SQL warehouse"], "a": 1, "obj": "Auto Loader checkpointing", "e": "The checkpoint records processed files/offsets so a restart resumes without duplicates.", "doc": {"u": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/", "l": "Auto Loader"}}, {"q": "Incoming JSON has a nested array field and you need one output row per array element. Which function do you use?", "opts": ["from_json", "explode", "to_json", "collect_list"], "a": 1, "obj": "Ingest semi-structured/nested data", "e": "explode() expands each element of an array into its own row.", "doc": {"u": "https://docs.databricks.com/aws/en/ingestion/overview", "l": "Ingestion overview"}}, {"q": "Only a few small batches of files arrive occasionally and you want the simplest setup. Which Auto Loader mode is appropriate?", "opts": ["File notification (requires cloud event setup)", "Directory listing mode", "Kafka streaming", "Delta Sharing"], "a": 1, "obj": "Auto Loader modes trade-offs", "e": "Directory listing needs no cloud-event setup and is fine for low file volumes.", "doc": {"u": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/file-notification-mode", "l": "Auto Loader file modes"}}, {"q": "You need COPY INTO to reload files it has already ingested (e.g., after fixing them). What do you set?", "opts": ["The force option to true", "Delete the target table first", "Switch to MERGE", "It cannot reload files"], "a": 0, "obj": "COPY INTO options", "e": "COPY INTO's force = true disables idempotency so previously-loaded files are reloaded.", "doc": {"u": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/copy-into/", "l": "COPY INTO"}}, {"q": "Records with malformed or unexpected fields should be captured rather than silently dropped during Auto Loader ingestion. Where do they go?", "opts": ["Into the _rescued_data column", "They crash the stream", "They are silently discarded", "They overwrite the schema"], "a": 0, "obj": "Schema handling / rescued data", "e": "Auto Loader routes data that doesn't match the schema into the _rescued_data column.", "doc": {"u": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/", "l": "Auto Loader"}}, {"q": "Your data already lands as files in cloud object storage (not a SaaS source) and arrives continuously. Which ingestion tool is the best default?", "opts": ["A Lakeflow Connect managed connector", "Auto Loader", "A JDBC notebook loop", "Delta Sharing"], "a": 1, "obj": "Prioritize ingestion methods", "e": "For files continuously landing in cloud storage, Auto Loader is the right tool; Lakeflow Connect targets enterprise sources.", "doc": {"u": "https://docs.databricks.com/aws/en/ingestion/overview", "l": "Ingestion overview"}}], "flashcards": [["COPY INTO", "SQL command that incrementally loads files from cloud storage into a UC table; idempotent (skips already-loaded files)."], ["Auto Loader", "Incrementally ingests new files via the cloudFiles source, with schema inference/enforcement/evolution."], ["Auto Loader modes", "Directory listing vs file notification (event-based, better at large scale)."], ["Lakeflow Connect", "Managed/standard connectors that ingest from enterprise sources (SaaS, DBs) into UC tables with little code."], ["Schema evolution", "Auto Loader adapts to new columns over time using a schema location."], ["explode() / from_json()", "from_json parses JSON strings into structs; explode turns array elements into separate rows."], ["Choosing ingestion", "Auto Loader = files in cloud storage; Lakeflow Connect = enterprise sources; COPY INTO = simple incremental SQL loads."]]}, {"id": "d3", "title": "Data Transformation & Modeling", "weightHint": "Cleaning, joins, dedup/aggregates, tuning, Gold objects", "objectives": ["Clean data: read bronze with PySpark/SQL, handle nulls, standardize types, write silver tables", "Combine DataFrames: inner/left/broadcast/cross joins, multiple keys, union / union all", "Manipulate columns/rows/structures: add, drop, split, rename, filter, explode arrays", "Deduplicate and aggregate: count, approx_count_distinct, mean, summary", "Understand tuning parameters and re-measure performance", "Build Gold objects: materialized views, views, streaming tables and tables for BI", "Apply data quality checks and validation rules for reliable Silver/Gold"], "notes": "\n    <h3>Cleaning (bronze \u2192 silver)<\/h3>\n    <p>Read raw bronze, drop/replace nulls (<code>na.drop<\/code>, <code>fillna<\/code>), cast types (<code>cast<\/code>), standardize, then write trustworthy silver tables.<\/p>\n    <h3>Joins &amp; set operations<\/h3>\n    <ul>\n      <li><b>inner / left / cross<\/b> joins; join on multiple keys.<\/li>\n      <li><b>Broadcast join<\/b> \u2014 when one side is small enough to fit in memory, Spark ships it to every executor (controlled by <code>spark.sql.autoBroadcastJoinThreshold<\/code>).<\/li>\n      <li><code>union<\/code>/<code>unionAll<\/code> stack rows and <b>keep duplicates<\/b> \u2014 use <code>distinct()<\/code> to remove them.<\/li>\n    <\/ul>\n    <h3>Column/row ops &amp; dedup/aggregates<\/h3>\n    <ul>\n      <li><code>withColumn<\/code>, <code>drop<\/code>, <code>split<\/code>, <code>withColumnRenamed<\/code>, <code>filter<\/code>/<code>where<\/code>, <code>explode<\/code>.<\/li>\n      <li><code>dropDuplicates<\/code> removes duplicate rows; <code>count<\/code>, <code>approx_count_distinct<\/code> (fast estimate of uniques), <code>mean<\/code>/<code>avg<\/code>, and <code>summary()<\/code>/<code>describe()<\/code>.<\/li>\n    <\/ul>\n    <h3>Tuning parameters<\/h3>\n    <ul>\n      <li><code>spark.sql.shuffle.partitions<\/code> \u2014 post-shuffle partition count. <code>spark.default.parallelism<\/code> \u2014 default RDD parallelism.<\/li>\n      <li><code>spark.executor.memory<\/code>/<code>spark.driver.memory<\/code>; <code>spark.sql.autoBroadcastJoinThreshold<\/code> \u2014 max size to auto-broadcast.<\/li>\n    <\/ul>\n    <h3>Gold layer objects<\/h3>\n    <p><b>Table<\/b> = stored data; <b>View<\/b> = query recomputed on read; <b>Materialized view<\/b> = precomputed, refreshed results; <b>Streaming table<\/b> = incremental ingest/transform.<\/p>", "videos": [["PySpark joins & unions", "joins", "PySpark inner left broadcast join union tutorial"], ["Dedup & aggregations", "aggregates", "PySpark dropDuplicates approx_count_distinct agg tutorial"], ["Views vs materialized views vs streaming tables", "Gold objects", "Databricks materialized view streaming table vs view"]], "quiz": [{"q": "A huge fact table must be joined to a small dimension table. How do you avoid an expensive shuffle?", "opts": ["Broadcast the small dimension table", "Raise shuffle partitions to 5000", "Cross join then filter", "Cache both tables"], "a": 0, "obj": "Joins / broadcast", "e": "Broadcasting the small side ships it to all executors, avoiding a shuffle (governed by autoBroadcastJoinThreshold).", "doc": {"u": "https://spark.apache.org/docs/latest/sql-performance-tuning.html", "l": "Spark performance tuning"}}, {"q": "After union-ing two DataFrames you see duplicate rows. What is happening?", "opts": ["union removes duplicates automatically", "union keeps duplicates \u2014 apply distinct() to remove them", "union errors when duplicates exist", "Only unionByName removes duplicates"], "a": 1, "obj": "Set operations", "e": "In Spark, union/unionAll keep duplicates; use distinct() to dedup.", "doc": {"u": "https://spark.apache.org/docs/latest/sql-programming-guide.html", "l": "Spark SQL / DataFrames"}}, {"q": "You need to turn each element of an array column into its own row. Which operation?", "opts": ["split", "explode", "withColumn", "drop"], "a": 1, "obj": "Manipulate columns/rows", "e": "explode() expands array elements into separate rows.", "doc": {"u": "https://spark.apache.org/docs/latest/sql-programming-guide.html", "l": "Spark SQL / DataFrames"}}, {"q": "You need a fast, approximate count of distinct users over billions of rows. Which function?", "opts": ["count", "approx_count_distinct", "sum", "first"], "a": 1, "obj": "Aggregations", "e": "approx_count_distinct trades a little accuracy for speed on large data (HyperLogLog).", "doc": {"u": "https://spark.apache.org/docs/latest/sql-programming-guide.html", "l": "Spark SQL / DataFrames"}}, {"q": "Which operation removes duplicate rows from a DataFrame?", "opts": ["dropDuplicates()", "explode()", "withColumn()", "union()"], "a": 0, "obj": "Deduplication", "e": "dropDuplicates() removes duplicate rows (optionally on a subset of columns).", "doc": {"u": "https://spark.apache.org/docs/latest/sql-programming-guide.html", "l": "Spark SQL / DataFrames"}}, {"q": "A BI team needs a Gold object that stores precomputed results and is refreshed (not recomputed on every query). What should you build?", "opts": ["A plain view (recomputed each query)", "A materialized view (stored, refreshed)", "A temporary view", "A CTE"], "a": 1, "obj": "Gold layer objects", "e": "A materialized view stores refreshed precomputed results; a plain view recomputes on read.", "doc": {"u": "https://docs.databricks.com/aws/en/ldp/concepts/", "l": "Streaming tables & materialized views"}}, {"q": "A declarative pipeline should DROP records that fail a quality rule but keep running. Which expectation clause?", "opts": ["EXPECT ... ON VIOLATION DROP ROW", "EXPECT ... ON VIOLATION FAIL UPDATE", "A WHERE clause after loading", "There is no way to handle bad rows"], "a": 0, "obj": "Data quality checks", "e": "ON VIOLATION DROP ROW discards failing rows while the pipeline continues.", "doc": {"u": "https://spark.apache.org/docs/latest/sql-programming-guide.html", "l": "Spark SQL / DataFrames"}}, {"q": "A pipeline must FAIL the run if a critical data-quality constraint is violated. Which clause?", "opts": ["ON VIOLATION DROP ROW", "ON VIOLATION FAIL UPDATE", "LIMIT 0", "IGNORE"], "a": 1, "obj": "Data quality checks", "e": "ON VIOLATION FAIL UPDATE stops the pipeline update when the expectation is violated.", "doc": {"u": "https://spark.apache.org/docs/latest/sql-programming-guide.html", "l": "Spark SQL / DataFrames"}}, {"q": "Cleaning bronze into silver, you must drop rows with nulls and standardize types before writing. Which approach?", "opts": ["df.na.drop() and cast(), then write to the silver table", "explode() then union()", "broadcast() then collect()", "Create a view only"], "a": 0, "obj": "Data cleaning bronze\u2192silver", "e": "Use na.drop()/fillna and cast() to clean and conform, then write the trustworthy silver table.", "doc": {"u": "https://spark.apache.org/docs/latest/sql-programming-guide.html", "l": "Spark SQL / DataFrames"}}, {"q": "Which PySpark expression returns the count of UNIQUE invoice ids per day?", "opts": ["groupBy('day').agg(count('inv_id'))", "groupBy('day').agg(sum('inv_id'))", "groupBy('day').agg(count_distinct('inv_id'))", "groupBy('day').agg(first('inv_id'))"], "a": 2, "obj": "Complex aggregations", "e": "count_distinct('inv_id') counts unique invoices; count() would include duplicates.", "doc": {"u": "https://spark.apache.org/docs/latest/sql-programming-guide.html", "l": "Spark SQL / DataFrames"}}, {"q": "Which tuning parameter controls the number of partitions produced after a shuffle, and what is its default?", "opts": ["spark.sql.shuffle.partitions, default 200", "spark.executor.memory, default 200", "spark.default.parallelism, default 8", "There is no default"], "a": 0, "obj": "Tuning parameters", "e": "spark.sql.shuffle.partitions sets post-shuffle partition count; the default is 200.", "doc": {"u": "https://spark.apache.org/docs/latest/sql-performance-tuning.html", "l": "Spark performance tuning"}}, {"q": "A Gold object needs to ingest and transform data incrementally as it arrives. Which object type?", "opts": ["A materialized view", "A streaming table", "A temporary view", "A CSV export"], "a": 1, "obj": "Gold objects", "e": "A streaming table processes data incrementally; materialized views recompute results.", "doc": {"u": "https://docs.databricks.com/aws/en/ldp/concepts/", "l": "Streaming tables & materialized views"}}], "flashcards": [["Broadcast join", "Ships a small table to all executors to avoid a shuffle; controlled by spark.sql.autoBroadcastJoinThreshold."], ["union / unionAll", "Stack rows and KEEP duplicates; use distinct() to dedup."], ["explode()", "Turns each element of an array column into its own row."], ["dropDuplicates()", "Removes duplicate rows (optionally by a subset of columns)."], ["approx_count_distinct", "Fast approximate count of unique values for large data."], ["spark.sql.shuffle.partitions", "Sets the number of partitions produced after a shuffle."], ["View vs materialized view vs streaming table", "View recomputes on read; MV stores refreshed precomputed results; streaming table ingests incrementally."]]}, {"id": "d4", "title": "Working with Lakeflow Jobs", "weightHint": "Control flow, tasks & DAG, triggers, scheduling", "objectives": ["Implement control flow (retries, conditional/branching, looping) with Lakeflow Jobs", "Configure tasks (notebook, SQL, dashboard, pipeline) and dependencies as a DAG", "Implement schedules with trigger types: scheduled, file arrival, table update", "Choose between time-based and data-driven triggers based on data availability"], "notes": "\n    <h3>Lakeflow Jobs<\/h3>\n    <ul>\n      <li>A job orchestrates <b>tasks<\/b> \u2014 notebook, SQL, dashboard, and pipeline tasks \u2014 with dependencies that form a <b>DAG<\/b>.<\/li>\n      <li><b>Control flow:<\/b> automatic <b>retries<\/b>, <b>conditional/if-else<\/b> tasks (branching), and <b>for-each<\/b> loops over a set of inputs.<\/li>\n      <li><b>Repair run<\/b> re-executes only the failed task(s), keeping successful results.<\/li>\n    <\/ul>\n    <h3>Triggers &amp; scheduling<\/h3>\n    <ul>\n      <li><b>Scheduled<\/b> (time-based / cron), <b>file arrival<\/b> (runs when new files land), and <b>table update<\/b> (runs when a table changes).<\/li>\n      <li><b>Time-based<\/b> triggers fire on a clock; <b>data-driven<\/b> triggers (file arrival / table update) fire when data is actually ready \u2014 choose based on data availability and dependencies.<\/li>\n    <\/ul>", "videos": [["Lakeflow Jobs: tasks & dependencies", "DAG", "Databricks Lakeflow Jobs tasks dependencies DAG tutorial"], ["Triggers: scheduled, file arrival, table update", "triggers", "Databricks job trigger file arrival table update scheduled"], ["Control flow: conditional & for-each", "control flow", "Databricks Lakeflow Jobs conditional task for each loop retries"]], "quiz": [{"q": "A cleanup task must always drop temp tables regardless of whether the upstream transform succeeded or failed. Which run_if condition?", "opts": ["ALL_SUCCESS", "ALL_DONE", "NONE_FAILED", "AT_LEAST_ONE_SUCCESS"], "a": 1, "obj": "run_if conditions", "e": "ALL_DONE runs the task once all dependencies finish, regardless of their success/failure.", "doc": {"u": "https://docs.databricks.com/aws/en/jobs/control-flow", "l": "Job control flow"}}, {"q": "A reporting task should run only when every upstream task has succeeded (the default). Which run_if?", "opts": ["ALL_SUCCESS", "ALL_DONE", "AT_LEAST_ONE_FAILED", "ALL_FAILED"], "a": 0, "obj": "run_if conditions", "e": "ALL_SUCCESS (the default) runs the task only if all dependencies succeed.", "doc": {"u": "https://docs.databricks.com/aws/en/jobs/control-flow", "l": "Job control flow"}}, {"q": "In a 3-task job (A\u2192B\u2192C), Task B fails. After fixing B's code, how do you resume without re-running Task A?", "opts": ["Rerun the whole job from the start", "Use Repair Run and select the failed task and its downstream task(s)", "Trigger B and C as separate one-off jobs", "Clone the job without Task A"], "a": 1, "obj": "Repair run", "e": "Repair Run re-executes only the selected failed/downstream tasks, keeping A's successful output.", "doc": {"u": "https://docs.databricks.com/aws/en/jobs/repair-job-failures", "l": "Repair job failures"}}, {"q": "One task should start only after several independent upstream tasks all finish (fan-in). How do you configure it?", "opts": ["Add all the upstream tasks as its dependencies", "Put each upstream task in a separate job", "Use a cron trigger", "Use a SQL warehouse"], "a": 0, "obj": "DAG / task dependencies", "e": "Listing multiple upstream tasks as dependencies creates a fan-in in the DAG.", "doc": {"u": "https://docs.databricks.com/aws/en/jobs/", "l": "Lakeflow Jobs"}}, {"q": "A job should launch automatically whenever new files land in a monitored location. Which trigger?", "opts": ["A fixed hourly schedule", "A file arrival trigger", "Manual runs only", "A broadcast join"], "a": 1, "obj": "Trigger types", "e": "A file-arrival trigger is data-driven and fires when new files appear.", "doc": {"u": "https://docs.databricks.com/aws/en/jobs/triggers", "l": "Job schedules & triggers"}}, {"q": "A job should run only when a specific source table is updated. Which trigger type?", "opts": ["Scheduled (cron)", "Table update trigger", "Continuous forever", "Repair run"], "a": 1, "obj": "Data-driven triggers", "e": "A table-update trigger runs the job when the monitored table changes.", "doc": {"u": "https://docs.databricks.com/aws/en/jobs/triggers", "l": "Job schedules & triggers"}}, {"q": "A pipeline must run every night at 02:00. Which trigger is appropriate?", "opts": ["A file arrival trigger", "A scheduled (cron) trigger", "A table update trigger", "A for-each task"], "a": 1, "obj": "Time-based triggers", "e": "A scheduled/cron trigger runs on a fixed clock time.", "doc": {"u": "https://docs.databricks.com/aws/en/jobs/triggers", "l": "Job schedules & triggers"}}, {"q": "A custom JDBC ingestion notebook must run on a schedule as cheaply and reliably as possible. How should you operationalize it?", "opts": ["Run it by hand on a shared all-purpose cluster", "Schedule it as a job task on job compute", "Leave an all-purpose cluster running 24/7 for it", "Move it to a SQL warehouse"], "a": 1, "obj": "Operationalize notebooks with job compute", "e": "A scheduled job task on job compute is isolated and cost-efficient versus an interactive all-purpose cluster.", "doc": {"u": "https://docs.databricks.com/aws/en/jobs/triggers", "l": "Job schedules & triggers"}}, {"q": "You need to run the same task once for each item in a list of inputs. Which construct?", "opts": ["A for-each task", "A cross join", "COPY INTO", "A materialized view"], "a": 0, "obj": "Control flow / looping", "e": "A for-each task loops a task over an input array.", "doc": {"u": "https://docs.databricks.com/aws/en/jobs/control-flow", "l": "Job control flow"}}, {"q": "Part of the job's DAG should run only if a computed value meets a condition. Which construct?", "opts": ["An If/else condition task", "A broadcast join", "A VACUUM step", "A SQL warehouse"], "a": 0, "obj": "Control flow / branching", "e": "An If/else condition task adds branching based on task values, parameters, or expressions.", "doc": {"u": "https://docs.databricks.com/aws/en/jobs/control-flow", "l": "Job control flow"}}, {"q": "How are the tasks and their dependencies in a Lakeflow Job organized?", "opts": ["As a flat list run in parallel", "As a DAG (directed acyclic graph)", "As a single notebook", "As a SQL warehouse"], "a": 1, "obj": "DAG task graph", "e": "Tasks with dependencies form a DAG-based task graph.", "doc": {"u": "https://docs.databricks.com/aws/en/jobs/", "l": "Lakeflow Jobs"}}, {"q": "A task that calls a sometimes-flaky external API occasionally fails transiently. What should you configure?", "opts": ["Automatic task retries", "Disable the task", "Increase shuffle partitions", "Use a single-node cluster"], "a": 0, "obj": "Control flow / retries", "e": "Automatic retries recover from transient failures without manual reruns.", "doc": {"u": "https://docs.databricks.com/aws/en/jobs/control-flow", "l": "Job control flow"}}], "flashcards": [["Lakeflow Jobs", "Orchestrates notebook/SQL/dashboard/pipeline tasks with dependencies as a DAG."], ["DAG", "The directed acyclic task graph formed by a job's tasks and their dependencies."], ["Repair run", "Reruns only the failed task(s) of a job, keeping successful results."], ["Trigger types", "Scheduled (time), file arrival, and table update (data-driven)."], ["Time-based vs data-driven", "Time-based fires on a clock; data-driven fires when files land or a table updates."], ["Conditional & for-each tasks", "Conditional/if-else adds branching; for-each loops a task over inputs."]]}, {"id": "d5", "title": "Implementing CI/CD", "weightHint": "Git in workspace, Asset Bundles, targets, Databricks CLI", "objectives": ["Manage code in the workspace: branches, commit/push, pull requests via Databricks Git", "Understand environment config with Asset Bundle variables and overrides across dev/test/prod", "Deploy Asset Bundles to package and promote jobs, pipelines and assets across environments", "Understand the Databricks CLI to validate, deploy and manage bundles in CI/CD"], "notes": "\n    <h3>Git in the workspace<\/h3>\n    <p>Databricks <b>Git folders (Repos)<\/b> integrate Git: create and switch <b>branches<\/b>, <b>commit<\/b> and <b>push<\/b>, and open <b>pull requests<\/b> through the Git provider \u2014 standard dev workflow inside the workspace.<\/p>\n    <h3>Asset Bundles (Automation Bundles)<\/h3>\n    <ul>\n      <li>Infrastructure-as-code in <b>YAML<\/b> (<code>databricks.yml<\/code>): define <b>resources<\/b> (jobs, pipelines) and <b>targets<\/b> (per-environment).<\/li>\n      <li><b>Variables and overrides<\/b> let one codebase promote across <b>dev \u2192 test \u2192 prod<\/b> targets.<\/li>\n    <\/ul>\n    <pre>targets:\n  dev:  { mode: development }\n  prod: { mode: production }<\/pre>\n    <h3>Databricks CLI<\/h3>\n    <ul>\n      <li><code>databricks bundle validate<\/code> \u2014 check the bundle config.<\/li>\n      <li><code>databricks bundle deploy<\/code> \u2014 deploy/promote the bundle to a target.<\/li>\n    <\/ul>", "videos": [["Databricks Git folders & PRs", "Git workflow", "Databricks Repos Git folders branches pull request tutorial"], ["Asset Bundles: targets & variables", "bundles", "Databricks Asset Bundles databricks.yml targets variables tutorial"], ["Databricks CLI: validate & deploy", "CLI", "Databricks CLI bundle validate deploy tutorial"]], "quiz": [{"q": "A team wants a modular way to version, deploy, and orchestrate ETL pipelines with CI/CD and repeatability. Which feature fits?", "opts": ["Represent jobs as Unity Catalog models and promote via aliases", "Package logic as wheels in Volumes bound to tasks", "Rely on notebook revision history for versioning", "Use Databricks Asset Bundles (DABs), versioned in Git and promoted via automated CI/CD"], "a": 3, "obj": "DABs for CI/CD", "e": "DABs define resources + code as YAML, are version-controlled in Git, and promote across environments via CI/CD.", "doc": {"u": "https://docs.databricks.com/aws/en/dev-tools/bundles/ci-cd-bundles", "l": "Bundles in CI/CD"}}, {"q": "Where are per-environment (dev/staging/prod) configurations defined in a bundle?", "opts": ["resources", "targets", "secrets", "permissions"], "a": 1, "obj": "Bundle targets", "e": "targets hold environment-specific configuration and overrides in databricks.yml.", "doc": {"u": "https://docs.databricks.com/aws/en/dev-tools/bundles/settings", "l": "Bundle configuration"}}, {"q": "In a pull-request pipeline you want to check a bundle's configuration WITHOUT deploying it. Which command?", "opts": ["databricks bundle deploy", "databricks bundle validate", "databricks bundle destroy", "databricks jobs run"], "a": 1, "obj": "Databricks CLI", "e": "databricks bundle validate checks the configuration; deploy is used to actually deploy.", "doc": {"u": "https://docs.databricks.com/aws/en/dev-tools/bundles/ci-cd-bundles", "l": "Bundles in CI/CD"}}, {"q": "A CI job must deploy a bundle non-interactively (no manual confirmation). Which flag?", "opts": ["databricks bundle deploy --auto-approve", "databricks bundle validate --dry-run", "databricks bundle run --now", "databricks bundle deploy --interactive"], "a": 0, "obj": "CLI automation flags", "e": "--auto-approve lets the deploy proceed without interactive confirmation in automation.", "doc": {"u": "https://docs.databricks.com/aws/en/dev-tools/bundles/ci-cd-bundles", "l": "Bundles in CI/CD"}}, {"q": "You want a deploy to fail rather than disrupt a job that is currently running. Which flag helps?", "opts": ["--fail-on-active-runs", "--force", "--skip-validation", "--no-wait"], "a": 0, "obj": "Active-run safety", "e": "--fail-on-active-runs makes the deploy fail if there are active runs, protecting them.", "doc": {"u": "https://docs.databricks.com/aws/en/dev-tools/bundles/ci-cd-bundles", "l": "Bundles in CI/CD"}}, {"q": "Within Databricks Git folders, what can a developer do?", "opts": ["Only read files", "Create/switch branches, commit and push, and open pull requests", "Only run SQL", "Only schedule jobs"], "a": 1, "obj": "Git in the workspace", "e": "Git folders support branching, commit/push, and PRs through the Git provider.", "doc": {"u": "https://docs.databricks.com/aws/en/repos/repos-setup", "l": "Databricks Git folders"}}, {"q": "When are Databricks Asset Bundle variables resolved?", "opts": ["At deployment time (statically), not at runtime", "Only at cluster startup", "Randomly on each run", "They are never resolved"], "a": 0, "obj": "Bundle variable resolution", "e": "Bundle variables/overrides are resolved statically at deploy time, not dynamically at runtime.", "doc": {"u": "https://docs.databricks.com/aws/en/dev-tools/bundles/settings", "l": "Bundle configuration"}}, {"q": "How do you promote the SAME codebase across dev \u2192 staging \u2192 prod with a bundle?", "opts": ["Copy notebooks between workspaces by hand", "Use bundle targets with variable overrides", "Maintain three separate repositories", "Use Delta Sharing"], "a": 1, "obj": "Multi-environment deploys", "e": "Targets plus variable overrides let one bundle deploy to each environment.", "doc": {"u": "https://docs.databricks.com/aws/en/dev-tools/bundles/settings", "l": "Bundle configuration"}}, {"q": "What is the root configuration file of a Databricks Asset Bundle?", "opts": ["config.ini", "databricks.yml", "bundle.json", "setup.py"], "a": 1, "obj": "Bundle structure", "e": "databricks.yml is the bundle's root YAML config.", "doc": {"u": "https://docs.databricks.com/aws/en/dev-tools/bundles/reference", "l": "Bundle reference"}}, {"q": "In a bundle, where are the jobs and pipelines themselves defined?", "opts": ["targets", "resources", "secrets", "clusters"], "a": 1, "obj": "Bundle structure", "e": "resources define jobs/pipelines; targets hold per-environment overrides.", "doc": {"u": "https://docs.databricks.com/aws/en/dev-tools/bundles/reference", "l": "Bundle reference"}}, {"q": "What is the main advantage of DABs over configuring jobs by clicking in the UI?", "opts": ["Faster query execution", "Version-controlled, repeatable, promotable deployments", "No compute needed", "They only work in dev"], "a": 1, "obj": "DAB vs UI", "e": "DABs are IaC: reproducible and promotable across environments, unlike ad-hoc UI clicks.", "doc": {"u": "https://docs.databricks.com/aws/en/dev-tools/bundles/ci-cd-bundles", "l": "Bundles in CI/CD"}}, {"q": "Which command deploys a validated bundle to a target environment?", "opts": ["databricks bundle validate", "databricks bundle deploy", "git push (alone)", "databricks fs cp"], "a": 1, "obj": "Databricks CLI", "e": "databricks bundle deploy deploys/promotes the bundle to the chosen target.", "doc": {"u": "https://docs.databricks.com/aws/en/dev-tools/bundles/settings", "l": "Bundle configuration"}}], "flashcards": [["Databricks Git folders (Repos)", "Git integration in the workspace: branches, commit/push, and pull requests."], ["Asset Bundles", "YAML infrastructure-as-code (databricks.yml) defining resources and targets."], ["targets", "Bundle section holding per-environment (dev/test/prod) config and overrides."], ["Bundle variables/overrides", "Let one codebase be promoted across dev \u2192 test \u2192 prod."], ["databricks bundle deploy", "CLI command that deploys/promotes a bundle to a target."], ["databricks bundle validate", "CLI command that checks a bundle's configuration before deploy."]]}, {"id": "d6", "title": "Troubleshooting, Monitoring & Optimization", "weightHint": "Run history, Spark UI, skew/shuffle/spill, Liquid Clustering", "objectives": ["Identify job performance trends using Lakeflow Jobs run history vs baselines", "Use the Lakeflow Jobs UI to monitor pipeline health (statuses, DAG, run times, failures)", "Identify bottlenecks \u2014 skew, shuffling, disk spill \u2014 from Spark UI stage metrics", "Understand Liquid Clustering and predictive optimization", "Diagnose cluster startup failures, library conflicts and out-of-memory issues"], "notes": "\n    <h3>Monitoring jobs<\/h3>\n    <ul>\n      <li><b>Run history<\/b> compares current execution times against historical <b>baselines<\/b> to spot regressions.<\/li>\n      <li>The <b>Jobs UI<\/b> shows statuses, the <b>DAG<\/b> (to find upstream blockers), run times and failure rates.<\/li>\n    <\/ul>\n    <h3>Spark UI bottlenecks<\/h3>\n    <ul>\n      <li><b>Skew<\/b> \u2014 one task far slower than the rest (uneven data distribution).<\/li>\n      <li><b>Shuffle<\/b> \u2014 data moved across the cluster; heavy shuffle is costly.<\/li>\n      <li><b>Spill<\/b> \u2014 not enough memory, so data is written to disk (slow).<\/li>\n    <\/ul>\n    <h3>Layout optimization<\/h3>\n    <ul>\n      <li><b>Liquid Clustering<\/b> \u2014 auto-manages data layout on chosen keys (replaces manual partitioning + ZORDER).<\/li>\n      <li><b>Predictive optimization<\/b> \u2014 Databricks auto-runs OPTIMIZE (compaction) and VACUUM (cleanup).<\/li>\n    <\/ul>\n    <h3>Common failures<\/h3>\n    <p><b>Cluster startup failures<\/b> (quota/config), <b>library conflicts<\/b> (incompatible versions), and <b>out-of-memory<\/b> (reduce partition size, increase memory, avoid huge collects) \u2014 read driver/executor logs and the event log.<\/p>", "videos": [["Reading the Spark UI (skew, shuffle, spill)", "Spark UI", "Databricks Spark UI skew shuffle spill tutorial"], ["Monitoring jobs & run history", "monitoring", "Databricks Lakeflow Jobs run history monitor health tutorial"], ["Liquid Clustering & predictive optimization", "optimization", "Databricks Liquid Clustering predictive optimization"]], "quiz": [{"q": "A batch job's runtime doubled. In the Spark UI one task takes 10 min while others finish in 30 s, and Max shuffle read (5 GB) is far above the median (400 MB). What's the simplest fix that needs no code change?", "opts": ["Add more executors so the slow task finishes faster", "Confirm Adaptive Query Execution skew-join handling is enabled to split the oversized partition at runtime", "Lower spark.sql.shuffle.partitions to use fewer tasks", "Cache the input table"], "a": 1, "obj": "Identify bottlenecks (skew) in the Spark UI", "e": "The metrics indicate data skew; AQE skew-join handling automatically splits the oversized partition without code changes. Bigger clusters don't fix skew.", "doc": {"u": "https://docs.databricks.com/aws/en/optimizations/spark-ui-guide/", "l": "Diagnose with the Spark UI"}}, {"q": "AQE alone isn't resolving a severe skew on one hot join key. Which manual technique redistributes it?", "opts": ["Salt the skewed join key to spread it across partitions", "Broadcast the multi-terabyte table", "Disable AQE", "Switch to a single-node cluster"], "a": 0, "obj": "Mitigating skew", "e": "Salting the skewed key distributes its rows across partitions so no single task is overloaded.", "doc": {"u": "https://docs.databricks.com/aws/en/optimizations/spark-ui-guide/", "l": "Diagnose with the Spark UI"}}, {"q": "The Spark UI shows large 'spill' during a stage. What does that indicate?", "opts": ["A permissions error", "Tasks ran out of memory and wrote data to disk", "Files failed to load", "A cluster was deleted"], "a": 1, "obj": "Identify bottlenecks (spill)", "e": "Spill means insufficient memory forced Spark to write to disk, slowing the job.", "doc": {"u": "https://docs.databricks.com/aws/en/optimizations/spark-ui-guide/", "l": "Diagnose with the Spark UI"}}, {"q": "You suspect a job is slower than its usual baseline. Where do you confirm the regression?", "opts": ["Compare the Lakeflow Jobs run history against historical baselines", "Delete and recreate the job", "Randomly resize the cluster", "Ignore it and rerun"], "a": 0, "obj": "Job performance trends", "e": "Run history compares current execution times against historical baselines to surface regressions.", "doc": {"u": "https://docs.databricks.com/aws/en/jobs/", "l": "Lakeflow Jobs"}}, {"q": "You want OPTIMIZE and VACUUM maintenance to run automatically without scheduling them. What enables this?", "opts": ["Predictive optimization", "Delta Sharing", "Auto Loader", "A broadcast join"], "a": 0, "obj": "Predictive optimization", "e": "Predictive optimization automatically runs compaction (OPTIMIZE) and cleanup (VACUUM).", "doc": {"u": "https://docs.databricks.com/aws/en/tables/clustering", "l": "Liquid clustering & predictive optimization"}}, {"q": "A large table's layout needs ongoing tuning on frequently filtered keys, hands-off, as it grows. Which feature?", "opts": ["Manual partitioning + ZORDER on every write", "Liquid Clustering (auto-managed layout)", "Disable Delta", "Increase driver memory"], "a": 1, "obj": "Liquid Clustering", "e": "Liquid Clustering auto-manages the layout on chosen keys, replacing manual partitioning + ZORDER.", "doc": {"u": "https://docs.databricks.com/aws/en/tables/clustering", "l": "Liquid clustering & predictive optimization"}}, {"q": "A job repeatedly fails with out-of-memory errors on executors. A reasonable first step is to:", "opts": ["Collect the whole DataFrame to the driver", "Reduce data per task / add memory and avoid large driver collects", "Raise shuffle partitions to 100000", "Move it to a SQL warehouse"], "a": 1, "obj": "Diagnose OOM", "e": "Address OOM by shrinking per-task data, adding memory, and avoiding huge driver-side collects.", "doc": {"u": "https://docs.databricks.com/aws/en/compute/", "l": "Compute & troubleshooting"}}, {"q": "A cluster fails to start. What should you investigate first?", "opts": ["It must be a code bug", "The cluster event log for quota, config, or instance-availability issues", "Table GRANTs", "Row filters"], "a": 1, "obj": "Diagnose cluster startup failures", "e": "Startup failures usually stem from cloud quota/config/availability \u2014 check the event log.", "doc": {"u": "https://docs.databricks.com/aws/en/compute/", "l": "Compute & troubleshooting"}}, {"q": "After a library upgrade, a previously-working job now errors on import. Most likely cause?", "opts": ["A governance error", "A library/version conflict \u2014 pin or resolve versions", "Data skew", "A masking policy"], "a": 1, "obj": "Diagnose library conflicts", "e": "Incompatible library versions cause conflicts; pin/resolve versions to fix.", "doc": {"u": "https://docs.databricks.com/aws/en/compute/", "l": "Compute & troubleshooting"}}, {"q": "Heavy 'shuffle' in a stage means what is happening?", "opts": ["Data is being moved across the cluster between stages", "A masked column is being read", "A table was deleted", "A permission was revoked"], "a": 0, "obj": "Identify bottlenecks (shuffle)", "e": "Shuffle is cross-cluster data movement between stages; heavy shuffle is costly.", "doc": {"u": "https://docs.databricks.com/aws/en/optimizations/spark-ui-guide/", "l": "Diagnose with the Spark UI"}}, {"q": "Where do you read stage-level metrics to diagnose skew, shuffle, and spill?", "opts": ["The Spark UI", "The billing page", "Delta Sharing", "Catalog Explorer"], "a": 0, "obj": "Use the Spark UI", "e": "The Spark UI exposes per-stage/task metrics for diagnosing performance bottlenecks.", "doc": {"u": "https://docs.databricks.com/aws/en/optimizations/spark-ui-guide/", "l": "Diagnose with the Spark UI"}}, {"q": "A multi-task pipeline is stuck; you need to find which upstream task is blocking it. What helps?", "opts": ["The Jobs UI DAG view", "A cross join", "dbutils.widgets", "Delta Sharing"], "a": 0, "obj": "Monitor pipeline health", "e": "The DAG view shows task dependencies so you can spot the upstream blocker.", "doc": {"u": "https://docs.databricks.com/aws/en/jobs/", "l": "Lakeflow Jobs"}}], "flashcards": [["Data skew", "One task far slower than others due to uneven data distribution across partitions."], ["Shuffle", "Movement of data across the cluster between stages; heavy shuffle is expensive."], ["Spill", "Writing data to disk because memory ran out \u2014 a performance red flag."], ["Run history", "Compares a job's current run times against historical baselines to spot regressions."], ["Liquid Clustering", "Auto-manages table layout on chosen keys, replacing manual partitioning + ZORDER."], ["Predictive optimization", "Databricks automatically runs OPTIMIZE (compaction) and VACUUM (cleanup)."], ["OOM / library conflicts", "Diagnose via driver/executor logs; fix OOM with more memory / smaller partitions, resolve version conflicts."]]}, {"id": "d7", "title": "Governance & Security", "weightHint": "Managed/external, GRANT/REVOKE/DENY, masking, RLS, ABAC", "objectives": ["Differentiate managed vs external tables and perform operations (create/modify/delete/convert)", "Configure access controls via UI and SQL: GRANT, REVOKE, DENY to principals across the hierarchy", "Understand column-level masking and row-level security to restrict visibility by group", "Understand Unity Catalog ABAC policies for central row filtering and column masking"], "notes": "\n    <h3>Managed vs external tables<\/h3>\n    <ul>\n      <li><b>Managed<\/b> \u2014 UC manages metadata <i>and<\/i> data files; <b>DROP deletes the data<\/b>.<\/li>\n      <li><b>External<\/b> \u2014 data lives in a location you specify; UC manages only metadata; <b>DROP keeps the data<\/b>. Tables can be converted between the two.<\/li>\n    <\/ul>\n    <h3>Access control<\/h3>\n    <ul>\n      <li><code>GRANT<\/code> gives a privilege, <code>REVOKE<\/code> removes a previously-granted one, <code>DENY<\/code> explicitly blocks it.<\/li>\n      <li>Privileges apply to <b>principals<\/b> \u2014 users, <b>groups<\/b>, and <b>service principals<\/b> \u2014 at levels of the hierarchy (catalog / schema / table). Reading a table needs <code>USE CATALOG<\/code>, <code>USE SCHEMA<\/code> and <code>SELECT<\/code>.<\/li>\n    <\/ul>\n    <h3>Masking, row-level security &amp; ABAC<\/h3>\n    <ul>\n      <li><b>Column masking<\/b> \u2014 obscure sensitive column values for some users. <b>Row-level security<\/b> \u2014 a row filter limits which rows a group can see.<\/li>\n      <li><b>ABAC policies<\/b> (attribute-based access control) in UC centrally apply row filters and column masks based on <b>attributes/tags<\/b>, instead of per-table rules.<\/li>\n    <\/ul>", "videos": [["Managed vs external tables", "tables", "Databricks Unity Catalog managed vs external tables"], ["GRANT / REVOKE / DENY in UC", "access control", "Databricks Unity Catalog GRANT REVOKE privileges tutorial"], ["Row-level security, masking & ABAC", "fine-grained access", "Databricks Unity Catalog row filter column mask ABAC policy"]], "quiz": [{"q": "An analyst group already has USE CATALOG and USE SCHEMA on sales. They now need read-only access to a table. Which grant?", "opts": ["GRANT ALL PRIVILEGES", "GRANT SELECT", "GRANT MODIFY", "GRANT INSERT"], "a": 1, "obj": "Grant permissions", "e": "SELECT gives read-only access; MODIFY/INSERT/ALL add write capability.", "doc": {"u": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/manage-privileges/", "l": "Manage privileges (GRANT/REVOKE)"}}, {"q": "A user was mistakenly given write access. How do you remove that previously-granted privilege?", "opts": ["GRANT it again", "REVOKE the privilege", "DENY at the metastore", "USE SCHEMA"], "a": 1, "obj": "Access controls", "e": "REVOKE removes a privilege that was granted (DENY explicitly blocks).", "doc": {"u": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/manage-privileges/", "l": "Manage privileges (GRANT/REVOKE)"}}, {"q": "You DROP an EXTERNAL Unity Catalog table. What happens to the underlying data files?", "opts": ["They are deleted", "They remain in cloud storage (UC managed only metadata)", "The table converts to managed", "Time travel is disabled"], "a": 1, "obj": "Managed vs external tables", "e": "Dropping an external table leaves the data files; only the metadata is removed.", "doc": {"u": "https://docs.databricks.com/aws/en/tables/convert-to-managed", "l": "Convert external to managed"}}, {"q": "You want Unity Catalog to fully manage an existing external Delta table (so future maintenance and DROP behavior match managed tables). Which command?", "opts": ["ALTER TABLE catalog.schema.t SET MANAGED", "CREATE EXTERNAL TABLE t", "DROP TABLE t then CREATE it as external", "GRANT MANAGE ON t"], "a": 0, "obj": "Convert external to managed", "e": "ALTER TABLE ... SET MANAGED converts an external Delta table to a Unity Catalog managed table.", "doc": {"u": "https://docs.databricks.com/aws/en/tables/convert-to-managed", "l": "Convert external to managed"}}, {"q": "Analysts in different regions should each only see rows for their own region in a shared table. Which UC feature?", "opts": ["A row filter (row-level security)", "A column mask", "A broadcast join", "Time travel"], "a": 0, "obj": "Row-level security", "e": "A row filter restricts which rows each user/group can see.", "doc": {"u": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/filters-and-masks/", "l": "Row filters & column masks"}}, {"q": "Some users must see a masked version of a sensitive column (e.g., last 4 digits only). Which feature?", "opts": ["A column mask", "A row filter", "A cross join", "COPY INTO"], "a": 0, "obj": "Column masking", "e": "A column mask returns an obscured value for users who shouldn't see the raw data.", "doc": {"u": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/filters-and-masks/", "l": "Row filters & column masks"}}, {"q": "You want to centrally apply row filters and column masks across many tables based on tags, rather than per table. Which UC feature?", "opts": ["ABAC policies (attribute/tag-based)", "Per-table UDFs only", "Delta Sharing", "Auto Loader"], "a": 0, "obj": "ABAC policies", "e": "ABAC policies use governed tags to apply row filters and column masks centrally across catalogs/schemas.", "doc": {"u": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/abac/", "l": "ABAC in Unity Catalog"}}, {"q": "An automated pipeline (not a person) needs governed access to a table. Which principal should you grant to?", "opts": ["A service principal", "A shared password", "The metastore admin only", "Anonymous access"], "a": 0, "obj": "Principals", "e": "Automated workloads should use a service principal, one of UC's principal types (users, groups, service principals).", "doc": {"u": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/manage-privileges/", "l": "Manage privileges (GRANT/REVOKE)"}}, {"q": "A group should read exactly one schema and nothing else in the catalog. Which grants follow least privilege?", "opts": ["GRANT SELECT on the entire catalog", "GRANT USE CATALOG, then USE SCHEMA + SELECT on just that schema", "Make them metastore admins", "Disable row-level security"], "a": 1, "obj": "Scoping access", "e": "Grant USE CATALOG plus USE SCHEMA and SELECT scoped to the single schema \u2014 not catalog-wide privileges.", "doc": {"u": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/manage-privileges/", "l": "Manage privileges (GRANT/REVOKE)"}}, {"q": "You DROP a MANAGED Unity Catalog table. What happens to the data?", "opts": ["The data files remain", "The data files are deleted", "It becomes an external table", "Nothing changes"], "a": 1, "obj": "Managed vs external tables", "e": "For managed tables UC owns the data, so DROP deletes the underlying files.", "doc": {"u": "https://docs.databricks.com/aws/en/tables/convert-to-managed", "l": "Convert external to managed"}}, {"q": "Auditors ask who accessed a table and when. Where is this recorded?", "opts": ["In Unity Catalog audit logs (system tables / delivered to cloud storage)", "It isn't recorded", "Only in the Spark UI", "It must be typed manually"], "a": 0, "obj": "Audit logs", "e": "UC records who-did-what in audit logs, queryable via system tables and delivered to storage.", "doc": {"u": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/", "l": "Unity Catalog"}}, {"q": "How does Unity Catalog obtain table- and column-level lineage?", "opts": ["You enter it manually", "It is captured automatically as queries run across notebooks, jobs and dashboards", "Only through Delta Sharing", "From the billing page"], "a": 1, "obj": "Lineage", "e": "UC captures lineage automatically as queries execute.", "doc": {"u": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/", "l": "Unity Catalog"}}], "flashcards": [["Managed vs external table", "Managed: UC owns data, DROP deletes it. External: data in your location, DROP keeps it."], ["GRANT / REVOKE / DENY", "GRANT gives a privilege, REVOKE removes a granted one, DENY explicitly blocks it."], ["Principals", "Who privileges are granted to: users, groups, and service principals."], ["Row-level security", "A row filter restricting which rows a user/group can see."], ["Column masking", "Obscures sensitive column values for certain users/groups."], ["ABAC policies", "Attribute/tag-based policies that centrally apply row filters and column masks in UC."]]}], "fillblank": [{"sec": "d1", "type": "concept", "prompt": "____ Catalog is the governance layer with a catalog.schema.table namespace.", "answer": "Unity", "accept": ["unity"], "hint": "\"U\u2026\" Catalog"}, {"sec": "d1", "type": "concept", "prompt": "Delta Lake supports ACID and ____ travel to older versions.", "answer": "time", "accept": [], "hint": "query the past"}, {"sec": "d2", "type": "code", "prompt": "____ INTO my.table FROM 's3://\u2026' FILEFORMAT = JSON;  (incremental, idempotent load)", "answer": "COPY", "accept": ["copy"], "hint": "SQL load command"}, {"sec": "d2", "type": "code", "prompt": "spark.readStream.format(\"____\")  # Auto Loader source", "answer": "cloudFiles", "accept": ["cloudfiles"], "hint": "camelCase"}, {"sec": "d3", "type": "code", "prompt": "df.____('items')  # turn array elements into separate rows", "answer": "explode", "accept": [], "hint": "array \u2192 rows"}, {"sec": "d3", "type": "code", "prompt": "spark.sql.____.partitions  # number of post-shuffle partitions", "answer": "shuffle", "accept": [], "hint": "\u2026after a shuffle"}, {"sec": "d3", "type": "concept", "prompt": "A ____ join ships a small table to all executors to avoid a shuffle.", "answer": "broadcast", "accept": [], "hint": "small side to everyone"}, {"sec": "d4", "type": "concept", "prompt": "A job's tasks and dependencies form a ____ (task graph).", "answer": "DAG", "accept": ["dag"], "hint": "directed acyclic graph"}, {"sec": "d4", "type": "concept", "prompt": "A ____ arrival trigger runs a job when new files land.", "answer": "file", "accept": [], "hint": "data-driven trigger"}, {"sec": "d5", "type": "code", "prompt": "databricks bundle ____   # deploy/promote a bundle", "answer": "deploy", "accept": [], "hint": "push it to a target"}, {"sec": "d5", "type": "concept", "prompt": "Per-environment overrides in an Asset Bundle live under ____.", "answer": "targets", "accept": ["target"], "hint": "dev/test/prod"}, {"sec": "d6", "type": "concept", "prompt": "One very slow task in a stage indicates data ____.", "answer": "skew", "accept": [], "hint": "uneven partitions"}, {"sec": "d6", "type": "concept", "prompt": "____ Clustering auto-manages table layout (replaces partition + ZORDER).", "answer": "Liquid", "accept": ["liquid"], "hint": "modern layout feature"}, {"sec": "d7", "type": "code", "prompt": "____ SELECT ON SCHEMA sales TO analysts;  # give read access", "answer": "GRANT", "accept": ["grant"], "hint": "opposite of REVOKE"}, {"sec": "d7", "type": "concept", "prompt": "____-level masking obscures sensitive column values for some users.", "answer": "column", "accept": ["Column"], "hint": "not row"}, {"sec": "d7", "type": "concept", "prompt": "UC ____ policies centrally apply row filters and column masks by attributes/tags.", "answer": "ABAC", "accept": ["abac"], "hint": "attribute-based access control"}], "meta": {"examName": "Databricks Certified Data Engineer \u2014 Associate", "outlineVersion": "May 4, 2026", "officialGuide": "https://www.databricks.com/learn/certification/data-engineer-associate", "groundingNote": "Notes, flashcards and fill-in-the-blank answers are original, grounded in the official May 4, 2026 exam outline (7 domains) and Databricks product documentation. The AI tutor is instructed to stay within these topics and say when it is unsure."}};
 var EXAM = CONTENT;
 
 /* ============================ STATE =================================== */
@@ -208,12 +295,26 @@ state.objDone=state.objDone||{};
 state.quiz=state.quiz||{};            // quiz[secId]={best,total}
 state.xp=state.xp||0;
 state.maxStreak=state.maxStreak||0;
+state.fullness=(typeof state.fullness==="number")?state.fullness:1;  // duck body size
+state.correct=state.correct||0;        // total correct answers
+state.ducksHatched=state.ducksHatched||0;  // eggs laid when belly maxes out
+state.duckRoam=(typeof state.duckRoam==="boolean")?state.duckRoam:true;  // waddle around screen?
+state.perf=state.perf||{};            // perf[domainId]={c,t} correct/attempts
+state.missed=state.missed||{};        // missed["d3#2"]=true  (for weak-spot review)
+state.shop=state.shop||{owned:{},color:"#eef4f7",hat:"none",face:"none"};  // duck cosmetics
+if(!state.shop.faces){ state.shop.faces={}; if(state.shop.face&&state.shop.face!=="none")state.shop.faces[state.shop.face]=true; }
+state.solved=state.solved||{};        // question keys already answered correctly (anti-farming)
+function firstSolve(key){ if(!key)return true; if(state.solved[key])return false; state.solved[key]=true; save(state); return true; }
+state.badges=state.badges||{};        // earned badge ids -> timestamp
+state.xpEarned=state.xpEarned||0;     // lifetime XP earned (for badges; shop spending doesn't reduce it)
+state.bestExamPct=state.bestExamPct||0;
 state.srs=state.srs||{};              // srs[cardKey]={box,due,reps}
 state.games=state.games||{};
 state.games.jeopardy=state.games.jeopardy||{solved:{}};
 state.games.fillblank=state.games.fillblank||{best:0};
 state.name=state.name||"";
 function esc(s){return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function docLink(q){return (q&&q.doc)?'<br><a class="askt" href="'+q.doc.u+'" target="_blank" rel="noopener">📖 '+esc(q.doc.l)+' — Databricks docs</a>':'';}
 function ytLink(q){return "https://www.youtube.com/results?search_query="+encodeURIComponent(q);}
 function toast(msg){var t=document.createElement("div");t.className="toast";t.textContent=msg;document.body.appendChild(t);
   requestAnimationFrame(function(){t.classList.add("show");});setTimeout(function(){t.classList.remove("show");setTimeout(function(){t.remove();},300);},1900);}
@@ -231,43 +332,157 @@ var LEVELS=[
 var streak=0;
 function levelFor(xp){var L=LEVELS[0];for(var i=0;i<LEVELS.length;i++){if(xp>=LEVELS[i].min)L=LEVELS[i];}return L;}
 function nextLevel(xp){for(var i=0;i<LEVELS.length;i++){if(LEVELS[i].min>xp)return LEVELS[i];}return null;}
+
+/* roaming duck refs + helpers */
+var duckEl, flipEl, fatEl, bodyEl, shadeEl, duckDir=1, roamTimer=null;
+var FAT_MIN=0.74, FAT_BASE=1.0, HATCH_AT=1.82;   // belly maxes out -> lays an egg
+var GAIN=0.16, LOSS=0.12;                          // per correct / wrong answer
+/* the body is ONE outline; only the belly anchors move, so just the stomach
+   grows/shrinks with fullness (head, wing, legs stay the same size). */
+function crClosed(pts){
+  var n=pts.length, d="M"+pts[0][0].toFixed(1)+" "+pts[0][1].toFixed(1)+" ";
+  for(var i=0;i<n;i++){
+    var p0=pts[(i-1+n)%n],p1=pts[i],p2=pts[(i+1)%n],p3=pts[(i+2)%n];
+    d+="C"+(p1[0]+(p2[0]-p0[0])/6).toFixed(1)+" "+(p1[1]+(p2[1]-p0[1])/6).toFixed(1)+" "
+      +(p2[0]-(p3[0]-p1[0])/6).toFixed(1)+" "+(p2[1]-(p3[1]-p1[1])/6).toFixed(1)+" "
+      +p2[0].toFixed(1)+" "+p2[1].toFixed(1)+" ";
+  }
+  return d+"Z";
+}
+/* belly is a CIRCLE (centre BCX,BCY) whose radius grows with fullness, so the
+   stomach balloons round instead of just getting wider. */
+var BCX=64, BCY=104, BR0=30, BRK=26, BANG=[-38,12,60,104,150,202];
+function bodyPath(g){
+  var R=BR0+BRK*(g-1), pts=[[80,24],[97,34],[101,48],[92,60]];
+  for(var i=0;i<BANG.length;i++){var a=BANG[i]*Math.PI/180; pts.push([BCX+R*Math.cos(a), BCY+R*Math.sin(a)]);}
+  pts.push([50,60],[62,42]);
+  return crClosed(pts);
+}
+function bellyShade(g){var R=(BR0+BRK*(g-1))*0.62;
+  return "M"+(BCX-R).toFixed(0)+" "+(BCY+6)+" C"+(BCX-R*0.5).toFixed(0)+" "+(BCY+R).toFixed(0)+" "+(BCX+R*0.5).toFixed(0)+" "+(BCY+R).toFixed(0)+" "+(BCX+R).toFixed(0)+" "+(BCY+6)
+    +" C"+(BCX+R*0.5).toFixed(0)+" "+(BCY+R*0.7).toFixed(0)+" "+(BCX-R*0.5).toFixed(0)+" "+(BCY+R*0.7).toFixed(0)+" "+(BCX-R).toFixed(0)+" "+(BCY+6)+" Z";}
+function drawBelly(g){ if(bodyEl)bodyEl.setAttribute("d",bodyPath(g)); if(shadeEl)shadeEl.setAttribute("d",bellyShade(g)); }
+function applyFat(){ drawBelly(state.fullness||1); }   // instant (boot/reset)
+var gShown=null;
+function tweenBelly(){
+  if(!bodyEl)return;
+  var target=state.fullness||1; if(gShown===null)gShown=target;
+  var start=gShown, t0=performance.now(), dur=380;
+  (function step(now){ var k=Math.min(1,(now-t0)/dur); var g=start+(target-start)*(0.5-0.5*Math.cos(Math.PI*k));
+    gShown=g; drawBelly(g); if(k<1)requestAnimationFrame(step); })(performance.now());
+}
+function pulse(cls){ if(!duckEl)return; duckEl.classList.remove(cls); void duckEl.offsetWidth; duckEl.classList.add(cls);
+  setTimeout(function(){duckEl.classList.remove(cls);}, 800); }
+function moveDuck(){
+  if(!duckEl || !state.duckRoam)return;      // stays put when roaming is off
+  var W=window.innerWidth, H=window.innerHeight, dw=duckEl.offsetWidth||74, dh=duckEl.offsetHeight||86;
+  var tx=Math.max(6, Math.random()*(W-dw-6));
+  var ty=Math.max(58, Math.random()*(H-dh-46));
+  var cur=parseFloat(duckEl.style.left)||40;
+  duckDir=(tx<cur)?-1:1;
+  flipEl.style.transform="scaleX("+duckDir+")";
+  duckEl.style.left=tx+"px"; duckEl.style.top=ty+"px";
+}
+function parkDuck(){   // tuck the duck into the bottom-left corner and stop moving
+  if(!duckEl)return;
+  duckDir=1; flipEl.style.transform="scaleX(1)";
+  duckEl.style.left="18px"; duckEl.style.top=(window.innerHeight-Math.max(90,duckEl.offsetHeight)-14)+"px";
+}
+function setDuckRoam(on){
+  state.duckRoam=!!on; save(state);
+  if(roamTimer){clearInterval(roamTimer);roamTimer=null;}
+  if(state.duckRoam){ roamTimer=setInterval(moveDuck,2800); setTimeout(moveDuck,300); }
+  else { parkDuck(); }
+}
+function feedCorn(){
+  if(!duckEl)return;
+  var r=duckEl.getBoundingClientRect(), faceRight=duckDir>=0;
+  var mx=r.left+(faceRight?r.width*0.74:r.width*0.26), my=r.top+r.height*0.28;
+  for(var i=0;i<6;i++){(function(){ setTimeout(function(){
+    var k=document.createElement("div"); k.className="kernel";
+    var sx=mx+(faceRight?70:-70)+(Math.random()*50-25), sy=my-40+Math.random()*80;
+    k.style.left=sx+"px"; k.style.top=sy+"px"; k.style.opacity="1";
+    document.body.appendChild(k);
+    requestAnimationFrame(function(){ k.style.left=mx+"px"; k.style.top=my+"px"; k.style.transform="scale(.4)"; k.style.opacity="0.15"; });
+    setTimeout(function(){k.remove();},600);
+  }, i*70); })();}
+}
+function hatchCelebrate(nn){
+  var cel=document.createElement("div"); cel.className="hatchcel";
+  var conf=""; var cols=["#ff5f3a","#f2c400","#2f56d6","#13864f","#ff6f61"];
+  for(var i=0;i<16;i++){ conf+='<span class="confp" style="left:'+(Math.random()*100)+'%;background:'+cols[i%5]+';animation-delay:'+(Math.random()*0.35).toFixed(2)+'s"></span>'; }
+  cel.innerHTML='<div class="hatchcel-in"><div style="font-size:60px;line-height:1">🐣</div><div class="hatchcel-t">Egg hatched!</div><div class="hatchcel-s">Duckling #'+nn+' joined your flock 🎉</div></div>'+conf;
+  document.body.appendChild(cel); toast("🥚➜🐣 Your duck laid an egg!");
+  setTimeout(function(){cel.remove();}, 2300);
+}
+function hatchEgg(){
+  if(!duckEl){ state.fullness=FAT_BASE; state.ducksHatched++; save(state); Duck.render(); return; }
+  var r=duckEl.getBoundingClientRect();
+  var ex=r.left+r.width*0.5-13, ey=r.top+r.height-8;
+  state.fullness=FAT_BASE; save(state); tweenBelly();       // belly deflates (egg laid)
+  var egg=document.createElement("div"); egg.className="egg"; egg.textContent="🥚";
+  egg.style.left=ex+"px"; egg.style.top=ey+"px"; document.body.appendChild(egg);
+  setTimeout(function(){egg.classList.add("wiggle");},480);
+  setTimeout(function(){
+    egg.remove();
+    for(var i=0;i<5;i++){(function(){var s=document.createElement("div");s.className="spark";s.textContent="✨";
+      s.style.left=(ex+Math.random()*40-14)+"px"; s.style.top=(ey-10)+"px"; document.body.appendChild(s);
+      setTimeout(function(){s.remove();},820);})();}
+    var baby=document.createElement("div"); baby.className="hatchling"; baby.textContent="🐣";
+    baby.style.left=ex+"px"; baby.style.top=ey+"px"; document.body.appendChild(baby);
+    setTimeout(function(){baby.remove();},950);
+    state.ducksHatched++; save(state);
+    hatchCelebrate(state.ducksHatched);
+    Duck.render(); checkBadges();
+  }, 1180);
+}
 var Duck={
   render:function(){
     var xp=state.xp, L=levelFor(xp), N=nextLevel(xp);
-    document.getElementById("duckFace").textContent=L.emoji;
+    document.getElementById("hudName").textContent=state.name||"You";
     document.getElementById("duckLv").textContent=L.name;
     document.getElementById("duckXp").textContent=xp;
-    var fill, sub;
-    if(N){var span=N.min-L.min, into=xp-L.min; fill=Math.round(into/span*100); sub=(N.min-xp)+" XP → "+N.name;}
-    else{fill=100; sub="Max level!";}
-    document.getElementById("duckFill").style.width=fill+"%";
-    document.getElementById("duckNext").textContent=sub;
+    document.getElementById("duckFill").style.width=(N?Math.round((xp-L.min)/(N.min-L.min)*100):100)+"%";
+    document.getElementById("hudCorrect").textContent="✅ "+state.correct;
     document.getElementById("duckStreak").textContent="🔥 "+streak;
+    document.getElementById("hudHatch").textContent="🥚 "+state.ducksHatched;
   },
   feed:function(xp,correct){
     if(correct){
-      streak++; if(streak>state.maxStreak)state.maxStreak=streak;
+      streak++; if(streak>state.maxStreak)state.maxStreak=streak; state.correct++;
       if(streak%5===0){xp+=25; toast("🔥 "+streak+" streak! +25 bonus XP");}
     } else { streak=0; }
-    if(xp>0){
-      var before=levelFor(state.xp).name;
-      state.xp+=xp; save(state);
-      var d=document.getElementById("duck"); d.classList.remove("eat"); void d.offsetWidth; d.classList.add("eat");
-      crumbs();
-      var after=levelFor(state.xp).name;
-      if(after!==before) toast("⬆️ Level up! Your duck is now a "+after);
-    } else { save(state); }
-    Duck.render();
+    var before=levelFor(state.xp).name;
+    if(xp>0){ state.xp+=xp; state.xpEarned+=xp; }
+    if(correct){
+      state.fullness=(state.fullness||1)+GAIN;              // belly grows
+      feedCorn();
+      if(state.fullness>=HATCH_AT){                          // stuffed -> lay an egg
+        setTimeout(function(){ pulse("eat"); hatchEgg(); }, 380);
+      } else {
+        setTimeout(function(){ pulse("eat"); tweenBelly(); }, 380);
+        if(streak>0 && streak%5===0) pulse("dance");
+      }
+    } else {
+      state.fullness=Math.max(FAT_MIN,(state.fullness||1)-LOSS);  // belly shrinks
+      pulse("sad"); tweenBelly();
+    }
+    save(state);
+    var after=levelFor(state.xp).name;
+    if(after!==before) toast("⬆️ Level up! Your duck is now a "+after);
+    Duck.render(); checkBadges();
+  },
+  startRoaming:function(){
+    duckEl=document.getElementById("duck"); flipEl=document.getElementById("duckFlip"); fatEl=document.getElementById("duckFat");
+    bodyEl=document.getElementById("duckBody"); shadeEl=document.getElementById("duckShade");
+    gShown=state.fullness||1; applyFat(); applyCosmetics();
+    duckEl.style.left="40px"; duckEl.style.top=Math.round(window.innerHeight*0.58)+"px";
+    if(roamTimer){clearInterval(roamTimer);roamTimer=null;}
+    if(state.duckRoam){ setTimeout(moveDuck,500); roamTimer=setInterval(moveDuck,2800); }
+    else { parkDuck(); }
+    window.addEventListener("resize",function(){ if(parseFloat(duckEl.style.left)>window.innerWidth-40)duckEl.style.left=(window.innerWidth-80)+"px"; });
   }
 };
-function crumbs(){
-  var d=document.getElementById("duck").getBoundingClientRect();
-  for(var i=0;i<4;i++){(function(i){setTimeout(function(){
-    var c=document.createElement("div");c.className="crumb";c.textContent=["🌾","🍞","✨","🌾"][i%4];
-    c.style.left=(d.left+18+Math.random()*30)+"px";c.style.top=(d.top+30)+"px";
-    document.body.appendChild(c);setTimeout(function(){c.remove();},650);
-  },i*70);})(i);}
-}
 
 /* ============================ NAV / ROUTER ============================ */
 (function(){
@@ -306,8 +521,14 @@ function go(v){
   state.view=v; save(state);
   var V=document.getElementById("view");
   if(v==="overview")V.innerHTML=overviewHTML();
+  else if(v==="tips")V.innerHTML=tipsHTML();
   else if(v==="resources")V.innerHTML=resourcesHTML();
   else if(v==="mock")V.innerHTML=mockHTML();
+  else if(v==="review")V.innerHTML=reviewHTML();
+  else if(v==="badges")V.innerHTML=badgesHTML();
+  else if(v==="leaderboard"){renderLeaderboard();return;}
+  else if(v==="exam"){renderExam();return;}
+  else if(v==="shop"){renderShop();return;}
   else if(v==="flash"){renderFlash();return;}
   else if(v==="jeopardy"){renderJeopardy();return;}
   else if(v==="fillblank"){renderFillblank();return;}
@@ -329,6 +550,12 @@ function overviewHTML(){
   var L=levelFor(state.xp);
   return '<h1>Databricks Data Engineer — Associate</h1>'+
     '<p class="lead">A shared study hub for the interns. Work section by section: read the notes, watch a video, take the quiz, drill flashcards, and play a game. Answer correctly to feed your duck 🦆. Your progress saves in this browser.</p>'+
+    '<div class="card" style="border:2px solid var(--brand);background:#fff7f5"><div class="kicker">👋 Your name</div>'+
+      '<p class="lead" style="margin:6px 0 8px">Shows on the shared 🏆 leaderboard \u2014 pick a unique one.</p>'+
+      '<input class="fb-input" id="nameIn" placeholder="Type your name\u2026" value="'+esc(state.name)+'" style="max-width:340px;font-size:16px" oninput="state.name=this.value;save(state);Duck.render();">'+
+      '<label style="display:flex;align-items:center;gap:9px;margin-top:12px;cursor:pointer;font-size:13.8px">'+
+        '<input type="checkbox" id="roamChk" '+(state.duckRoam?'checked':'')+' style="width:16px;height:16px;accent-color:var(--brand)" onchange="setDuckRoam(this.checked)">'+
+        'Let the duck waddle around the screen <span style="color:#5f6b7c">(uncheck to park it)</span></label></div>'+
     '<div class="facts">'+facts+'</div>'+
     '<div class="note">*The pass mark isn\'t officially published; ~70% is a safe target. The exam is 45 scored multiple-choice questions in 90 minutes ('+esc(EXAM.meta.outlineVersion)+' version).</div>'+
     '<div class="card"><div class="kicker">Your duck &amp; progress</div>'+
@@ -338,9 +565,6 @@ function overviewHTML(){
       '<span style="color:#5f6b7c;font-size:13px">'+overallPct()+'% objectives learned · '+flashPct()+'% flashcards mastered</span><br>'+
       '<span class="reset" onclick="resetAll()">reset all progress</span></div></div></div>'+
     '<div class="card"><div class="kicker">The 5 exam sections</div>'+cards+'</div>'+
-    '<div class="card"><div class="kicker">Display name (for the leaderboard, later)</div>'+
-      '<p class="lead" style="margin:8px 0">Each intern\'s progress is saved on their own machine for now. A shared leaderboard can be switched on later (see the README).</p>'+
-      '<input class="fb-input" id="nameIn" placeholder="e.g. Devika" value="'+esc(state.name)+'" style="max-width:280px" oninput="state.name=this.value;save(state);"></div>'+
     '<p style="font-size:12.5px;color:#5f6b7c">Quizzes here are <b>original</b> practice written to match the official objectives — for more, the team also uses <a href="https://www.certsafari.com/databricks/data-engineer-associate" target="_blank">CertSafari</a>. Always confirm topics against the <a href="'+EXAM.meta.officialGuide+'" target="_blank">official exam guide</a>.</p>';
 }
 
@@ -365,11 +589,11 @@ function quizHTML(secId,qs){
   var head='<div class="scorebar"><span id="sc-'+secId+'" class="pillbig">'+(saved?('Best: '+saved.best+'/'+saved.total):'Not attempted')+'</span><button class="btn ghost" onclick="resetQuiz(\''+secId+'\')">Reset quiz</button></div>';
   var body=qs.map(function(q,qi){
     var opts=q.opts.map(function(o,oi){return '<div class="opt" data-q="'+qi+'" data-o="'+oi+'">'+String.fromCharCode(65+oi)+'. '+esc(o)+'</div>';}).join("");
-    return '<div class="q" data-secid="'+secId+'" data-ans="'+q.a+'" data-qi="'+qi+'"><div class="qn">'+(qi+1)+'. '+esc(q.q)+'</div><div class="obj-tag">Objective: '+esc(q.obj)+'</div>'+opts+
-      '<div class="expl" id="ex-'+secId+'-'+qi+'"><b>Answer: '+String.fromCharCode(65+q.a)+'.</b> '+esc(q.e)+
+    return '<div class="q" data-secid="'+secId+'" data-osec="'+secId+'" data-oqi="'+qi+'" data-ans="'+q.a+'" data-qi="'+qi+'"><div class="qn">'+(qi+1)+'. '+esc(q.q)+'</div><div class="obj-tag">Objective: '+esc(q.obj)+'</div>'+opts+
+      '<div class="expl" id="ex-'+secId+'-'+qi+'"><b>Answer: '+String.fromCharCode(65+q.a)+'.</b> '+esc(q.e)+docLink(q)+
       '<br><a class="askt" onclick="askTutorAbout('+JSON.stringify(secId)+','+qi+')">🤖 Explain this with the AI Tutor</a></div></div>';
   }).join("");
-  return head+body;
+  return head+body+'<div style="text-align:center;margin-top:18px"><button class="btn ghost" onclick="resetQuiz(\''+secId+'\')">\ud83d\udd04 Reset quiz</button></div>';
 }
 
 function wireSection(sec){
@@ -398,12 +622,24 @@ function wireQuizzes(){
           else o.classList.add("dim");
         });
         document.getElementById("ex-"+qel.dataset.secid+"-"+qel.dataset.qi).classList.add("show");
-        Duck.feed(pick===ans?10:0, pick===ans);
+        var _ok=pick===ans, _key=qel.dataset.osec?qel.dataset.osec+"#"+qel.dataset.oqi:null;
+        if(_ok){ if(firstSolve(_key)) Duck.feed(10,true); else toast("Reviewed \u2014 no XP (already earned)"); } else Duck.feed(0,false);
+        if(qel.dataset.osec) recordAnswer(qel.dataset.osec, qel.dataset.oqi, _ok);
         tallyQuiz(qel.dataset.secid);
       });
     });
   });
 }
+/* per-domain performance + missed-question tracking (for weak-spot review) */
+function recordAnswer(osec, oqi, correct){
+  var p=state.perf[osec]||{c:0,t:0}; p.t++; if(correct)p.c++; state.perf[osec]=p;
+  var key=osec+"#"+oqi;
+  if(correct) delete state.missed[key]; else state.missed[key]=true;
+  save(state);
+}
+function domainPct(id){var p=state.perf[id]; return p&&p.t?Math.round(p.c/p.t*100):null;}
+function questionByKey(key){var a=key.split("#"),sec=EXAM.sections.find(function(s){return s.id===a[0];});
+  return sec?{sec:sec, qi:+a[1], q:sec.quiz[+a[1]]}:null;}
 
 function tallyQuiz(secId){
   var qs=document.querySelectorAll('.q[data-secid="'+secId+'"]');
@@ -421,23 +657,52 @@ function tallyQuiz(secId){
   if(sc)sc.textContent="Score: "+correct+"/"+qs.length+(state.quiz[secId].best>correct?" (best "+state.quiz[secId].best+")":"");
 }
 
-function resetQuiz(secId){ delete state.quiz[secId]; save(state); var sec=EXAM.sections.find(function(s){return s.id===secId;}); if(sec){go(secId);} }
+function clearSectionSolved(id){ Object.keys(state.solved).forEach(function(k){ if(k.indexOf(id+"#")===0) delete state.solved[k]; }); }
+function clearFbSolved(){ Object.keys(state.solved).forEach(function(k){ if(k.indexOf("fb#")===0) delete state.solved[k]; }); }
+function clearAllSolved(){ state.solved={}; }
+function resetQuiz(secId){ delete state.quiz[secId]; clearSectionSolved(secId); save(state); toast("Quiz reset \u2014 you can earn XP on it again"); var sec=EXAM.sections.find(function(s){return s.id===secId;}); if(sec){go(secId);} }
 function resetAll(){ if(confirm("Reset ALL progress, XP, streak, flashcards and game scores?")){
-  state={objDone:{},quiz:{},xp:0,maxStreak:0,srs:{},games:{jeopardy:{solved:{}},fillblank:{best:0}},name:state.name};
-  streak=0; save(state); Duck.render(); go("overview"); } }
+  state={objDone:{},quiz:{},xp:0,maxStreak:0,fullness:1,correct:0,ducksHatched:0,duckRoam:state.duckRoam,perf:{},missed:{},shop:state.shop,badges:{},xpEarned:0,bestExamPct:0,solved:{},srs:{},games:{jeopardy:{solved:{}},fillblank:{best:0}},name:state.name};
+  streak=0; gShown=1; save(state); applyFat(); applyCosmetics(); Duck.render(); go("overview"); } }
 
 /* ============================ MOCK EXAM ============================= */
+function quizPool(){var pool=[]; EXAM.sections.forEach(function(s){s.quiz.forEach(function(q,qi){pool.push({s:s.id,qi:qi,q:q});});}); return pool;}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
 function mockHTML(){
-  var pool=[]; EXAM.sections.forEach(function(s){s.quiz.forEach(function(q){pool.push({s:s.id,q:q});});});
-  for(var i=pool.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=pool[i];pool[i]=pool[j];pool[j]=t;}
-  var pick=pool.slice(0,10);
+  var pick=shuffle(quizPool()).slice(0,20);
   var body=pick.map(function(p,qi){
     var q=p.q;
     var opts=q.opts.map(function(o,oi){return '<div class="opt" data-o="'+oi+'">'+String.fromCharCode(65+oi)+'. '+esc(o)+'</div>';}).join("");
-    return '<div class="q" data-secid="mock" data-ans="'+q.a+'" data-qi="'+qi+'"><div class="qn">'+(qi+1)+'. '+esc(q.q)+'</div><div class="obj-tag">'+esc(q.obj)+'</div>'+opts+'<div class="expl" id="ex-mock-'+qi+'"><b>Answer: '+String.fromCharCode(65+q.a)+'.</b> '+esc(q.e)+'</div></div>';
+    return '<div class="q" data-secid="mock" data-osec="'+p.s+'" data-oqi="'+p.qi+'" data-ans="'+q.a+'" data-qi="'+qi+'"><div class="qn">'+(qi+1)+'. '+esc(q.q)+'</div><div class="obj-tag">'+esc(q.obj)+'</div>'+opts+'<div class="expl" id="ex-mock-'+qi+'"><b>Answer: '+String.fromCharCode(65+q.a)+'.</b> '+esc(q.e)+docLink(q)+'</div></div>';
   }).join("");
-  return '<h1>Mock exam</h1><p class="lead">10 mixed questions drawn at random from every section. Each correct answer feeds your duck.</p>'+
-    '<div class="scorebar"><span id="sc-mock" class="pillbig">0 answered</span><button class="btn brand" onclick="go(\'mock\')">New set</button></div>'+body;
+  return '<h1>Mock exam</h1><p class="lead">20 mixed questions drawn at random from every domain. Each correct answer feeds your duck.</p>'+
+    '<div class="scorebar"><span id="sc-mock" class="pillbig">0 answered</span><button class="btn brand" onclick="go(\'mock\')">New set</button></div>'+body+'<div style="text-align:center;margin-top:18px"><button class="btn ghost" onclick="clearAllSolved();save(state);toast(\'Quiz XP reset\');go(\'mock\')">\ud83d\udd04 Reset quiz (re-earn XP)</button></div>';
+}
+
+/* ===================== WEAK-SPOT REVIEW ===================== */
+function reviewHTML(){
+  var keys=Object.keys(state.missed);
+  if(!keys.length){
+    return '<h1>🔁 Review mistakes</h1><div class="card"><p>🎉 No missed questions right now! Answer some quizzes or the exam simulator — anything you get wrong shows up here so you can drill it until it sticks.</p></div>'+domainPerfCard();
+  }
+  var items=keys.map(questionByKey).filter(Boolean);
+  var body=items.map(function(it,qi){
+    var q=it.q, secId=it.sec.id;
+    var opts=q.opts.map(function(o,oi){return '<div class="opt" data-o="'+oi+'">'+String.fromCharCode(65+oi)+'. '+esc(o)+'</div>';}).join("");
+    return '<div class="q" data-secid="review" data-osec="'+secId+'" data-oqi="'+it.qi+'" data-ans="'+q.a+'" data-qi="'+qi+'"><div class="qn">'+(qi+1)+'. '+esc(q.q)+'</div><div class="obj-tag">'+esc(it.sec.title)+' · '+esc(q.obj)+'</div>'+opts+
+      '<div class="expl" id="ex-review-'+qi+'"><b>Answer: '+String.fromCharCode(65+q.a)+'.</b> '+esc(q.e)+docLink(q)+'</div></div>';
+  }).join("");
+  return '<h1>🔁 Review mistakes</h1><p class="lead">The '+items.length+' question(s) you\'ve missed. Get one right and it leaves this list.</p>'+
+    '<div class="scorebar"><span class="pillbig">'+items.length+' to review</span></div>'+body;
+}
+function domainPerfCard(){
+  var rows=EXAM.sections.map(function(s){var p=domainPct(s.id);
+    return '<div class="obj" style="cursor:default">'+
+      '<div class="ring" style="--p:'+(p||0)+'"><i>'+(p===null?'—':p)+'</i></div>'+
+      '<div style="flex:1"><div style="font-weight:700;cursor:pointer;color:#2f56d6" onclick="go(\''+s.id+'\')">'+esc(s.title)+'</div>'+
+      '<div style="font-size:12px;color:#5f6b7c">'+(state.perf[s.id]?(state.perf[s.id].c+'/'+state.perf[s.id].t+' correct'):'not attempted')+'</div></div></div>';
+  }).join("");
+  return '<div class="card"><div class="kicker">Performance by domain</div>'+rows+'</div>';
 }
 
 /* ============================ FLASHCARDS ============================ */
@@ -482,11 +747,11 @@ function rateCard(rating){
   var x=flashQueue[flashPos]; if(!x)return;
   var r=state.srs[x.key]||{box:0,reps:0}; r.reps=(r.reps||0)+1;
   var now=Date.now();
-  if(rating==="again"){ r.box=1; r.due=now; Duck.feed(2,false); }
-  else if(rating==="hard"){ r.box=Math.max(1,r.box); r.due=now+1*DAY; Duck.feed(6,true); }
-  else if(rating==="good"){ r.box=Math.min(5,(r.box||0)+1); r.due=now+[0,1,3,7,16,16][r.box]*DAY; Duck.feed(10,true); }
-  else if(rating==="easy"){ r.box=Math.min(5,(r.box||0)+2); r.due=now+[0,2,5,12,30,30][r.box]*DAY; Duck.feed(12,true); }
-  state.srs[x.key]=r; save(state);
+  if(rating==="again"){ r.box=1; r.due=now; }
+  else if(rating==="hard"){ r.box=Math.max(1,r.box); r.due=now+1*DAY; }
+  else if(rating==="good"){ r.box=Math.min(5,(r.box||0)+1); r.due=now+[0,1,3,7,16,16][r.box]*DAY; if(firstSolve("card#"+x.key))Duck.feed(10,true); }
+  else if(rating==="easy"){ r.box=Math.min(5,(r.box||0)+2); r.due=now+[0,2,5,12,30,30][r.box]*DAY; if(firstSolve("card#"+x.key))Duck.feed(12,true); }
+  state.srs[x.key]=r; save(state); checkBadges();
   if(rating==="again"){ flashQueue.push(x); }   // re-show later this session
   flashPos++;
   renderFlash();
@@ -520,9 +785,9 @@ function renderJeopardy(){
         : '<button class="jtile" onclick="openTile(\''+s.id+'\','+vi+','+val+')">$'+val+'</button>';
     });
   });
-  V.innerHTML='<h1>🎯 Jeopardy</h1><p class="lead">Pick a section &amp; point value. Answer right to bank the points and feed your duck. ✓ solved · ✗ missed.</p>'+
+  V.innerHTML='<h1>🎯 Jeopardy</h1><p class="lead">Pick a domain &amp; point value. Answer right to bank the points and feed your duck. ✓ solved · ✗ missed.</p>'+
     '<div class="scorebar"><span class="pillbig">Board score: $'+jScore()+'</span><button class="btn ghost" onclick="newJeopardy()">New board</button></div>'+
-    '<div class="jboard">'+cats+rows+'</div>';
+    '<div class="jboard" style="grid-template-columns:repeat('+EXAM.sections.length+',1fr)">'+cats+rows+'</div>'+'<div style="text-align:center;margin-top:18px"><button class="btn ghost" onclick="clearAllSolved();newJeopardy()">\ud83d\udd04 Reset quiz (re-earn XP)</button></div>';
 }
 function newJeopardy(){ state.games.jeopardy.solved={}; save(state); buildJMap(); renderJeopardy(); }
 function openTile(secId,vi,val){
@@ -542,14 +807,261 @@ function openTile(secId,vi,val){
       m.querySelectorAll(".opt").forEach(function(o){var oi=parseInt(o.dataset.o,10);
         if(oi===ans)o.classList.add("correct"); else if(oi===pick)o.classList.add("wrong"); else o.classList.add("dim");});
       var x=document.getElementById("jx"); x.classList.add("show");
-      x.innerHTML='<b>'+(ok?'Correct! +$'+val:'Not quite.')+'</b> '+esc(q.e);
+      x.innerHTML='<b>'+(ok?'Correct! +$'+val:'Not quite.')+'</b> '+esc(q.e)+docLink(q);
       state.games.jeopardy.solved[key]=ok?"ok":"no"; save(state);
-      Duck.feed(ok?Math.round(val/10):0, ok);
+      recordAnswer(secId, jMap[secId][vi], ok);
+      if(ok){ if(firstSolve(secId+"#"+jMap[secId][vi])) Duck.feed(Math.round(val/10),true); } else Duck.feed(0,false);
       setTimeout(function(){m.remove();renderJeopardy();}, 1700);
     });
   });
   m.addEventListener("click",function(e){if(e.target===m && !m.dataset.done)m.remove();});
 }
+
+/* ===================== EXAM SIMULATOR ===================== */
+var examQ=null, examSel={}, examTimer=null, examEnd=0, examDone=false, examScore=null;
+function fmtTime(ms){var s=Math.max(0,Math.round(ms/1000));return Math.floor(s/60)+":"+("0"+(s%60)).slice(-2);}
+function examSize(){return Math.min(45, quizPool().length);}
+function startExam(){
+  examQ=shuffle(quizPool()).slice(0, examSize()); examSel={}; examDone=false; examScore=null;
+  examEnd=Date.now()+90*60*1000;
+  renderExam();
+  if(examTimer)clearInterval(examTimer);
+  examTimer=setInterval(function(){var el=document.getElementById("examTimer");if(!el||examDone){clearInterval(examTimer);return;}
+    var left=examEnd-Date.now(); el.textContent="⏱ "+fmtTime(left); if(left<=0){clearInterval(examTimer);submitExam();}},1000);
+}
+function pickExam(i,oi){ if(examDone)return; examSel[i]=oi;
+  var qel=document.querySelector('.exq[data-i="'+i+'"]'); if(!qel)return;
+  qel.querySelectorAll(".opt").forEach(function(o){o.classList.toggle("sel", +o.dataset.o===oi);});
+  var el=document.getElementById("examProg"); if(el)el.textContent=Object.keys(examSel).length+" / "+examQ.length+" answered";
+}
+function submitExam(){
+  if(examDone||!examQ)return; examDone=true; if(examTimer)clearInterval(examTimer);
+  var correct=0, by={}, newXP=0;
+  examQ.forEach(function(p,i){ var ok=examSel[i]===p.q.a; if(ok)correct++;
+    by[p.s]=by[p.s]||{c:0,t:0}; by[p.s].t++; if(ok)by[p.s].c++;
+    if(ok && firstSolve(p.s+"#"+p.qi)) newXP+=8;
+    recordAnswer(p.s, p.qi, ok); });
+  var pct=Math.round(correct/examQ.length*100);
+  examScore={correct:correct,total:examQ.length,pct:pct,pass:pct>=70,by:by};
+  state.xp+=newXP; state.xpEarned+=newXP; if(pct>state.bestExamPct)state.bestExamPct=pct;
+  save(state); Duck.render(); checkBadges();
+  toast((examScore.pass?"✅ Passed":"❌ Keep going")+" — "+pct+"%  (+"+newXP+" XP)");
+  renderExam(); window.scrollTo(0,0);
+}
+function examResultCard(){
+  var s=examScore, rows=EXAM.sections.map(function(sec){var b=s.by[sec.id]; if(!b)return "";
+    var p=Math.round(b.c/b.t*100);
+    return '<div style="display:flex;justify-content:space-between;padding:5px 0;border-top:1px solid var(--line);font-size:13px"><span>'+esc(sec.title)+'</span><b style="color:'+(p>=70?'var(--ok)':'var(--red)')+'">'+b.c+'/'+b.t+' ('+p+'%)</b></div>';
+  }).join("");
+  return '<div class="card" style="border-color:'+(s.pass?'#9fdcbb':'#f2b9b1')+';background:'+(s.pass?'var(--okbg)':'var(--redbg)')+'">'+
+    '<div style="font-size:22px;font-weight:900;color:'+(s.pass?'var(--ok)':'var(--red)')+'">'+(s.pass?'✅ Pass':'❌ Not yet')+' — '+s.pct+'%</div>'+
+    '<div style="font-size:13px;color:var(--ink)">'+s.correct+' / '+s.total+' correct · pass mark ~70% · missed ones are now in <b>Review mistakes</b></div>'+
+    '<div style="margin-top:8px">'+rows+'</div>'+
+    '<button class="btn brand" style="margin-top:12px" onclick="startExam()">New exam</button> <button class="btn ghost" onclick="go(\'review\')">Review mistakes</button> <button class="btn ghost" onclick="clearAllSolved();save(state);toast(\'Quiz XP reset\');startExam()">\ud83d\udd04 Reset quiz</button></div>';
+}
+function renderExam(){
+  setNav("exam");
+  var V=document.getElementById("view");
+  if(!examQ){ V.innerHTML='<h1>📝 Exam simulator</h1><p class="lead">A timed practice exam: '+examSize()+' questions, 90 minutes, pass mark ~70%. Answers are hidden until you submit, then you get a score and a per-domain breakdown. Missed questions go to Review mistakes.</p>'+
+    '<div class="card"><p>The real exam is 45 scored multiple-choice questions in 90 minutes.</p><button class="btn brand" onclick="startExam()">Start exam</button></div>'+domainPerfCard(); return; }
+  var body=examQ.map(function(p,i){
+    var q=p.q;
+    var opts=q.opts.map(function(o,oi){var cls="opt"; if(!examDone&&examSel[i]===oi)cls+=" sel";
+      if(examDone){ if(oi===q.a)cls+=" correct"; else if(examSel[i]===oi)cls+=" wrong"; else cls+=" dim"; }
+      return '<div class="'+cls+'" data-o="'+oi+'" onclick="pickExam('+i+','+oi+')">'+String.fromCharCode(65+oi)+'. '+esc(o)+'</div>';}).join("");
+    var expl=examDone?'<div class="expl show"><b>Answer: '+String.fromCharCode(65+q.a)+'.</b> '+esc(q.e)+docLink(q)+'</div>':'';
+    return '<div class="q exq" data-i="'+i+'"><div class="qn">'+(i+1)+'. '+esc(q.q)+'</div>'+opts+expl+'</div>';
+  }).join("");
+  var header = examDone ? examResultCard() :
+    '<div class="scorebar" style="position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:5"><span class="pillbig" id="examTimer">⏱ 90:00</span><span id="examProg" style="font-size:12px;color:#5f6b7c">0 / '+examQ.length+' answered</span><button class="btn brand" onclick="submitExam()">Submit</button></div>';
+  V.innerHTML='<h1>📝 Exam simulator</h1>'+header+body+(examDone?'':'<div style="margin-top:14px"><button class="btn brand" onclick="submitExam()">Submit exam</button></div>');
+}
+
+/* ===================== DUCK SHOP (spend XP) ===================== */
+var SHOP={
+  color:[["Classic","#eef4f7",0],["Sunny","#ffe79a",60],["Mint","#cde9d6",60],["Sky","#cfe3ff",60],["Bubblegum","#ffd6e7",90],["Charcoal","#c2cad6",90]],
+  hat:[["None","none",0],["Party","party",80],["Grad cap","grad",120],["Top hat","top",180],["Crown","crown",320]],
+  face:[["None","none",0],["Glasses","glasses",70],["Sunglasses","shades",120],["Moustache","stache",150]]
+};
+var HATS={
+  none:"",
+  party:'<path d="M84 0 L72 22 L96 22 Z" fill="#ff6f61" stroke="#1c150f" stroke-width="2" stroke-linejoin="round"/><path d="M84 2 L80 22 M84 2 L89 22" stroke="#ffd56b" stroke-width="2"/><circle cx="84" cy="1" r="3.4" fill="#ffd56b" stroke="#1c150f" stroke-width="1.5"/>',
+  grad:'<path d="M64 16 L84 8 L104 16 L84 24 Z" fill="#22262e" stroke="#1c150f" stroke-width="2" stroke-linejoin="round"/><path d="M77 20 l0 6 q7 4 14 0 l0 -6" fill="#22262e" stroke="#1c150f" stroke-width="2" stroke-linejoin="round"/><path d="M84 16 L100 17 L100 27" fill="none" stroke="#e8b100" stroke-width="1.8"/><circle cx="100" cy="28" r="2.6" fill="#e8b100"/>',
+  top:'<ellipse cx="84" cy="23" rx="18" ry="4.6" fill="#1b1b1b"/><rect x="73" y="1" width="22" height="21" rx="2" fill="#1b1b1b"/><rect x="73" y="14" width="22" height="4.5" fill="#c0303a"/>',
+  crown:'<path d="M69 23 L69 9 L78 16 L84 5 L90 16 L99 9 L99 23 Z" fill="#f2c400" stroke="#1c150f" stroke-width="2" stroke-linejoin="round"/><circle cx="84" cy="9" r="1.9" fill="#e0392b"/><circle cx="72" cy="12" r="1.5" fill="#e0392b"/><circle cx="96" cy="12" r="1.5" fill="#e0392b"/>'
+};
+var ACCS={
+  none:"",
+  glasses:'<g fill="none" stroke="#1c150f" stroke-width="2.4"><circle cx="83" cy="42" r="7"/><circle cx="99" cy="45" r="7"/><path d="M90 43 l2 1.5"/></g>',
+  shades:'<g stroke="#1c150f" stroke-width="1.5"><path d="M75 38 q9 -2 16 1 q0 9 -8 8 q-9 -1 -8 -9 Z" fill="#1b1b1b"/><path d="M93 41 q9 -1 15 2 q-1 8 -8 7 q-8 -1 -7 -9 Z" fill="#1b1b1b"/><path d="M90 41 l3 1" stroke-width="2.4"/></g>',
+  stache:'<path d="M83 57 q6 -6 12 -1 q6 -5 12 1 q-5 7 -12 2.5 q-6 4.5 -12 -2.5 Z" fill="#3a2a1a" stroke="#1c150f" stroke-width="1.2"/>'
+};
+function equippedFaces(){ var o=state.shop.faces||{}; return Object.keys(o).filter(function(k){return o[k];}); }
+function applyCosmetics(){
+  if(bodyEl) bodyEl.style.fill=state.shop.color||"#eef4f7";
+  var h=document.getElementById("duckHat"), a=document.getElementById("duckAcc");
+  if(h) h.innerHTML=HATS[state.shop.hat]||"";
+  if(a){ var str=""; equippedFaces().forEach(function(k){ if(ACCS[k]) str+=ACCS[k]; }); a.innerHTML=str; }
+}
+function owns(type,id,cost){ return cost===0 || state.shop.owned[type+":"+id]; }
+function buyEquip(type,id,cost){
+  if(!owns(type,id,cost)){
+    if(state.xp<cost){ toast("Need "+(cost-state.xp)+" more XP for that"); return; }
+    state.xp-=cost; state.shop.owned[type+":"+id]=true; toast("Unlocked! (-"+cost+" XP)");
+  }
+  if(type==="color") state.shop.color=id;
+  else if(type==="hat") state.shop.hat=id;
+  else { state.shop.faces=state.shop.faces||{}; if(id==="none"){ state.shop.faces={}; } else { state.shop.faces[id]=!state.shop.faces[id]; } }
+  save(state); applyCosmetics(); Duck.render(); checkBadges(); renderShop();
+}
+function shopRow(type,label){
+  var items=SHOP[type].map(function(it){
+    var name=it[0], id=it[1], cost=it[2];
+    var multi=(type==="face"); var equipped; if(type==="color") equipped=state.shop.color===id; else if(type==="hat") equipped=state.shop.hat===id; else equipped=(id==="none")?(equippedFaces().length===0):((state.shop.faces||{})[id]===true);
+    var owned=owns(type,id,cost);
+    var swatch=type==="color"?'<span style="display:inline-block;width:16px;height:16px;border-radius:4px;border:1px solid var(--line);background:'+id+';vertical-align:-3px;margin-right:6px"></span>':'';
+    var status; if(!owned){ status='<button class="btn brand" onclick="buyEquip(\''+type+'\',\''+id+'\','+cost+')">'+cost+' XP</button>'; } else if(multi && id!=="none"){ status=(equipped?'<button class="btn ghost" onclick="buyEquip(\''+type+'\',\''+id+'\',0)">Remove</button>':'<button class="btn ghost" onclick="buyEquip(\''+type+'\',\''+id+'\',0)">Equip</button>'); } else { status=(equipped?'<span class="pillbig">Equipped</span>':'<button class="btn ghost" onclick="buyEquip(\''+type+'\',\''+id+'\',0)">Equip</button>'); }
+    return '<div class="obj" style="cursor:default;justify-content:space-between"><div>'+swatch+esc(name)+((multi&&id!=="none"&&equipped)?' <span style="color:var(--ok);font-size:11px">\u2713 on</span>':"")+'</div>'+status+'</div>';
+  }).join("");
+  return '<div class="card"><div class="kicker">'+label+(type==="face"?' <span style="font-weight:400;color:#5f6b7c;font-size:11px">(mix &amp; match)</span>':"")+'</div>'+items+'</div>';
+}
+function miniDuck(color,hat,faces){
+  var acc=""; (faces||"").split(",").forEach(function(k){k=(k||"").trim(); if(k&&ACCS[k])acc+=ACCS[k];});
+  return '<svg viewBox="0 0 150 175" width="30" height="35" style="vertical-align:middle;flex:none;overflow:visible">'+
+    '<g stroke="#1c150f" stroke-width="4.5" stroke-linejoin="round">'+
+    '<path d="'+bodyPath(1)+'" fill="'+(color||"#eef4f7")+'"/>'+
+    '<path d="M92 43 C105 39 117 44 117 50 C117 57 104 59 94 55 C90 53 89 46 92 43 Z" fill="#bf6a34"/></g>'+
+    '<ellipse cx="85" cy="42" rx="2.7" ry="3.5" fill="#1c150f"/>'+acc+(HATS[hat]||"")+'</svg>';
+}
+function renderShop(){
+  setNav("shop");
+  document.getElementById("view").innerHTML=
+    '<h1>🎩 Duck shop</h1><p class="lead">Spend the XP you earn to dress up your duck. You have <b>'+state.xp+' XP</b>. Cosmetics show on the duck as it waddles.</p>'+
+    shopRow("color","Body colour")+shopRow("hat","Hats")+shopRow("face","Accessories");
+}
+
+/* ===================== ACHIEVEMENTS / BADGES ===================== */
+var BADGES=[
+ {id:"first_right",i:"✅",n:"First Blood",d:"Answer your first question correctly",t:function(){return state.correct>=1;}},
+ {id:"correct50",i:"💪",n:"Half Century",d:"Get 50 questions correct",t:function(){return state.correct>=50;}},
+ {id:"streak5",i:"🔥",n:"On Fire",d:"Reach a 5-answer streak",t:function(){return state.maxStreak>=5;}},
+ {id:"streak10",i:"⚡",n:"Unstoppable",d:"Reach a 10-answer streak",t:function(){return state.maxStreak>=10;}},
+ {id:"egg1",i:"🥚",n:"First Egg",d:"Your duck lays its first egg",t:function(){return state.ducksHatched>=1;}},
+ {id:"egg5",i:"🐣",n:"Duck Farmer",d:"Hatch 5 ducklings",t:function(){return state.ducksHatched>=5;}},
+ {id:"xp500",i:"⭐",n:"Rising Star",d:"Earn 500 XP (lifetime)",t:function(){return state.xpEarned>=500;}},
+ {id:"xp1500",i:"🌟",n:"XP Machine",d:"Earn 1500 XP (lifetime)",t:function(){return state.xpEarned>=1500;}},
+ {id:"exampass",i:"🎓",n:"Mock Master",d:"Score 70%+ on the exam simulator",t:function(){return state.bestExamPct>=70;}},
+ {id:"domain",i:"🧠",n:"Domain Master",d:"Hit 90%+ in a domain (min 8 answers)",t:function(){return Object.keys(state.perf).some(function(k){var p=state.perf[k];return p.t>=8&&p.c/p.t>=0.9;});}},
+ {id:"cards20",i:"🃏",n:"Card Sharp",d:"Master 20 flashcards",t:function(){return cardsLearned()>=20;}},
+ {id:"explorer",i:"🗺️",n:"Explorer",d:"Answer a question in all 7 domains",t:function(){return Object.keys(state.perf).length>=EXAM.sections.length;}},
+ {id:"dapper",i:"🎩",n:"Dapper Duck",d:"Buy a cosmetic in the shop",t:function(){return Object.keys(state.shop.owned||{}).length>0;}}
+];
+function checkBadges(){
+  var newly=[];
+  BADGES.forEach(function(b){ if(!state.badges[b.id] && b.t()){ state.badges[b.id]=Date.now(); newly.push(b); } });
+  if(newly.length){ save(state); newly.forEach(function(b){ toast("🏅 Badge unlocked: "+b.n); }); }
+}
+function badgesEarned(){return Object.keys(state.badges).length;}
+function badgesHTML(){
+  var cards=BADGES.map(function(b){var got=!!state.badges[b.id];
+    return '<div class="obj" style="cursor:default;opacity:'+(got?1:.5)+'">'+
+      '<div style="font-size:26px;width:34px;text-align:center">'+(got?b.i:"🔒")+'</div>'+
+      '<div style="flex:1"><div style="font-weight:700">'+esc(b.n)+(got?' <span style="color:var(--ok);font-size:11px">✓ earned</span>':'')+'</div>'+
+      '<div style="font-size:12.5px;color:#5f6b7c">'+esc(b.d)+'</div></div></div>';
+  }).join("");
+  return '<h1>🏅 Badges</h1><p class="lead">You\'ve earned <b>'+badgesEarned()+' / '+BADGES.length+'</b>. Keep studying to unlock the rest.</p>'+
+    '<div class="card">'+cards+'</div>';
+}
+
+/* ===================== SHARED LEADERBOARD (Supabase) ===================== */
+/* Fill these in (or paste them in the Leaderboard page) to switch it on. The
+   anon key is safe to expose when the table uses the RLS policies in the README.
+   All interns must use the SAME url + key to share one board. */
+var LEADERBOARD_CFG={ url:"https://rvwfzqkkzcpfjgxlrgtp.supabase.co", key:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2d2Z6cWtremNwZmpneGxyZ3RwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0NDU3MzMsImV4cCI6MjA5OTAyMTczM30.j9jZueYIo4PD50y4_4bgLFXT3YSV6b2Hpr40u8lq4hg" };
+function lbCfg(){
+  var c={url:LEADERBOARD_CFG.url||"", key:LEADERBOARD_CFG.key||""};
+  if(!c.url){ try{var s=JSON.parse(localStorage.getItem("dbx-lb")||"{}"); if(s.url)c=s;}catch(e){} }
+  return c;
+}
+function lbEnabled(){var c=lbCfg();return !!(c.url&&c.key);}
+function lbBase(){return (lbCfg().url||"").trim().replace(/\/+$/,"").replace(/\/rest\/v1$/,"").replace(/\/+$/,"");}
+function lbHeaders(c){ var k=(c.key||"").trim(); var h={"apikey":k}; if(/^eyJ/.test(k)) h["Authorization"]="Bearer "+k; return h; }
+var Leaderboard={
+  submit:function(cb){
+    var c=lbCfg(); var name=(state.name||"").trim();
+    if(!c.url||!c.key||!name){cb&&cb(false);return;}
+    try{
+      var h=lbHeaders(c); h["Content-Type"]="application/json"; h["Prefer"]="resolution=merge-duplicates,return=minimal";
+      fetch(lbBase()+"/rest/v1/scores?on_conflict=name",{method:"POST",headers:h,cache:"no-store",
+        body:JSON.stringify([{name:name,xp:state.xp,eggs:state.ducksHatched,correct:state.correct,color:state.shop.color,hat:state.shop.hat,faces:equippedFaces().join(","),updated_at:new Date().toISOString()}])
+      }).then(function(r){ if(r.ok){cb&&cb(true);return;} r.text().then(function(t){cb&&cb(false,"HTTP "+r.status+" — "+((t||"").slice(0,180)));}); })
+        .catch(function(e){cb&&cb(false,"Network/CORS: "+((e&&e.message)||e));});
+    }catch(e){ cb&&cb(false,"Request failed: "+((e&&e.message)||e)); }
+  },
+  fetch:function(cb){
+    var c=lbCfg(); if(!c.url||!c.key){cb(null,"Not configured");return;}
+    var base=lbBase();
+    if(!/^https:\/\/.+\..+/.test(base)){ cb(null,"The Project URL looks wrong: \""+base+"\". It should be like https://xxxx.supabase.co (no spaces/newlines)."); return; }
+    try{
+      fetch(base+"/rest/v1/scores?select=*&order=xp.desc&limit=50",{
+        headers:lbHeaders(c), cache:"no-store"
+      }).then(function(r){ return r.text().then(function(t){
+        if(!r.ok){ cb(null,"HTTP "+r.status+" — "+(t||"").slice(0,180)); return; }
+        var d; try{d=JSON.parse(t);}catch(e){ cb(null,"Unexpected response: "+(t||"").slice(0,180)); return; }
+        if(Array.isArray(d)) cb(d); else cb(null,"Unexpected response: "+(t||"").slice(0,180));
+      }); }).catch(function(e){ cb(null,"Network/CORS error: "+((e&&e.message)||e)); });
+    }catch(e){ cb(null,"Request failed (bad URL?): "+((e&&e.message)||e)); }
+  }
+};
+function saveLbSettings(){
+  var u=document.getElementById("lbUrl").value.trim(), k=document.getElementById("lbKey").value.trim();
+  try{localStorage.setItem("dbx-lb",JSON.stringify({url:u,key:k}));}catch(e){}
+  toast("Leaderboard settings saved"); renderLeaderboard();
+}
+function renderLeaderboard(){
+  setNav("leaderboard");
+  var V=document.getElementById("view");
+  if(!lbEnabled()){
+    V.innerHTML='<h1>🏆 Leaderboard</h1><p class="lead">Not set up yet — it needs a free Supabase project so everyone\'s scores land in one place.</p>'+
+      '<div class="card"><div class="kicker">Turn it on (~15 min, free)</div>'+
+      '<ol style="font-size:13.5px;line-height:1.7;margin:8px 0 0 18px"><li>Create a free project at <a href="https://supabase.com" target="_blank">supabase.com</a>.</li>'+
+      '<li>In the SQL editor, run the table + policy SQL from the README (see "Leaderboard").</li>'+
+      '<li>In <b>Project Settings → API</b>, copy the <b>Project URL</b> and the <b>anon public</b> key.</li>'+
+      '<li>Paste them below, or hard-code them in <code>app_template.html</code> so all interns share automatically.</li></ol>'+
+      '<div style="margin-top:10px"><input class="fb-input" id="lbUrl" placeholder="https://xxxx.supabase.co" style="max-width:440px">'+
+      '<input class="fb-input" id="lbKey" placeholder="anon public key" style="max-width:440px">'+
+      '<button class="btn brand" onclick="saveLbSettings()">Save &amp; enable</button></div></div>';
+    return;
+  }
+  V.innerHTML='<h1>🏆 Leaderboard</h1><p class="lead">Loading…</p>';
+  var me=(state.name||"").trim();
+  var lastWrite="";
+  function show(rows,err){
+    if(rows===null){
+      V.innerHTML='<h1>🏆 Leaderboard</h1><div class="note"><b>Couldn\'t load the leaderboard.</b><br>Reason: '+esc(err||"unknown")+
+        '<br><br>Checklist: the Project URL is the <code>https://…supabase.co</code> value (from Data API), the key is the <b>legacy anon</b> key (<code>eyJ…</code>), and you ran the table + read-policy SQL.</div>'+
+        '<div class="scorebar" style="margin-top:10px"><button class="btn ghost" onclick="renderLeaderboard()">Retry</button> <button class="btn ghost" onclick="clearLb()">Change settings</button></div>';
+      return;
+    }
+    var body=rows.map(function(r,i){var mine=r.name===me;
+      return '<div class="obj" style="cursor:default;align-items:center;'+(mine?'background:var(--okbg);border-radius:8px':'')+'">'+
+        '<div style="width:26px;font-weight:800;color:#5f6b7c">'+(i+1)+'</div>'+
+        '<div style="flex:none;margin-right:8px">'+miniDuck(r.color,r.hat,r.faces)+'</div>'+
+        '<div style="flex:1;font-weight:'+(mine?800:600)+'">'+esc(r.name||"—")+(mine?' (you)':'')+'</div>'+
+        '<div style="font-weight:800">'+(r.xp||0)+' XP</div>'+
+        '<div style="width:64px;text-align:right;color:#5f6b7c;font-size:12px">🥚 '+(r.eggs||0)+'</div></div>';
+    }).join("") || '<p>No scores yet — be the first! (Set a display name on the Overview, answer a question, then Refresh.)</p>';
+    var src=(LEADERBOARD_CFG&&LEADERBOARD_CFG.url)?"built-in config":"settings you pasted in this browser";
+    V.innerHTML='<h1>🏆 Leaderboard</h1><p class="lead">Top interns by XP. Your score updates when you open this page.</p>'+
+      '<p style="font-size:11.5px;color:#8b97b5">Connected to <b>'+esc(lbBase().replace(/^https?:\/\//,""))+'</b> · '+rows.length+' player(s) · via '+src+' '+esc(lastWrite)+'</p>'+
+      '<div class="scorebar"><button class="btn ghost" onclick="renderLeaderboard()">Refresh</button> <button class="btn ghost" onclick="clearLb()">Reset connection</button>'+(me?'':' <span style="font-size:12px;color:var(--red)">Set a display name on the Overview to appear here</span>')+'</div>'+
+      '<div class="card">'+body+'</div>';
+  }
+  // read now (fast), and submit in parallel; when the write lands, refresh to include yourself
+  Leaderboard.fetch(show);
+  Leaderboard.submit(function(ok,werr){ lastWrite = ok ? "· your score saved ✓" : "· ⚠️ save failed: "+(werr||"unknown"); Leaderboard.fetch(show); });
+}
+function clearLb(){ try{localStorage.removeItem("dbx-lb");}catch(e){} renderLeaderboard(); }
 
 /* ============================ FILL THE BLANK ======================== */
 var fbQueue=[], fbPos=0, fbCorrect=0;
@@ -566,7 +1078,7 @@ function renderFillblank(){
     if(fbCorrect>state.games.fillblank.best){state.games.fillblank.best=fbCorrect;save(state);}
     V.innerHTML='<h1>⌨️ Fill the blank</h1><div class="card"><h3>Round complete!</h3>'+
       '<p>You got <b>'+fbCorrect+' / '+fbQueue.length+'</b> right. Best: '+state.games.fillblank.best+'.</p>'+
-      '<button class="btn brand" onclick="startFB();renderFillblank();">Play again</button></div>';
+      '<button class="btn brand" onclick="startFB();renderFillblank();">Play again</button> <button class="btn ghost" onclick="clearFbSolved();save(state);toast(\'Reset \u2014 re-earn XP\');startFB();renderFillblank();">\ud83d\udd04 Reset quiz</button></div>';
     return;
   }
   var item=fbQueue[fbPos];
@@ -578,7 +1090,8 @@ function renderFillblank(){
       '<div style="font-size:12px;color:#5f6b7c">Hint: '+esc(item.hint)+'</div>'+
       '<div class="fb-fb" id="fbFb"></div>'+
       '<div style="margin-top:12px"><button class="btn brand" id="fbCheck">Check</button> <button class="btn ghost" id="fbNext" style="display:none">Next →</button></div>'+
-    '</div>';
+    '</div>'+
+    '<div style="text-align:center;margin-top:16px"><button class="btn ghost" onclick="clearFbSolved();save(state);toast(\'Reset \u2014 re-earn XP\');startFB();renderFillblank();">\ud83d\udd04 Reset quiz</button></div>';
   var inp=document.getElementById("fbIn");
   function check(){
     if(document.getElementById("fbNext").style.display!=="none")return;
@@ -589,7 +1102,7 @@ function renderFillblank(){
     fb.classList.add(ok?"ok":"no");
     fb.innerHTML=ok?('✓ Correct — <b>'+esc(item.answer)+'</b>'):('✗ Answer: <b>'+esc(item.answer)+'</b>');
     if(ok)fbCorrect++;
-    Duck.feed(ok?12:0, ok);
+    if(ok){ if(firstSolve("fb#"+EXAM.fillblank.indexOf(item))) Duck.feed(12,true); } else Duck.feed(0,false);
     inp.disabled=true;
     document.getElementById("fbCheck").style.display="none";
     document.getElementById("fbNext").style.display="inline-block";
@@ -601,6 +1114,25 @@ function renderFillblank(){
 }
 
 /* ============================ RESOURCES ============================= */
+function tipsHTML(){
+  return '<h1>💡 Exam tips</h1>'+
+    '<p class="lead">Notes shared by an analyst right after sitting the exam — use this to focus your prep. (Weightings are an approximate impression, not official.)</p>'+
+    '<div class="note">These are study-focus notes and <b>original</b> practice pointers — not actual exam questions. Study the concepts, not memorised items.</div>'+
+    '<div class="card"><div class="kicker">Where the questions concentrated</div><div class="obj" style="cursor:default;align-items:flex-start"><div style="flex:1"><b>Unity Catalog &amp; Governance</b><div style="font-size:12.5px;color:#5f6b7c;margin-top:2px">Managing permissions, converting external → managed tables, schema- and object-level privileges (USE CATALOG, USE SCHEMA, SELECT, REVOKE), and compute access modes.</div></div><span class="pillbig" style="flex:none">25–30%</span></div><div class="obj" style="cursor:default;align-items:flex-start"><div style="flex:1"><b>Pipelines, Ingestion &amp; Auto Loader</b><div style="font-size:12.5px;color:#5f6b7c;margin-top:2px">Incremental file processing, JSON data streams, schema evolution, cloudFiles options, file notifications, and Lakeflow Connect / Spark Declarative Pipelines (SDP) EXPECT expectations.</div></div><span class="pillbig" style="flex:none">25–30%</span></div><div class="obj" style="cursor:default;align-items:flex-start"><div style="flex:1"><b>Job Orchestration &amp; Workflows</b><div style="font-size:12.5px;color:#5f6b7c;margin-top:2px">DAG task graphs, task dependencies (depends_on, run_if such as ALL_SUCCESS and ALL_DONE), fan-in / fan-out patterns, and operationalizing notebooks with cron triggers or job compute.</div></div><span class="pillbig" style="flex:none">20–25%</span></div><div class="obj" style="cursor:default;align-items:flex-start"><div style="flex:1"><b>Databricks Asset Bundles (DABs) &amp; CI/CD</b><div style="font-size:12.5px;color:#5f6b7c;margin-top:2px">Multi-environment deployments, bundle targets (dev, staging, prod), validation commands (databricks bundle validate), and active-run protections.</div></div><span class="pillbig" style="flex:none">15–20%</span></div><div class="obj" style="cursor:default;align-items:flex-start"><div style="flex:1"><b>Table Maintenance &amp; Optimization</b><div style="font-size:12.5px;color:#5f6b7c;margin-top:2px">Performance tuning, automated optimizations, and predictive optimization / Liquid Clustering configuration.</div></div><span class="pillbig" style="flex:none">5–10%</span></div></div>'+
+    '<div class="card"><div class="kicker">What to expect</div>'+
+      '<div class="obj" style="cursor:default"><div><b>Scenario-based multiple choice.</b> Questions are practical and scenario-driven — often a specific problem or code snippet, asking for the correct configuration, action, or command.</div></div>'+
+      '<div class="obj" style="cursor:default"><div><b>Precise syntax matters.</b> Watch SQL syntax, CLI commands, and API/config properties — distractors often use subtle syntax variations or deprecated parameters.</div></div>'+
+      '<div class="obj" style="cursor:default"><div><b>Modern terminology.</b> Know current Databricks terms — Unity Catalog constructs, Lakeflow features (Jobs, Connect, Spark Declarative Pipelines), and Databricks Asset Bundles.</div></div></div>'+
+    '<div class="card"><div class="kicker">Quick wins to drill</div>'+
+      '<ul class="notes" style="margin:6px 0 0 18px;font-size:14px">'+
+      '<li>Convert between <b>managed</b> and <b>external</b> tables; know what DROP does to each.</li>'+
+      '<li>Build a GRANT chain: <code>USE CATALOG</code> + <code>USE SCHEMA</code> + <code>SELECT</code>; and <code>REVOKE</code>.</li>'+
+      '<li>Auto Loader: <code>cloudFiles</code> options, <b>file notification vs directory listing</b>, schema evolution.</li>'+
+      '<li>Jobs: <code>run_if</code> — <b>ALL_SUCCESS</b> vs <b>ALL_DONE</b> — and <b>Repair Run</b> to resume only failed/downstream tasks.</li>'+
+      '<li>DABs: <code>databricks bundle validate</code> / <code>deploy</code>, targets (dev/staging/prod), active-run protection.</li>'+
+      '<li>Predictive optimization &amp; Liquid Clustering — what they automate.</li></ul></div>'+
+    '<div class="scorebar" style="margin-top:8px"><button class="btn brand" onclick="go(\'exam\')">Try the exam simulator</button> <button class="btn ghost" onclick="go(\'d7\')">Jump to Governance</button></div>';
+}
 function resourcesHTML(){
   return '<h1>Resources</h1><p class="lead">Verified starting points. Always cross-check topics with the official exam guide.</p>'+
    '<div class="card res">'+
@@ -650,18 +1182,10 @@ function openAI(){document.getElementById("aibody").innerHTML=aiBodyHTML();docum
 document.getElementById("aichip").onclick=function(){var p=document.getElementById("aipanel");p.classList.toggle("show");if(p.classList.contains("show"))document.getElementById("aibody").innerHTML=aiBodyHTML();};
 document.getElementById("aiclose").onclick=function(){document.getElementById("aipanel").classList.remove("show");};
 
-/* ============================ LEADERBOARD (pluggable stub) ========== */
-/* Local-only for now: each intern's XP lives in their own browser.
-   To switch on a shared leaderboard later, implement submit()/fetch()
-   against a free backend (e.g. Supabase). See README "Leaderboard". */
-var Leaderboard={
-  provider:"local",
-  submit:function(name,xp){ /* TODO: POST to Supabase table `scores` */ },
-  fetch:function(cb){ cb([{name:state.name||"You",xp:state.xp,me:true}]); }
-};
-
 /* ============================ BOOT ================================== */
 Duck.render();
+Duck.startRoaming();
+checkBadges();
 go(state.view && document.querySelector('#nav a[data-v="'+state.view+'"]') ? state.view : "overview");
 </script>
 </body>

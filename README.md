@@ -1,21 +1,30 @@
 # Databricks DE Associate — Intern Study Hub 🦆
 
 A study app for the **Databricks Certified Data Engineer Associate** exam
-(July 25, 2025 outline). Built on top of the original self-contained study hub,
-now with flashcards, learning games, an AI tutor, and a Feed-the-Duck XP system.
+(**May 4, 2026 outline — 7 domains**). Self-contained study hub with flashcards,
+learning games, an AI tutor, an exam simulator, and a Feed-the-Duck reward system.
 
 ## What's inside
 
-- **Notes + quizzes** for all 5 official sections (unchanged, original content).
-- **Flashcards** — 50 cards derived straight from the section notes, with a
-  spaced-repetition flow (Again / Hard / Good / Easy) and mastery tracking.
+- **Notes + quizzes** for all **7 official domains** (Platform; Ingestion &
+  Loading; Transformation & Modeling; Lakeflow Jobs; CI/CD; Troubleshooting &
+  Optimization; Governance & Security) — original content grounded in the outline.
+- **Flashcards** — derived from the domain notes, with spaced repetition
+  (Again / Hard / Good / Easy) and mastery tracking.
+- **Exam simulator** — timed 45-question / 90-minute mock, ~70% pass mark, with a
+  per-domain score breakdown. Missed questions flow into Review.
+- **Review mistakes** — auto-collects every question you've missed so you can drill
+  them; plus a per-domain performance view.
 - **Games**
-  - 🎯 **Jeopardy** — pick a section and point value; answer to bank points.
+  - 🎯 **Jeopardy** — pick a domain and point value; answer to bank points.
   - ⌨️ **Fill the blank / complete the code** — type the missing term or keyword.
-- 🦆 **Feed-the-Duck XP** — every correct answer feeds your duck. It earns XP,
-  levels up (Duckling → Data Duck 👑), and tracks streaks across everything.
-- 🤖 **AI Tutor** — ask anything, grounded in the exam notes; explains any quiz
-  question you got wrong. Says when it's unsure instead of inventing facts.
+- 🦆 **Feed-the-Duck** — correct answers shoot corn into the duck; its belly
+  balloons and it lays an egg when full. Earn XP, streaks, and eggs. A toggle on
+  the Overview parks the duck if you'd rather it not roam.
+- 🎩 **Duck shop** — spend XP on body colours, hats (party/grad/top/crown) and
+  accessories (glasses/sunglasses/moustache).
+- 🤖 **AI Tutor** — ask anything, grounded in the notes; explains a question you
+  missed. Says when it's unsure instead of inventing facts.
 - **Progress saves locally** per intern. A shared leaderboard can be added later
   (see below) without a rewrite.
 
@@ -77,27 +86,51 @@ the official outline) and is instructed to stay within those topics and say when
 it's unsure. Flashcards and fill-in-the-blank answers are derived directly from
 the notes — nothing is invented.
 
-## Turning on a shared leaderboard later
+## Shared leaderboard (Supabase) — how to turn it on
 
-v1 keeps each intern's XP in their own browser. To make it shared and free:
+The **🏆 Leaderboard** page is built and works once you point it at a free
+Supabase project. All interns must use the **same** URL + key to share one board.
 
-1. Create a free **Supabase** project; add a table:
+1. Create a free project at **https://supabase.com**.
+2. In the **SQL editor**, run:
    ```sql
    create table scores (
      name text primary key,
-     xp int not null,
+     xp int default 0,
+     eggs int default 0,
+     correct int default 0,
+     color text,
+     hat text,
+     faces text,
      updated_at timestamptz default now()
    );
+   -- already have the table from before? just add the cosmetics columns:
+   alter table scores add column if not exists color text,
+                      add column if not exists hat text,
+                      add column if not exists faces text;
    alter table scores enable row level security;
-   create policy "anyone upsert" on scores for all using (true) with check (true);
+   create policy "read"   on scores for select using (true);
+   create policy "insert" on scores for insert with check (true);
+   create policy "update" on scores for update using (true) with check (true);
    ```
-2. In `app_template.html`, implement the `Leaderboard.submit()` / `fetch()` stub
-   (search for **"LEADERBOARD (pluggable stub)"**) to upsert/read that table with
-   the Supabase anon key. Call `Leaderboard.submit(state.name, state.xp)` from
-   `Duck.feed`.
+3. In **Project Settings → API**, copy the **Project URL** and the **anon public** key.
+4. Turn it on one of two ways:
+   - **Shared for everyone (recommended):** in `app_template.html`, set
+     `var LEADERBOARD_CFG={ url:"https://xxxx.supabase.co", key:"<anon key>" };`
+     and commit. Every intern's app then uses it automatically.
+   - **Quick trial:** open the Leaderboard page in the app and paste the URL + key
+     into the settings box (saved in that browser only).
 
-Scores are honor-system (a client key can be read), which is fine for a friendly
-intern competition.
+Each intern sets a **display name** on the Overview; their score is submitted when
+they open the Leaderboard page. The **anon public** key is designed to be exposed
+in client apps — the RLS policies above scope it to just this table. Scores are
+honor-system (fine for a friendly intern competition).
+
+## Achievements / badges
+
+Earned locally and shown on the **🏅 Badges** page — streaks, eggs hatched,
+correct-answer counts, passing a mock, 90%+ in a domain, mastering flashcards,
+exploring all 7 domains, and buying a cosmetic. No setup needed.
 
 ## File map
 

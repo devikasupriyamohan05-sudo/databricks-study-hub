@@ -199,6 +199,7 @@
     </div>
     <nav class="nav" id="nav">
       <a data-v="overview" class="on">Overview <span class="pct"></span></a>
+      <a data-v="tips">💡 Exam tips</a>
       <div class="grouplbl">EXAM SECTIONS</div>
       <!-- section links injected -->
       <div class="grouplbl">PRACTICE</div>
@@ -520,6 +521,7 @@ function go(v){
   state.view=v; save(state);
   var V=document.getElementById("view");
   if(v==="overview")V.innerHTML=overviewHTML();
+  else if(v==="tips")V.innerHTML=tipsHTML();
   else if(v==="resources")V.innerHTML=resourcesHTML();
   else if(v==="mock")V.innerHTML=mockHTML();
   else if(v==="review")V.innerHTML=reviewHTML();
@@ -1112,6 +1114,25 @@ function renderFillblank(){
 }
 
 /* ============================ RESOURCES ============================= */
+function tipsHTML(){
+  return '<h1>💡 Exam tips</h1>'+
+    '<p class="lead">Notes shared by an analyst right after sitting the exam — use this to focus your prep. (Weightings are an approximate impression, not official.)</p>'+
+    '<div class="note">These are study-focus notes and <b>original</b> practice pointers — not actual exam questions. Study the concepts, not memorised items.</div>'+
+    '<div class="card"><div class="kicker">Where the questions concentrated</div><div class="obj" style="cursor:default;align-items:flex-start"><div style="flex:1"><b>Unity Catalog &amp; Governance</b><div style="font-size:12.5px;color:#5f6b7c;margin-top:2px">Managing permissions, converting external → managed tables, schema- and object-level privileges (USE CATALOG, USE SCHEMA, SELECT, REVOKE), and compute access modes.</div></div><span class="pillbig" style="flex:none">25–30%</span></div><div class="obj" style="cursor:default;align-items:flex-start"><div style="flex:1"><b>Pipelines, Ingestion &amp; Auto Loader</b><div style="font-size:12.5px;color:#5f6b7c;margin-top:2px">Incremental file processing, JSON data streams, schema evolution, cloudFiles options, file notifications, and Lakeflow Connect / Spark Declarative Pipelines (SDP) EXPECT expectations.</div></div><span class="pillbig" style="flex:none">25–30%</span></div><div class="obj" style="cursor:default;align-items:flex-start"><div style="flex:1"><b>Job Orchestration &amp; Workflows</b><div style="font-size:12.5px;color:#5f6b7c;margin-top:2px">DAG task graphs, task dependencies (depends_on, run_if such as ALL_SUCCESS and ALL_DONE), fan-in / fan-out patterns, and operationalizing notebooks with cron triggers or job compute.</div></div><span class="pillbig" style="flex:none">20–25%</span></div><div class="obj" style="cursor:default;align-items:flex-start"><div style="flex:1"><b>Databricks Asset Bundles (DABs) &amp; CI/CD</b><div style="font-size:12.5px;color:#5f6b7c;margin-top:2px">Multi-environment deployments, bundle targets (dev, staging, prod), validation commands (databricks bundle validate), and active-run protections.</div></div><span class="pillbig" style="flex:none">15–20%</span></div><div class="obj" style="cursor:default;align-items:flex-start"><div style="flex:1"><b>Table Maintenance &amp; Optimization</b><div style="font-size:12.5px;color:#5f6b7c;margin-top:2px">Performance tuning, automated optimizations, and predictive optimization / Liquid Clustering configuration.</div></div><span class="pillbig" style="flex:none">5–10%</span></div></div>'+
+    '<div class="card"><div class="kicker">What to expect</div>'+
+      '<div class="obj" style="cursor:default"><div><b>Scenario-based multiple choice.</b> Questions are practical and scenario-driven — often a specific problem or code snippet, asking for the correct configuration, action, or command.</div></div>'+
+      '<div class="obj" style="cursor:default"><div><b>Precise syntax matters.</b> Watch SQL syntax, CLI commands, and API/config properties — distractors often use subtle syntax variations or deprecated parameters.</div></div>'+
+      '<div class="obj" style="cursor:default"><div><b>Modern terminology.</b> Know current Databricks terms — Unity Catalog constructs, Lakeflow features (Jobs, Connect, Spark Declarative Pipelines), and Databricks Asset Bundles.</div></div></div>'+
+    '<div class="card"><div class="kicker">Quick wins to drill</div>'+
+      '<ul class="notes" style="margin:6px 0 0 18px;font-size:14px">'+
+      '<li>Convert between <b>managed</b> and <b>external</b> tables; know what DROP does to each.</li>'+
+      '<li>Build a GRANT chain: <code>USE CATALOG</code> + <code>USE SCHEMA</code> + <code>SELECT</code>; and <code>REVOKE</code>.</li>'+
+      '<li>Auto Loader: <code>cloudFiles</code> options, <b>file notification vs directory listing</b>, schema evolution.</li>'+
+      '<li>Jobs: <code>run_if</code> — <b>ALL_SUCCESS</b> vs <b>ALL_DONE</b> — and <b>Repair Run</b> to resume only failed/downstream tasks.</li>'+
+      '<li>DABs: <code>databricks bundle validate</code> / <code>deploy</code>, targets (dev/staging/prod), active-run protection.</li>'+
+      '<li>Predictive optimization &amp; Liquid Clustering — what they automate.</li></ul></div>'+
+    '<div class="scorebar" style="margin-top:8px"><button class="btn brand" onclick="go(\'exam\')">Try the exam simulator</button> <button class="btn ghost" onclick="go(\'d7\')">Jump to Governance</button></div>';
+}
 function resourcesHTML(){
   return '<h1>Resources</h1><p class="lead">Verified starting points. Always cross-check topics with the official exam guide.</p>'+
    '<div class="card res">'+
