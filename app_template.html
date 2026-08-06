@@ -557,7 +557,7 @@ function overviewHTML(){
         '<input type="checkbox" id="roamChk" '+(state.duckRoam?'checked':'')+' style="width:16px;height:16px;accent-color:var(--brand)" onchange="setDuckRoam(this.checked)">'+
         'Let the duck waddle around the screen <span style="color:#5f6b7c">(uncheck to park it)</span></label></div>'+
     '<div class="facts">'+facts+'</div>'+
-    '<div class="note">*The pass mark isn\'t officially published; ~70% is a safe target. The exam is 45 scored multiple-choice questions in 90 minutes ('+esc(EXAM.meta.outlineVersion)+' version).</div>'+
+    '<div class="note">*Plan to score about 80% to pass. The exam shows roughly 55 questions in 90 minutes, but only ~45 are scored (the rest are unscored/pilot items). ('+esc(EXAM.meta.outlineVersion)+' version).</div>'+
     '<div class="card"><div class="kicker">Your duck &amp; progress</div>'+
       '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin:10px 0 4px">'+
       '<div style="font-size:42px">'+L.emoji+'</div>'+
@@ -842,7 +842,7 @@ function submitExam(){
     if(ok && firstSolve(p.s+"#"+p.qi)) newXP+=8;
     recordAnswer(p.s, p.qi, ok); });
   var pct=Math.round(correct/examQ.length*100);
-  examScore={correct:correct,total:examQ.length,pct:pct,pass:pct>=70,by:by};
+  examScore={correct:correct,total:examQ.length,pct:pct,pass:pct>=80,by:by};
   state.xp+=newXP; state.xpEarned+=newXP; if(pct>state.bestExamPct)state.bestExamPct=pct;
   save(state); Duck.render(); checkBadges();
   toast((examScore.pass?"✅ Passed":"❌ Keep going")+" — "+pct+"%  (+"+newXP+" XP)");
@@ -851,19 +851,19 @@ function submitExam(){
 function examResultCard(){
   var s=examScore, rows=EXAM.sections.map(function(sec){var b=s.by[sec.id]; if(!b)return "";
     var p=Math.round(b.c/b.t*100);
-    return '<div style="display:flex;justify-content:space-between;padding:5px 0;border-top:1px solid var(--line);font-size:13px"><span>'+esc(sec.title)+'</span><b style="color:'+(p>=70?'var(--ok)':'var(--red)')+'">'+b.c+'/'+b.t+' ('+p+'%)</b></div>';
+    return '<div style="display:flex;justify-content:space-between;padding:5px 0;border-top:1px solid var(--line);font-size:13px"><span>'+esc(sec.title)+'</span><b style="color:'+(p>=80?'var(--ok)':'var(--red)')+'">'+b.c+'/'+b.t+' ('+p+'%)</b></div>';
   }).join("");
   return '<div class="card" style="border-color:'+(s.pass?'#9fdcbb':'#f2b9b1')+';background:'+(s.pass?'var(--okbg)':'var(--redbg)')+'">'+
     '<div style="font-size:22px;font-weight:900;color:'+(s.pass?'var(--ok)':'var(--red)')+'">'+(s.pass?'✅ Pass':'❌ Not yet')+' — '+s.pct+'%</div>'+
-    '<div style="font-size:13px;color:var(--ink)">'+s.correct+' / '+s.total+' correct · pass mark ~70% · missed ones are now in <b>Review mistakes</b></div>'+
+    '<div style="font-size:13px;color:var(--ink)">'+s.correct+' / '+s.total+' correct · pass mark ~80% · missed ones are now in <b>Review mistakes</b></div>'+
     '<div style="margin-top:8px">'+rows+'</div>'+
     '<button class="btn brand" style="margin-top:12px" onclick="startExam()">New exam</button> <button class="btn ghost" onclick="go(\'review\')">Review mistakes</button> <button class="btn ghost" onclick="clearAllSolved();save(state);toast(\'Quiz XP reset\');startExam()">\ud83d\udd04 Reset quiz</button></div>';
 }
 function renderExam(){
   setNav("exam");
   var V=document.getElementById("view");
-  if(!examQ){ V.innerHTML='<h1>📝 Exam simulator</h1><p class="lead">A timed practice exam: '+examSize()+' questions, 90 minutes, pass mark ~70%. Answers are hidden until you submit, then you get a score and a per-domain breakdown. Missed questions go to Review mistakes.</p>'+
-    '<div class="card"><p>The real exam is 45 scored multiple-choice questions in 90 minutes.</p><button class="btn brand" onclick="startExam()">Start exam</button></div>'+domainPerfCard(); return; }
+  if(!examQ){ V.innerHTML='<h1>📝 Exam simulator</h1><p class="lead">A timed practice exam: '+examSize()+' scored-style questions, 90 minutes, ~80% to pass. Answers are hidden until you submit, then you get a score and a per-domain breakdown. Missed questions go to Review mistakes.</p>'+
+    '<div class="card"><p>The real exam shows about 55 questions in 90 minutes, but only ~45 are scored \u2014 aim for ~80%.</p><button class="btn brand" onclick="startExam()">Start exam</button></div>'+domainPerfCard(); return; }
   var body=examQ.map(function(p,i){
     var q=p.q;
     var opts=q.opts.map(function(o,oi){var cls="opt"; if(!examDone&&examSel[i]===oi)cls+=" sel";
@@ -950,7 +950,7 @@ var BADGES=[
  {id:"egg5",i:"🐣",n:"Duck Farmer",d:"Hatch 5 ducklings",t:function(){return state.ducksHatched>=5;}},
  {id:"xp500",i:"⭐",n:"Rising Star",d:"Earn 500 XP (lifetime)",t:function(){return state.xpEarned>=500;}},
  {id:"xp1500",i:"🌟",n:"XP Machine",d:"Earn 1500 XP (lifetime)",t:function(){return state.xpEarned>=1500;}},
- {id:"exampass",i:"🎓",n:"Mock Master",d:"Score 70%+ on the exam simulator",t:function(){return state.bestExamPct>=70;}},
+ {id:"exampass",i:"🎓",n:"Mock Master",d:"Score 80%+ on the exam simulator",t:function(){return state.bestExamPct>=80;}},
  {id:"domain",i:"🧠",n:"Domain Master",d:"Hit 90%+ in a domain (min 8 answers)",t:function(){return Object.keys(state.perf).some(function(k){var p=state.perf[k];return p.t>=8&&p.c/p.t>=0.9;});}},
  {id:"cards20",i:"🃏",n:"Card Sharp",d:"Master 20 flashcards",t:function(){return cardsLearned()>=20;}},
  {id:"explorer",i:"🗺️",n:"Explorer",d:"Answer a question in all 7 domains",t:function(){return Object.keys(state.perf).length>=EXAM.sections.length;}},
